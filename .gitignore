@@ -1,0 +1,35 @@
+# === Global System Files ===
+.DS_Store
+Thumbs.db
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# === Node & Package Managers ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store
+
+# === SvelteKit (Applies to all sub-apps) ===
+.svelte-kit/
+build/
+.vercel/
+.netlify/
+
+# === Environment Variables (CRITICAL) ===
+# This ignores .env in root AND in any subfolder
+.env
+.env.*
+!.env.example
+!.env.test
+
+# === Supabase (If you run it locally) ===
+supabase/functions/*/deno.lock
+supabase/.temp/
+
+# === Turbo Repo ===
+.turbo/

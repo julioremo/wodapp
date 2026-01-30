@@ -1,0 +1,139 @@
+/* @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;500;700&family=Permanent+Marker&display=swap'); */
+
+@import "tailwindcss";
+
+/* 1. Configure the Theme (Replaces tailwind.config.js) */
+@theme {
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+  --font-marker: "Permanent Marker", cursive;
+
+  /* Border Widths (For that 'Pen Stroke' feel) */
+  --border-width-3: 3px;
+
+  /* Color Mapping (Linking Tailwind utilities to CSS vars) */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  /* Border Radius (Paper look) */
+  --radius: 0rem;
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* 2. Define the Variables (The "Raw Lab Journal" Palette) */
+@layer base {
+  :root {
+    /* Base: Warm Paper (#FDFBF7) */
+    --background: hsl(40 33% 98%);
+    /* Text: Charcoal Ink (#1F2937) */
+    --foreground: hsl(215 28% 17%);
+
+    /* Cards: Pure White */
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(215 28% 17%);
+
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(215 28% 17%);
+
+    /* Primary: The Black Pen */
+    --primary: hsl(215 28% 17%);
+    --primary-foreground: hsl(40 33% 98%);
+
+    /* Secondary: Cyan Highlighter (Science) */
+    --secondary: hsl(191 94% 43%);
+    --secondary-foreground: hsl(0 0% 100%);
+
+    /* Accent: Green Highlighter (Skill) */
+    --accent: hsl(137 27% 50%);
+    --accent-foreground: hsl(0 0% 100%);
+
+    /* Destructive: Red Marker (Aggression) */
+    --destructive: hsl(11 52% 52%);
+    --destructive-foreground: hsl(0 0% 100%);
+
+    /* Muted: Faded Ink */
+    --muted: hsl(215 20% 90%);
+    --muted-foreground: hsl(215 20% 45%);
+
+    /* Borders */
+    --border: hsl(215 28% 17%);
+    --input: hsl(215 28% 17%);
+    --ring: hsl(215 28% 17%);
+
+    --radius: 0rem;
+  }
+
+  .dark {
+    /* Blueprint Mode */
+    --background: hsl(215 28% 10%);
+    --foreground: hsl(40 33% 98%);
+
+    --card: hsl(215 28% 13%);
+    --card-foreground: hsl(40 33% 98%);
+
+    --popover: hsl(215 28% 13%);
+    --popover-foreground: hsl(40 33% 98%);
+
+    --primary: hsl(40 33% 98%);
+    --primary-foreground: hsl(215 28% 17%);
+
+    --secondary: hsl(191 94% 43%);
+    --secondary-foreground: hsl(215 28% 17%);
+
+    --accent: hsl(137 27% 50%);
+    --accent-foreground: hsl(215 28% 17%);
+
+    --destructive: hsl(11 52% 60%);
+    --destructive-foreground: hsl(0 0% 100%);
+
+    --muted: hsl(215 20% 25%);
+    --muted-foreground: hsl(215 20% 65%);
+
+    --border: hsl(215 20% 30%);
+    --input: hsl(215 20% 30%);
+    --ring: hsl(215 20% 50%);
+  }
+}
+
+/* 3. Global Styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* The "Sketch" line utility */
+  .sketch-line {
+      stroke-linecap: round;
+      stroke-linejoin: round;
+  }
+}

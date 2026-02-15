@@ -30,10 +30,10 @@
   );
 
   const colorStyles: Record<string, string> = {
-    blue: "bg-blue text-white hover:bg-blue-600",
-    red: "bg-red text-white hover:bg-red-600",
-    purple: "bg-purple text-white hover:bg-purple-600",
-    green: "bg-green text-white hover:bg-green-600"
+    blue: "bg-paper text-charcoal border-l-6 border-l-blue hover:bg-blue hover:text-white",
+    red: "bg-paper text-charcoal border-l-6 border-l-red hover:bg-red hover:text-white",
+    purple: "bg-paper text-charcoal border-l-6 border-l-purple hover:bg-purple hover:text-white",
+    green: "bg-paper text-charcoal border-l-6 border-l-green hover:bg-green hover:text-white"
   };
 
   let classColor = $derived(CLASS_TYPE_COLORS[session.class_type] || DEFAULT_CLASS_COLOR);
@@ -56,9 +56,9 @@
     {style}
   >
     <div class="flex justify-between items-start leading-none mb-0.5">
-      <div class="font-bold uppercase truncate text-[13px]">
+      <h1 class="font-bold uppercase truncate text-[13px]">
         {session.class_type}
-      </div>
+      </h1>
 
       <div
         class="flex items-center gap-0.5 font-medium opacity-80 text-[11px]"
@@ -89,8 +89,8 @@
           class="px-1.5 bg-white text-ink rounded-full flex items-center gap-1 font-bold"
           title="Workout not assigned"
         >
-          <!-- <CircleAlert class="h-3 w-3 stroke-3" /> -->
-          !
+          <CircleAlert class="h-3 w-3 fill-yellow" />
+          <!-- ! -->
           <!-- <div class="text-nowrap leading-none pr-1 h-3">No workout</div> -->
         </div>
       {/if}

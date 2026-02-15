@@ -81,6 +81,7 @@ export type Database = {
       classes: {
         Row: {
           capacity: number | null
+          class_type: string
           coach_id: string | null
           created_at: string | null
           end_time: string
@@ -91,6 +92,7 @@ export type Database = {
         }
         Insert: {
           capacity?: number | null
+          class_type: string
           coach_id?: string | null
           created_at?: string | null
           end_time: string
@@ -101,6 +103,7 @@ export type Database = {
         }
         Update: {
           capacity?: number | null
+          class_type: string
           coach_id?: string | null
           created_at?: string | null
           end_time?: string

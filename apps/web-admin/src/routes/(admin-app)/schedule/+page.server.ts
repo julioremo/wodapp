@@ -1,48 +1,71 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from "@sveltejs/kit";
+import { superValidate } from "sveltekit-superforms";
+import { zod4 } from "sveltekit-superforms/adapters";
+import { editClassSchema } from "$lib/schemas/schedule";
 
-export const load = async ({ locals, url }) => {
-  const today = new Date().toISOString();
+export const load = async ({ locals }) => {
+  const today = new Date();
+  const startBuffer = new Date(today);
+  const endBuffer = new Date(today);
 
-  // 1. Fetch "Problem Classes" (Tasks)
-  // Logic: Future classes where coach OR workout is null
-  const { data: tasks } = await locals.supabase
-    .from('classes')
-    .select('*, workout:workouts(title), coach:profiles(full_name)')
-    .eq('location_id', locals.location.id)
-    .gt('start_time', today)
-    .or('coach_id.is.null,workout_id.is.null') // Supabase specific syntax
-    .order('start_time', { ascending: true })
-    .limit(5);
+  // Load 1 month back and 3 months forward
+  startBuffer.setMonth(today.getMonth() - 1);
+  endBuffer.setMonth(today.getMonth() + 3);
 
-  // 2. Fetch Weekly Schedule (Calendar)
-  // For MVP, we just grab "This Week". Later we can parse ?week=... from URL
-  const startOfWeek = new Date(); // Calculate real Monday here if desired
-  startOfWeek.setHours(0,0,0,0);
-  
-  const { data: schedule } = await locals.supabase
-    .from('classes')
-    .select('*, workout:workouts(title), coach:profiles(full_name)')
-    .eq('location_id', locals.location.id)
-    .gte('start_time', startOfWeek.toISOString())
-    .order('start_time', { ascending: true });
+  const editForm = await superValidate(zod4(editClassSchema));
 
-  return { tasks: tasks ?? [], schedule: schedule ?? [] };
+  const { data: classes } = await locals.supabase
+    .from("classes")
+    .select("*, workout:workouts(title), coach:profiles(full_name)")
+    .eq("location_id", locals.location?.id)
+    .gte("start_time", startBuffer.toISOString())
+    .lt("start_time", endBuffer.toISOString())
+    .order("start_time", { ascending: true });
+
+  return {
+    editForm,
+    classes: classes ?? []
+  };
 };
 
 export const actions = {
-  delete: async ({ request }) => {
-    const formData = await request.formData();
-    const classId = formData.get('classId') as string;
+  updateClass: async ({ request, locals }) => {
+    const form = await superValidate(request, zod4(editClassSchema));
+    if (!form.valid) return fail(400, { form });
 
-    if (!classId) return fail(400, { error: 'Class ID missing' });
+    const startDateTime = new Date(`${form.data.date}T${form.data.time}`);
+    const endDateTime = new Date(startDateTime.getTime() + form.data.duration * 60000);
+
+    // If the select passes "unassigned" string, convert to null for DB
+    const coachId = form.data.coach_id === "Unassigned" ? null : form.data.coach_id;
+    const workoutId = form.data.workout_id === "Unassigned" ? null : form.data.workout_id;
 
     const { error } = await locals.supabase
-      .from('classes')
-      .delete()
-      .eq('id', classId);
+      .from("classes")
+      .update({
+        start_time: startDateTime.toISOString(),
+        end_time: endDateTime.toISOString(),
+        class_type: form.data.class_type,
+        coach_id: coachId,
+        workout_id: workoutId,
+        capacity: form.data.capacity
+      })
+      .eq("id", form.data.id);
 
-    if (error) return fail(500, { error: error.message });
+    if (error) return fail(500, { form, message: error.message });
 
-    return { success: true };
+    return { form };
+  },
+
+  deleteClass: async ({ request, locals }) => {
+    const form = await superValidate(request, zod4(editClassSchema));
+
+    if (!form.valid) return fail(400, { message: "Invalid Class ID" });
+
+    const { error } = await locals.supabase.from("classes").delete().eq("id", form.data.id);
+
+    if (error) return fail(500, { message: error.message });
+
+    return { form, deleted: true };
   }
 };

@@ -1,10 +1,11 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
+  import { PasswordInput } from "$lib/components/ui/password-input";
   import { Label } from "$lib/components/ui/label";
   import * as Card from "$lib/components/ui/card";
   import * as Tabs from "$lib/components/ui/tabs";
-  import { enhance } from '$app/forms';
+  import { enhance } from "$app/forms";
 
   let { form } = $props();
 </script>
@@ -30,10 +31,15 @@
             </div>
             <div class="space-y-2">
               <Label for="password">Password</Label>
-              <Input id="password" name="password" type="password" autocomplete="current-password" required />
+              <PasswordInput
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                required
+              />
             </div>
             {#if form?.error && !form?.isSignupError}
-               <p class="text-sm text-destructive">{form.error}</p>
+              <p class="text-sm text-destructive">{form.error}</p>
             {/if}
             <Button type="submit" class="w-full">Login</Button>
           </form>
@@ -55,11 +61,16 @@
             </div>
             <div class="space-y-2">
               <Label for="su_password">Password</Label>
-              <Input id="su_password" name="password" type="password" autocomplete="new-password" required />
+              <PasswordInput
+                id="su_password"
+                name="password"
+                autocomplete="new-password"
+                required
+              />
             </div>
 
             {#if form?.error && form?.isSignupError}
-               <p class="text-sm text-destructive">{form.error}</p>
+              <p class="text-sm text-destructive">{form.error}</p>
             {/if}
             <Button type="submit" class="w-full">Create Admin Account</Button>
           </form>

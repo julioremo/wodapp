@@ -1,14 +1,24 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
+  import { enhance } from "$app/forms";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import * as Card from "$lib/components/ui/card";
   import * as Table from "$lib/components/ui/table";
   import { Badge } from "$lib/components/ui/badge";
-
+  import PageShell from "$lib/components/admin/PageShell.svelte";
   let { data, form } = $props();
 </script>
+
+<!-- <PageShell title="Members">
+    {#snippet controls()}
+        <Button>
+            <Plus class="mr-2 h-4 w-4" /> Add Member
+        </Button>
+    {/snippet}
+
+    <DataTable data={data.members} />
+</PageShell> -->
 
 <div class="space-y-6">
   <div class="flex items-center justify-between">
@@ -53,20 +63,20 @@
           {#each data.members as member}
             <Table.Row>
               <Table.Cell class="font-medium">
-                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs">
-                        {member.profile?.full_name?.[0] || '?'}
-                    </div>
-                    {member.profile?.full_name || 'Unknown'}
-                 </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs">
+                    {member.profile?.full_name?.[0] || "?"}
+                  </div>
+                  {member.profile?.full_name || "Unknown"}
+                </div>
               </Table.Cell>
               <Table.Cell>
-                {#if member.status === 'active'}
-                    <Badge variant="default" class="bg-green-600 hover:bg-green-700">Active</Badge>
-                {:else if member.status === 'pending'}
-                    <Badge variant="outline" class="text-amber-600 border-amber-200">Pending</Badge>
+                {#if member.status === "active"}
+                  <Badge variant="default" class="bg-green-600 hover:bg-green-700">Active</Badge>
+                {:else if member.status === "pending"}
+                  <Badge variant="outline" class="text-amber-600 border-amber-200">Pending</Badge>
                 {:else}
-                    <Badge variant="destructive">Rejected</Badge>
+                  <Badge variant="destructive">Rejected</Badge>
                 {/if}
               </Table.Cell>
               <Table.Cell class="capitalize">{member.role}</Table.Cell>

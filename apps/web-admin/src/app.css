@@ -1,11 +1,11 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;500;700&family=Permanent+Marker&display=swap");
 @import "tailwindcss";
-
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.625rem;
+  --radius: 2px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -74,10 +74,6 @@
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -109,6 +105,132 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 4px;
+  --radius-xl: 8px;
+
+  --text-xxs: 0.6875rem;
+  --text-xxxs: 0.625rem;
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-marker: "Permanent Marker", cursive;
+
+  --color-paper: oklch(98.607% 0.00341 67.784);
+  --color-paper-50: oklch(100% 0 none);
+  --color-paper-100: oklch(98.607% 0.00341 67.784);
+  --color-paper-200: oklch(91.226% 0.02069 81.779);
+  --color-paper-300: oklch(83.943% 0.0392 85.337);
+  --color-paper-400: oklch(76.341% 0.05828 85.489);
+  --color-paper-500: oklch(68.669% 0.07564 84.847);
+  --color-paper-600: oklch(59.076% 0.07307 84.166);
+  --color-paper-700: oklch(48.008% 0.05708 83.819);
+  --color-paper-800: oklch(35.877% 0.03987 83.026);
+  --color-paper-900: oklch(22.997% 0.02182 82.294);
+  --color-paper-950: oklch(15.962% 0.01086 89.257);
+
+  --color-ink: oklch(27.808% 0.0296 256.85);
+  --color-ink-50: oklch(80.93% 0.03096 256.03);
+  --color-ink-100: oklch(77.424% 0.03616 256.36);
+  --color-ink-200: oklch(70.605% 0.04876 256.5);
+  --color-ink-300: oklch(63.42% 0.06159 257.46);
+  --color-ink-400: oklch(56.358% 0.07237 257.08);
+  --color-ink-500: oklch(49.756% 0.06243 256.25);
+  --color-ink-600: oklch(42.752% 0.05255 257.94);
+  --color-ink-700: oklch(35.63% 0.04169 256.86);
+  --color-ink-800: oklch(27.808% 0.0296 256.85);
+  --color-ink-900: oklch(16.653% 0.01236 254.17);
+  --color-ink-950: oklch(6.9239% 0.008 284.11);
+
+  --color-blue: oklch(71.924% 0.13256 226.75);
+  --color-blue-50: oklch(97.106% 0.01332 214.36);
+  --color-blue-100: oklch(94.141% 0.02711 211.06);
+  --color-blue-200: oklch(87.884% 0.054 214.04);
+  --color-blue-300: oklch(81.567% 0.0794 216.55);
+  --color-blue-400: oklch(75.325% 0.09983 219.19);
+  --color-blue-500: oklch(69.022% 0.11604 224.71);
+  --color-blue-600: oklch(60.934% 0.10565 227.16);
+  --color-blue-700: oklch(52.469% 0.09029 227.83);
+  --color-blue-800: oklch(43.703% 0.07512 229.92);
+  --color-blue-900: oklch(34.395% 0.05855 231.89);
+  --color-blue-950: oklch(30.005% 0.049 231.5);
+
+  --color-green: oklch(70.56% 0.17091 148.19);
+  --color-green-50: oklch(96.418% 0.01421 148.78);
+  --color-green-100: oklch(92.958% 0.02596 150.77);
+  --color-green-200: oklch(86.212% 0.05256 150.27);
+  --color-green-300: oklch(79.687% 0.0809 150.6);
+  --color-green-400: oklch(73.115% 0.1056 150.4);
+  --color-green-500: oklch(66.496% 0.12588 149.86);
+  --color-green-600: oklch(58.622% 0.10834 150.16);
+  --color-green-700: oklch(50.769% 0.09061 150.98);
+  --color-green-800: oklch(42.246% 0.07205 152.29);
+  --color-green-900: oklch(33.596% 0.05452 152.58);
+  --color-green-950: oklch(28.774% 0.04349 152.22);
+
+  --color-red: oklch(64.009% 0.19752 26.496);
+  --color-red-50: oklch(98.789% 0.00448 34.309);
+  --color-red-100: oklch(94.507% 0.01972 21.363);
+  --color-red-200: oklch(86.117% 0.05386 19.678);
+  --color-red-300: oklch(78.015% 0.08873 21.869);
+  --color-red-400: oklch(70.465% 0.12672 23.155);
+  --color-red-500: oklch(63.526% 0.16542 25.114);
+  --color-red-600: oklch(59.031% 0.18991 26.998);
+  --color-red-700: oklch(54.325% 0.18942 27.858);
+  --color-red-800: oklch(48.414% 0.16727 27.715);
+  --color-red-900: oklch(42.605% 0.1445 27.832);
+  --color-red-950: oklch(39.544% 0.13349 27.127);
+
+  --color-orange: oklch(68.745% 0.14832 54.792);
+  --color-orange-50: oklch(92.585% 0.03415 61.69);
+  --color-orange-100: oklch(89.577% 0.04728 59.885);
+  --color-orange-200: oklch(84.04% 0.07313 59.773);
+  --color-orange-300: oklch(78.741% 0.09991 58.656);
+  --color-orange-400: oklch(73.529% 0.12543 57.747);
+  --color-orange-500: oklch(68.745% 0.14832 54.792);
+  --color-orange-600: oklch(59.21% 0.13705 53.389);
+  --color-orange-700: oklch(47.643% 0.10776 54.021);
+  --color-orange-800: oklch(35.492% 0.07686 54.025);
+  --color-orange-900: oklch(22.243% 0.04098 59.262);
+  --color-orange-950: oklch(14.868% 0.02149 66.264);
+
+  --color-yellow: oklch(80.388% 0.14271 97.677);
+  --color-yellow-50: oklch(99.425% 0.00285 84.559);
+  --color-yellow-100: oklch(96.894% 0.01744 96.102);
+  --color-yellow-200: oklch(91.927% 0.0468 96.538);
+  --color-yellow-300: oklch(87.116% 0.07618 98.672);
+  --color-yellow-400: oklch(82.242% 0.10242 98.294);
+  --color-yellow-500: oklch(77.35% 0.12399 98.285);
+  --color-yellow-600: oklch(75.248% 0.1321 98.052);
+  --color-yellow-700: oklch(70.805% 0.12522 97.811);
+  --color-yellow-800: oklch(65.895% 0.11589 97.853);
+  --color-yellow-900: oklch(60.884% 0.1071 98);
+  --color-yellow-950: oklch(58.186% 0.10143 97.92);
+
+  --color-purple: oklch(64.738% 0.15723 315.19);
+  --color-purple-50: oklch(100% 0 none);
+  --color-purple-100: oklch(96.699% 0.01065 316.49);
+  --color-purple-200: oklch(88.898% 0.03889 316.6);
+  --color-purple-300: oklch(81.046% 0.06824 316.52);
+  --color-purple-400: oklch(73.263% 0.09626 315.54);
+  --color-purple-500: oklch(65.435% 0.12698 315.49);
+  --color-purple-600: oklch(59.217% 0.15151 314.88);
+  --color-purple-700: oklch(53.355% 0.16218 314.93);
+  --color-purple-800: oklch(47.651% 0.14341 314.89);
+  --color-purple-900: oklch(41.926% 0.12231 314.68);
+  --color-purple-950: oklch(38.869% 0.11279 315.37);
+
+  --color-vapor: "#F8F8F7";
+  --color-grey: "#A19FA3";
+  --color-charcoal: "#323036";
+  /* --color-red: "#EC4C46"; */
+  /* --color-orange: "#EBAD6F"; */
+  /* --color-yellow: "#ECD355"; */
+  /* --color-blue: "#2EBFEF"; */
+  /* --color-purple: "#C276DD"; */
+  /* --color-green: "#59E37E"; */
 }
 
 @layer base {
@@ -117,5 +239,21 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+html {
+  /* Prevent the "gray highlight" when tapping things on iOS */
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent rubber-banding on the whole page, only allow it in scroll areas */
+  overscroll-behavior-y: none;
+}
+
+/* Ensure the app doesn't zoom in when focusing inputs */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }

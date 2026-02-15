@@ -6,13 +6,26 @@ export const load = async ({ url, parent, locals: { supabase } }) => {
 
     const dateParam = url.searchParams.get('date');
     const targetDate = dateParam ? parseISO(dateParam) : new Date();
-    const weekStart = startOfWeek(targetDate, { weekStartsOn: 1 }); // Monday
+    const weekStart = startOfWeek(targetDate, { weekStartsOn: 1 });
 
     if (!activeLocation) {
         return { classes: [], weekStart };
     }
 
     const weekEnd = endOfWeek(targetDate, { weekStartsOn: 1 });
+
+    const date = url.searchParams.get('date') || new Date().toISOString();
+    const filterType = url.searchParams.get('type'); // 'wod', 'open_gym', etc.
+
+    let query = supabase
+        .from('classes')
+        .select('...')
+        .eq('date', date);
+
+    // Apply Filter Server-Side
+    if (filterType) {
+        query = query.eq('type', filterType);
+    }
 
     const { data: classes, error: dbError } = await supabase
         .from('classes')
@@ -36,7 +49,35 @@ export const load = async ({ url, parent, locals: { supabase } }) => {
         throw error(500, 'Could not fetch schedule.');
     }
 
-    return { classes, weekStart };
+    // 2. Fetch Metadata for Filters (Lightweight queries)
+  
+    // A. Get unique types from last 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    
+    const { data: rawTypes } = await supabase
+        .from('classes')
+        .select('class_type')
+        //.gte('date', sixMonthsAgo.toISOString());
+
+    // Deduplicate and Sort
+    // Result: ['Conditioning', 'Open Gym', 'Weightlifting', 'WOD']
+    const allClassTypes = [...new Set(rawTypes?.map(r => r.class_type))].sort();
+
+    // B. Get Time Boundaries for the current view
+    // (Simplification: We can just use hardcoded gym hours like 06:00 to 22:00 
+    // or calculate min/max from the fetched 'classes' array)
+    // Let's assume standard Gym Hours for the slider bounds:
+    const bounds = { min: 360, max: 1440 }; // 06:00 to 22:00 in minutes
+
+    return { 
+        classes, 
+        weekStart,
+        filterOptions: {
+            allClassTypes,
+            bounds
+        }
+     };
 };
 
 export const actions = {

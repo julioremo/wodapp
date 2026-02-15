@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { Calendar, Dumbbell, Settings } from 'lucide-svelte'; // Icons
+  import { ClipboardClock as Calendar, BicepsFlexed as Dumbbell, UserRoundCog as Settings } from 'lucide-svelte'; // Icons
   
   let { children } = $props();
   // Helper to check active tab

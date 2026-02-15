@@ -11,6 +11,7 @@
   let { classData, userId } = $props();
 
   // 1. Data Parsing
+  const classType = classData.class_type;
   const startTime = new Date(classData.start_time);
   const capacity = classData.capacity;
   // Reactive State for Bookings (Mutable for Optimistic UI)
@@ -63,17 +64,13 @@
   const typeColor = "bg-blue-100 border-blue-200"; // Dynamic based on classData.type
 </script>
 
-<Card.Root class={cn("overflow-hidden transition-all border-l-4 p-0 rounded-none", isBooked ? "border-l-primary bg-primary/5" : "border-l-transparent hover:border-l-muted-foreground/20")}>
+<Card.Root class={cn("overflow-hidden transition-all border-l-4 p-0 rounded", isBooked ? "bg-primary/5 border-l-destructive" : "hover:border-l-destructive")}>
   <div class="flex flex-col p-3 gap-3">
     
     <div class="flex justify-between items-start">
       <div class="space-y-1">
-        <div class="flex items-center gap-2">
-           <h3 class="font-bold leading-none">{classData.name || 'Workout'}</h3>
-           <Badge variant="outline" class={cn("text-[10px] h-4 px-1 text-primary border-primary", !isBooked && "invisible")}>Booked</Badge>
-        </div>
-        
-        <div class="flex items-center gap-2 text-sm text-muted-foreground">
+        <div class="flex items-center gap-3">
+           <h3 class="font-bold leading-none">{classType || 'Workout'}</h3>
            <div class="flex items-center gap-1.5">
              <Avatar.Root class="h-4 w-4">
                 <Avatar.Image src={classData.coach?.avatar_url} alt="Coach" />
@@ -82,6 +79,10 @@
              <span class="text-xs">{classData.coach?.full_name || 'Coach'}</span>
            </div>
         </div>
+        
+        <!-- <div class="flex items-center gap-2 text-sm text-muted-foreground">
+           <Badge variant="outline" class={cn("text-[10px] h-4 px-1 text-primary border-primary", !isBooked && "invisible")}>Booked</Badge>
+        </div> -->
       </div>
 
       <div class="text-right">
@@ -93,7 +94,7 @@
 
     <div class="flex justify-between items-end pt-1">
         
-        <div class="flex flex-col gap-1.5">
+        <div class="flex flex-row gap-1.5">
              <div class="flex -space-x-2 overflow-hidden pl-1">
                 {#each bookings.slice(0, 6) as booking (booking.id || booking.profile_id)}
                     <Avatar.Root class="h-6 w-6 border-2 border-background ring-1 ring-muted">
@@ -110,7 +111,7 @@
 
             <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                 <span class={spotsLeft === 0 ? "text-destructive" : ""}>
-                    {bookedCount}/{capacity} spots
+                    {bookedCount}/{capacity}
                 </span>
                 {#if spotsLeft <= 3 && spotsLeft > 0}
                     <span class="flex items-center gap-0.5 text-amber-600 animate-pulse">

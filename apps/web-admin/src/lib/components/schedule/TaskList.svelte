@@ -9,11 +9,11 @@
   // This automatically updates if 'classes' changes (e.g. next week)
   let tasks = $derived.by(() => {
     const missingCoach = classes.filter((c) => !c.coach_id);
-    const missingWorkout = classes.filter((c) => !c.workout_id);
+    const missingprogram = classes.filter((c) => !c.program_id);
 
     return [
       ...missingCoach.map((c) => ({ type: "coach", ...c })),
-      ...missingWorkout.map((c) => ({ type: "workout", ...c }))
+      ...missingprogram.map((c) => ({ type: "program", ...c }))
     ];
   });
 </script>
@@ -48,15 +48,11 @@
             {#if !task.coach_id}
               <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">Missing Coach</span>
             {/if}
-            {#if !task.workout_id}
-              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded"
-                >Missing WOD</span
-              >
+            {#if !task.program_id}
+              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Missing WOD</span>
             {/if}
           </div>
-          <Button variant="ghost" size="sm" class="h-6" href={`schedule/${task.id}/edit`}
-            >Fix</Button
-          >
+          <Button variant="ghost" size="sm" class="h-6" href={`schedule/${task.id}/edit`}>Fix</Button>
         </div>
       {/each}
     </div>

@@ -10,7 +10,7 @@
   }>();
 </script>
 
-<div class="flex flex-col h-full gap-5 overflow-hidden">
+<div class="flex flex-col h-full gap-5">
   <div class="flex items-center justify-between shrink-0">
     <div>
       <h1 class="text-3xl tracking-tight text-foreground">

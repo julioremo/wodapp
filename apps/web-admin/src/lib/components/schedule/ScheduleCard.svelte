@@ -1,6 +1,7 @@
 <script lang="ts">
+  // COMPONENT CONTRACT: This card is designed to fill 100% of its parent container's width and height. It does NOT control its own positioning or dimensions.
   import * as Popover from "$lib/components/ui/popover";
-  import { TriangleAlert, CircleAlert, Users, FileExclamationPoint as FileWarning, Clock } from "lucide-svelte";
+  import { ClipboardCheck, ClipboardX, TriangleAlert, CircleAlert, Users, Clock } from "lucide-svelte";
   import { cn } from "$lib/utils";
   import { type Snippet } from "svelte";
   import { CLASS_TYPE_COLORS, DEFAULT_CLASS_COLOR } from "$lib/config/schedule";
@@ -26,14 +27,19 @@
     new Date(session.start_time).toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit"
-    })
+    }) +
+      "–" +
+      new Date(session.end_time).toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit"
+      })
   );
 
   const colorStyles: Record<string, string> = {
-    blue: "bg-paper text-charcoal border-l-6 border-l-blue hover:bg-blue hover:text-white",
-    red: "bg-paper text-charcoal border-l-6 border-l-red hover:bg-red hover:text-white",
-    purple: "bg-paper text-charcoal border-l-6 border-l-purple hover:bg-purple hover:text-white",
-    green: "bg-paper text-charcoal border-l-6 border-l-green hover:bg-green hover:text-white"
+    blue: "bg-paper text-charcoal border-l-blue hover:bg-blue hover:text-white",
+    red: "bg-paper text-charcoal border-l-red hover:bg-red hover:text-white",
+    purple: "bg-paper text-charcoal border-l-purple hover:bg-purple hover:text-white",
+    green: "bg-paper text-charcoal border-l-green hover:bg-green hover:text-white"
   };
 
   let classColor = $derived(CLASS_TYPE_COLORS[session.class_type] || DEFAULT_CLASS_COLOR);
@@ -47,9 +53,10 @@
   <Popover.Trigger
     class={cn(
       // Layout & Sizing
-      "flex flex-col justify-between h-full overflow-hidden transition-all text-left",
+      "flex flex-col justify-between h-full w-full overflow-hidden transition-all text-left",
       "rounded-lg p-1.5",
-      "hover:z-20 hover:ring-2 ring-primary/20 hover:shadow-md",
+      "hover:z-20 shadow-sm hover:shadow-md transition-shadow",
+      "border-l-6",
       colorClasses,
       className
     )}
@@ -64,7 +71,7 @@
         class="flex items-center gap-0.5 font-medium opacity-80 text-[11px]"
         title="{attendance} of {session.capacity} spots booked"
       >
-        <Users class="h-3 w-3" />
+        <Users class="h-3 w-3 stroke-2" />
         <span>{attendance}/{session.capacity}</span>
       </div>
     </div>
@@ -82,16 +89,13 @@
         {/if}
       </div>
 
-      {#if session.workout_id}
-        <div>{session.workout_id}</div>
+      {#if session.program_id}
+        <div title="program assigned">
+          <ClipboardCheck class="h-3.5 w-3.5" />
+        </div>
       {:else}
-        <div
-          class="px-1.5 bg-white text-ink rounded-full flex items-center gap-1 font-bold"
-          title="Workout not assigned"
-        >
-          <CircleAlert class="h-3 w-3 fill-yellow" />
-          <!-- ! -->
-          <!-- <div class="text-nowrap leading-none pr-1 h-3">No workout</div> -->
+        <div class="flex items-end gap-1 text-red p-0.5 bg-paper rounded-full" title="program not assigned">
+          <ClipboardX class="h-3.5 w-3.5" />
         </div>
       {/if}
     </div>
@@ -101,7 +105,7 @@
     </div>
   </Popover.Trigger>
 
-  <Popover.Content class="w-80 p-4 rounded" side="right">
+  <Popover.Content class="w-84 p-3 rounded" side="right">
     {@render children(() => (open = false))}
   </Popover.Content>
 </Popover.Root>

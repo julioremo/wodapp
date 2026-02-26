@@ -2,8 +2,11 @@
   import * as Form from "$lib/components/ui/form";
   import * as Select from "$lib/components/ui/select";
   import { Input } from "$lib/components/ui/input";
+  import * as InputGroup from "$lib/components/ui/input-group";
   import { Button } from "$lib/components/ui/button";
+  import { Combobox } from "$lib/components/ui/combobox";
   import { toast } from "svelte-sonner";
+  import { Plus, Trash } from "lucide-svelte";
   import { editClassSchema, type EditClass } from "$lib/schemas/schedule";
   import { type SuperValidated, superForm } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
@@ -14,7 +17,7 @@
     deleteActionUrl,
     coaches = [],
     classTypes = [],
-    workouts = [],
+    programs = [],
     onCancel
   } = $props<{
     data: SuperValidated<EditClass>;
@@ -22,7 +25,7 @@
     deleteActionUrl: string;
     coaches: { id: string; full_name: string }[];
     classTypes: string[];
-    workouts: { id: string; title: string }[];
+    programs: { id: string; title: string }[];
     onCancel: () => void;
   }>();
 
@@ -43,27 +46,40 @@
   // Helpers for Selects (Connects ID <-> Label)
   let selectedCoachLabel = $derived(coaches.find((c) => c.id === $formData.coach_id)?.full_name ?? "Unassigned");
   let selectedTypeLabel = $derived($formData.class_type || "Select type");
-  let selectedWorkoutLabel = $derived(workouts.find((w) => w.id === $formData.workout_id)?.title ?? "Unassigned");
+  let selectedprogramLabel = $derived(programs.find((w) => w.id === $formData.program_id)?.title ?? "Unassigned");
+
+  let programOptions = $derived.by(() => {
+    const named = programs.filter((w) => w.title);
+    named.sort((a, b) => a.title.localeCompare(b.title));
+
+    const unnamed = programs.filter((w) => !w.title);
+    unnamed.sort((a, b) => {
+      // Primary: Type
+      const typeA = a.program_type || "zz"; // push nulls to end
+      const typeB = b.program_type || "zz";
+      if (typeA !== typeB) return typeA.localeCompare(typeB);
+      // Secondary: Date (Newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+    const sorted = [...named, ...unnamed];
+
+    return sorted.map((w) => ({
+      value: w.id,
+      label: w.title || w.slug,
+      type: w.class_type
+    }));
+  });
 </script>
 
-<form method="POST" action={updateActionUrl} use:enhance class="grid gap-4">
+<form method="POST" action={updateActionUrl} use:enhance>
   <input type="hidden" name="id" bind:value={$formData.id} />
 
-  <div class="grid grid-cols-2 gap-4">
-    <Form.Field {form} name="date">
+  <div class="grid grid-cols-6 gap-3">
+    <Form.Field {form} name="class_type" class="col-span-3">
       <Form.Control>
         {#snippet children({ props })}
-          <Form.Label>Date</Form.Label>
-          <Input {...props} type="date" bind:value={$formData.date} />
-        {/snippet}
-      </Form.Control>
-      <Form.FieldErrors />
-    </Form.Field>
-
-    <Form.Field {form} name="class_type">
-      <Form.Control>
-        {#snippet children({ props })}
-          <Form.Label>Class Type</Form.Label>
+          <Form.Label class="text-xs mb-1">Class Type</Form.Label>
           <Select.Root type="single" bind:value={$formData.class_type} name={props.name}>
             <Select.Trigger {...props} class="w-full truncate">{selectedTypeLabel}</Select.Trigger>
             <Select.Content>
@@ -77,32 +93,61 @@
       <Form.FieldErrors />
     </Form.Field>
 
-    <Form.Field {form} name="time">
+    <Form.Field {form} name="capacity" class="col-span-3">
       <Form.Control>
         {#snippet children({ props })}
-          <Form.Label>Start Time</Form.Label>
-          <Input {...props} type="time" bind:value={$formData.time} />
+          <Form.Label class="text-xs mb-1">Capacity</Form.Label>
+          <Input {...props} type="number" bind:value={$formData.capacity} />
         {/snippet}
       </Form.Control>
       <Form.FieldErrors />
     </Form.Field>
 
-    <Form.Field {form} name="duration">
+    <Form.Field {form} name="program_id" class="col-span-6">
       <Form.Control>
         {#snippet children({ props })}
-          <Form.Label>Duration (min)</Form.Label>
-          <Input {...props} type="number" bind:value={$formData.duration} min={10} step={5} />
+          <Form.Label class="text-xs mb-1">program</Form.Label>
+          <div class="w-full flex gap-1">
+            <Combobox
+              {...props}
+              bind:value={$formData.program_id}
+              options={programOptions}
+              placeholder="Select program..."
+              searchPlaceholder="Search programs..."
+            >
+              {#snippet itemSnippet({ option })}
+                <div class="flex flex-col text-left truncate">
+                  <span class="font-medium">{option.label}</span>
+                  {#if option.type}
+                    <span class="text-xs text-muted-foreground">
+                      {option.type}
+                    </span>
+                  {/if}
+                </div>
+              {/snippet}
+            </Combobox>
+
+            <Button
+              variant="secondary"
+              size="md"
+              href={`/programs/new?date=${$formData.date}&type=${$formData.class_type}`}
+              target="_blank"
+              class="grow"
+            >
+              <Plus class="h-4 w-4" /> Add new
+            </Button>
+          </div>
         {/snippet}
       </Form.Control>
       <Form.FieldErrors />
     </Form.Field>
 
-    <Form.Field {form} name="coach_id">
+    <Form.Field {form} name="coach_id" class="col-span-3">
       <Form.Control>
         {#snippet children({ props })}
-          <Form.Label>Coach</Form.Label>
+          <Form.Label class="text-xs mb-1">Coach</Form.Label>
           <Select.Root type="single" bind:value={$formData.coach_id} name={props.name}>
-            <Select.Trigger {...props} class="w-full">{selectedCoachLabel}</Select.Trigger>
+            <Select.Trigger {...props} class="w-full truncate">{selectedCoachLabel}</Select.Trigger>
             <Select.Content>
               <Select.Item value="unassigned" label="Unassigned">
                 <span class="text-muted-foreground italic">Unassigned</span>
@@ -119,18 +164,31 @@
       <Form.FieldErrors />
     </Form.Field>
 
-    <Form.Field {form} name="workout_id">
+    <Form.Field {form} name="date" class="col-span-3">
       <Form.Control>
         {#snippet children({ props })}
-          <Form.Label>WOD</Form.Label>
-          <Select.Root type="single" bind:value={$formData.workout_id} name={props.name}>
-            <Select.Trigger {...props} class="w-full">{selectedWorkoutLabel}</Select.Trigger>
-            <Select.Content>
-              {#each workouts as wod}
-                <Select.Item value={wod.id} label={wod.title}>{wod.title}</Select.Item>
-              {/each}
-            </Select.Content>
-          </Select.Root>
+          <Form.Label class="text-xs mb-1">Date</Form.Label>
+          <Input {...props} type="date" bind:value={$formData.date} />
+        {/snippet}
+      </Form.Control>
+      <Form.FieldErrors />
+    </Form.Field>
+
+    <Form.Field {form} name="time" class="col-span-3">
+      <Form.Control>
+        {#snippet children({ props })}
+          <Form.Label class="text-xs mb-1">Start Time</Form.Label>
+          <Input {...props} type="time" bind:value={$formData.time} />
+        {/snippet}
+      </Form.Control>
+      <Form.FieldErrors />
+    </Form.Field>
+
+    <Form.Field {form} name="duration" class="col-span-3">
+      <Form.Control>
+        {#snippet children({ props })}
+          <Form.Label class="text-xs mb-1">Duration (min)</Form.Label>
+          <Input {...props} type="number" bind:value={$formData.duration} min={10} step={5} />
         {/snippet}
       </Form.Control>
       <Form.FieldErrors />
@@ -148,7 +206,7 @@
         if (!confirm("Sure you want to delete this class?")) e.preventDefault();
       }}
     >
-      Delete Class
+      <Trash class="h-3 w-3" /> Delete Class
     </Button>
 
     <div class="flex gap-1">

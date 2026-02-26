@@ -19,9 +19,11 @@
   let {
     data
   }: {
-    data: { form: SuperValidated<ScheduleForm> };
-    coaches: [];
-    classTypes: [];
+    data: {
+      form: SuperValidated<ScheduleForm>;
+      coaches: { id: string; full_name: string }[];
+      uniqueClassTypes: [];
+    };
   } = $props();
 
   const form = superForm(data.form, {
@@ -257,7 +259,7 @@
         <div class="col-span-3">Coach</div>
         <div class="col-span-1">Capacity</div>
         <div class="col-span-1">Duration (min)</div>
-        <div class="col-span-1"></div>
+        <div class="col-span-1"><!-- + button --></div>
       </div>
 
       <div class="border-t bg-card divide-y">

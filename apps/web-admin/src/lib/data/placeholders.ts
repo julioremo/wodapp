@@ -1,0 +1,72 @@
+export const blockPlaceholders: Record<string, string[]> = {
+  "Warmup": [
+    "# General Flow\n3x 10 air squats, 10 push-ups...",
+    "5 min easy row...",
+    "# Primer\n2x 15 cal ski, 10 band pull-aparts...",
+    "EMOM 6: 10 PVC pass-throughs...",
+    "3 RFT: 200m jog, 10 lunges...",
+    "# Activation\nBanded glute work...",
+    "10 min AMRAP: 5 inchworms, 10 dead bugs...",
+    "Burgener warmup with empty bar...",
+    "# Mobility\nDynamic stretching, focus on hips...",
+    "Partner drill: med ball throws...",
+    "400m run, then 3x 10 strict press...",
+    "# Shoulders\nCrossover symmetry..."
+  ],
+  "Strength": [
+    "# Back Squat\nBuild to a heavy 5RM...",
+    "E2MOM 10: 2 reps @ 80%...",
+    "# Deadlift\n5-5-5-5-5, increasing weight...",
+    "1RM testing day...",
+    "# Push Press\n5x3 @ 75%...",
+    "Front Squat: 3x3 paused (3 sec)...",
+    "# Oly\nSnatch pull + power snatch...",
+    "Find a heavy complex: 1 clean + 2 jerks...",
+    "Strict Pull-ups: 4x max reps...",
+    "# Accessory\nBulgarian split squats 3x10/leg...",
+    "Bench Press: 10-8-6-4-2...",
+    "Overhead Squat drill: 5x5 climbing..."
+  ],
+  "Skill": [
+    "# Double Unders\n10 min practice...",
+    "Handstand walk progressions...",
+    "# Muscle Ups\nDrills on low rings...",
+    "EMOM 10: 1-2 pegboard ascents...",
+    "Kipping mechanics review...",
+    "# Gymnastics\nStrict TTB practice...",
+    "Pistol squat scaling options...",
+    "Rope climb footwork...",
+    "# Barbell\nCycling practice, light weight...",
+    "Butterfly pull-up rhythm...",
+    "Freestanding HS holds...",
+    "Rowing technique: catch and drive..."
+  ],
+  "Metcon": [
+    "# Fran\n21-15-9 Thrusters, Pull-ups",
+    "AMRAP 20\n5 pull-ups, 10 push-ups, 15 squats",
+    "For time:\n50 cal row, 50 thrusters...",
+    "# Heavy Day\n5 RFT: 10 DL, 15 HSPU...",
+    "EMOM 15: 15 wall balls...",
+    "10-9-8-7-6-5-4-3-2-1...",
+    "# Engine\n30 min AMRAP: 1k run, 2k bike...",
+    "Chipper:\n100 DU, 50 DB snatches, 25 C2B...",
+    "Intervals: 90 sec work / 30 sec rest...",
+    "# Partner WOD\nYGIG full rounds...",
+    "Death by burpees...",
+    "Time cap: 12 mins..."
+  ],
+  "Cool Down": [
+    "# Recovery\n2 min pigeon / side...",
+    "Foam roll quads 5 mins...",
+    "800m easy walk...",
+    "Couch stretch 2 min/leg...",
+    "# Mobility\nBanded hamstring stretch...",
+    "Puppy dog pose 3 mins...",
+    "Lizard pose 90 sec/leg...",
+    "Light flush on the assault bike...",
+    "# Breathing\nBox breathing 4-4-4-4...",
+    "Thread the needle stretch...",
+    "Child's pose 2 mins...",
+    "Forearm and wrist stretches..."
+  ]
+};

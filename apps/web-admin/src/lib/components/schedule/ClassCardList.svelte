@@ -37,8 +37,8 @@
           </div>
           <div class="flex justify-between pt-1">
             <span>WOD:</span>
-            <span class={session.workout ? "" : "text-muted-foreground italic"}>
-              {session.workout?.title ?? "Not programmed"}
+            <span class={session.program ? "" : "text-muted-foreground italic"}>
+              {session.program?.title ?? "Not programmed"}
             </span>
           </div>
         </div>

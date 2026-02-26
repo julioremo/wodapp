@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       bookings: {
@@ -44,22 +19,22 @@ export type Database = {
           class_id: string
           created_at: string | null
           id: string
+          profile_id: string
           status: Database["public"]["Enums"]["booking_status"] | null
-          user_id: string
         }
         Insert: {
           class_id: string
           created_at?: string | null
           id?: string
+          profile_id: string
           status?: Database["public"]["Enums"]["booking_status"] | null
-          user_id: string
         }
         Update: {
           class_id?: string
           created_at?: string | null
           id?: string
+          profile_id?: string
           status?: Database["public"]["Enums"]["booking_status"] | null
-          user_id?: string
         }
         Relationships: [
           {
@@ -71,7 +46,7 @@ export type Database = {
           },
           {
             foreignKeyName: "bookings_user_id_fkey"
-            columns: ["user_id"]
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -87,30 +62,30 @@ export type Database = {
           end_time: string
           id: string
           location_id: string
+          program_id: string | null
           start_time: string
-          workout_id: string | null
         }
         Insert: {
           capacity?: number | null
-          class_type: string
+          class_type?: string
           coach_id?: string | null
           created_at?: string | null
           end_time: string
           id?: string
           location_id: string
+          program_id?: string | null
           start_time: string
-          workout_id?: string | null
         }
         Update: {
           capacity?: number | null
-          class_type: string
+          class_type?: string
           coach_id?: string | null
           created_at?: string | null
           end_time?: string
           id?: string
           location_id?: string
+          program_id?: string | null
           start_time?: string
-          workout_id?: string | null
         }
         Relationships: [
           {
@@ -128,10 +103,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "classes_workout_id_fkey"
-            columns: ["workout_id"]
+            foreignKeyName: "classes_programme_id_fkey"
+            columns: ["program_id"]
             isOneToOne: false
-            referencedRelation: "workouts"
+            referencedRelation: "programs"
             referencedColumns: ["id"]
           },
         ]
@@ -167,6 +142,7 @@ export type Database = {
           location_id: string
           profile_id: string
           role: Database["public"]["Enums"]["user_role"]
+          status: string | null
         }
         Insert: {
           created_at?: string | null
@@ -174,6 +150,7 @@ export type Database = {
           location_id: string
           profile_id: string
           role?: Database["public"]["Enums"]["user_role"]
+          status?: string | null
         }
         Update: {
           created_at?: string | null
@@ -181,6 +158,7 @@ export type Database = {
           location_id?: string
           profile_id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          status?: string | null
         }
         Relationships: [
           {
@@ -203,20 +181,97 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          email: string | null
           full_name: string | null
           id: string
+          last_location_id: string | null
+          preferences: Json | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
+          last_location_id?: string | null
+          preferences?: Json | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
+          last_location_id?: string | null
+          preferences?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_last_location_id_fkey"
+            columns: ["last_location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_workouts: {
+        Row: {
+          id: string
+          program_id: string
+          sort_order: number
+          workout_id: string
+        }
+        Insert: {
+          id?: string
+          program_id: string
+          sort_order?: number
+          workout_id: string
+        }
+        Update: {
+          id?: string
+          program_id?: string
+          sort_order?: number
+          workout_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programme_workouts_programme_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "programme_workouts_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programs: {
+        Row: {
+          class_type: string
+          created_at: string | null
+          id: string
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          class_type: string
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          class_type?: string
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -226,8 +281,8 @@ export type Database = {
           created_at: string | null
           id: string
           notes: string | null
+          profile_id: string
           score: string
-          user_id: string
           workout_id: string | null
         }
         Insert: {
@@ -235,8 +290,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           notes?: string | null
+          profile_id: string
           score: string
-          user_id: string
           workout_id?: string | null
         }
         Update: {
@@ -244,8 +299,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           notes?: string | null
+          profile_id?: string
           score?: string
-          user_id?: string
           workout_id?: string | null
         }
         Relationships: [
@@ -258,7 +313,7 @@ export type Database = {
           },
           {
             foreignKeyName: "results_user_id_fkey"
-            columns: ["user_id"]
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -274,28 +329,40 @@ export type Database = {
       }
       workouts: {
         Row: {
+          class_type: string | null
           created_at: string | null
           created_by: string | null
           description: string
+          duration: number | null
           id: string
+          slug: string
           structured_data: Json | null
           title: string | null
+          workout_type: string | null
         }
         Insert: {
+          class_type?: string | null
           created_at?: string | null
           created_by?: string | null
           description: string
+          duration?: number | null
           id?: string
+          slug: string
           structured_data?: Json | null
           title?: string | null
+          workout_type?: string | null
         }
         Update: {
+          class_type?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string
+          duration?: number | null
           id?: string
+          slug?: string
           structured_data?: Json | null
           title?: string | null
+          workout_type?: string | null
         }
         Relationships: [
           {
@@ -309,10 +376,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      distinct_types: {
+        Row: {
+          class_type: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_unique_class_types: {
+        Args: never
+        Returns: {
+          class_type: string
+        }[]
+      }
+      invite_athlete: {
+        Args: { loc_id: string; user_email: string }
+        Returns: undefined
+      }
     }
     Enums: {
       booking_status: "confirmed" | "waitlist" | "cancelled"
@@ -442,9 +523,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       booking_status: ["confirmed", "waitlist", "cancelled"],

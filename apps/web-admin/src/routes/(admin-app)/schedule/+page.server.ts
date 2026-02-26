@@ -16,15 +16,22 @@ export const load = async ({ locals }) => {
 
   const { data: classes } = await locals.supabase
     .from("classes")
-    .select("*, workout:workouts(title), coach:profiles(full_name)")
+    .select("*, program:programs(title), coach:profiles(full_name)")
     .eq("location_id", locals.location?.id)
     .gte("start_time", startBuffer.toISOString())
     .lt("start_time", endBuffer.toISOString())
     .order("start_time", { ascending: true });
 
+  const { data: workouts } = await locals.supabase
+    .from("workouts")
+    .select("id, title, slug, class_type, created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
   return {
     editForm,
-    classes: classes ?? []
+    classes: classes ?? [],
+    workouts: workouts ?? []
   };
 };
 
@@ -38,7 +45,7 @@ export const actions = {
 
     // If the select passes "unassigned" string, convert to null for DB
     const coachId = form.data.coach_id === "Unassigned" ? null : form.data.coach_id;
-    const workoutId = form.data.workout_id === "Unassigned" ? null : form.data.workout_id;
+    const programId = form.data.program_id === "Unassigned" ? null : form.data.program_id;
 
     const { error } = await locals.supabase
       .from("classes")
@@ -47,7 +54,7 @@ export const actions = {
         end_time: endDateTime.toISOString(),
         class_type: form.data.class_type,
         coach_id: coachId,
-        workout_id: workoutId,
+        program_id: programId,
         capacity: form.data.capacity
       })
       .eq("id", form.data.id);

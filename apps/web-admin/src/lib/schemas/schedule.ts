@@ -7,7 +7,7 @@ export const sessionSchema = z.object({
   capacity: z.number().min(1, "Required").default(15),
   class_type: z.string().min(2, "Required").max(30, "Too long"),
   coach_id: z.string().optional(),
-  workout_id: z.string().nullable().optional()
+  program_id: z.string().nullable().optional()
 });
 
 export const editClassSchema = sessionSchema.extend({

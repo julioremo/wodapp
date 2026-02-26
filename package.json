@@ -8,6 +8,7 @@
     "@wodapp/types": "workspace:*"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.4",
     "leasot": "^14.4.0",
     "supabase": "^2.76.8"
   },

@@ -4,21 +4,18 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-svelte";
 import ProgramCell from "$lib/components/program/ProgramCell.svelte";
 import { Button } from "$lib/components/ui/button";
 import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
-import { SCHEDULE_CONFIG } from "$lib/config/schedule";
 
 let { data } = $props();
-
 const today = new Date();
-const visibleDayIndices = [1, 2, 3, 4, 5, 6, 0].filter((d) => !SCHEDULE_CONFIG.hiddenDays.includes(d));
+
+// Track manually opened cells
+let manualCells = $state<Record<string, string[]>>({});
 
 function getDateForColumn(dayIndex: number) {
   const baseDate = typeof data.weekStart === "string" ? new Date(data.weekStart) : data.weekStart;
   const offset = (dayIndex + 6) % 7;
   return addDays(baseDate, offset);
 }
-
-// Track manually opened cells
-let manualCells = $state<Record<string, string[]>>({});
 
 function addClassTypeToDay(dateStr: string, class_type: string) {
   if (!manualCells[dateStr]) manualCells[dateStr] = [];
@@ -38,13 +35,15 @@ function getActiveClassTypes(dateStr: string) {
   // Deduplicate:
   const combined = Array.from(new Set([...scheduledClassTypes, ...manuallyAdded]));
 
+  const classTypeSortingMap = new Map(
+    data.settings.classTypes.map((ct: any, index: number) => [ct.name, index])
+  );
+
   return combined.sort((a, b) => {
-    const iA = SCHEDULE_CONFIG.programSortOrder.indexOf(a);
-    const iB = SCHEDULE_CONFIG.programSortOrder.indexOf(b);
-    if (iA !== -1 && iB !== -1) return iA - iB;
-    if (iA !== -1) return -1;
-    if (iB !== -1) return 1;
-    return a.localeCompare(b);
+    const iA = classTypeSortingMap.get(a) ?? 999;
+    const iB = classTypeSortingMap.get(b) ?? 999;
+    // If indices are different, sort by index. Otherwise, sort alphabetically.
+    return iA - iB || a.localeCompare(b);
   });
 }
 
@@ -66,13 +65,21 @@ function handleDeleted(dateStr: string, class_type: string) {
     </div>
 
     <div class="flex items-center gap-2">
-      <Button variant="outline" size="icon" href="?date={format(addDays(data.weekStart, -7), 'yyyy-MM-dd')}">
+      <Button
+        variant="outline"
+        size="icon"
+        href="?date={format(addDays(data.weekStart, -7), 'yyyy-MM-dd')}"
+      >
         <ChevronLeft class="h-4 w-4" />
       </Button>
       <span class="font-mono font-medium w-32 text-center text-sm">
-        {format(data.weekStart, "d MMM")} - {format(data.weekEnd, "d MMM")}
+        {format(data.weekStart, "d MMM")}- {format(data.weekEnd, "d MMM")}
       </span>
-      <Button variant="outline" size="icon" href="?date={format(addDays(data.weekStart, 7), 'yyyy-MM-dd')}">
+      <Button
+        variant="outline"
+        size="icon"
+        href="?date={format(addDays(data.weekStart, 7), 'yyyy-MM-dd')}"
+      >
         <ChevronRight class="h-4 w-4" />
       </Button>
     </div>
@@ -80,55 +87,61 @@ function handleDeleted(dateStr: string, class_type: string) {
 
   <!-- TODO: review snap behavior on mobile -->
   <div class="flex-1 overflow-x-auto overflow-y-hidden flex h-full snap-x snap-proximity">
-      {#each visibleDayIndices as dayIndex}
-        {@const dayDate = getDateForColumn(dayIndex)}
-        {@const dateStr = format(dayDate, "yyyy-MM-dd")}
-        {@const isToday = isSameDay(dayDate, today)}
-        {@const activeClassTypes = getActiveClassTypes(dateStr)}
-        {@const unprogrammedClassTypes = data.availableProgrammableTypes.filter((t: string) => !activeClassTypes.includes(t))}
-        
-        <div class="flex flex-col w-[280px] shrink-0 h-full snap-start {isToday ? 'bg-primary/5' : ''}">
-          <div class="p-3 text-left border-b bg-background/95 backdrop-blur z-10 sticky top-0">
-            <span class="font-semibold text-sm {isToday ? 'text-primary' : 'text-foreground'}">
-              {format(dayDate, "EEEE")}
-            </span>
-            <span class="text-xs {isToday ? 'text-primary/80' : 'text-muted-foreground'}">
-              {format(dayDate, "d MMM")}
-            </span>
-          </div>
+    {#each data.visibleDayIndices as dayIndex}
+      {@const dayDate = getDateForColumn(dayIndex)}
+      {@const dateStr = format(dayDate, "yyyy-MM-dd")}
+      {@const isToday = isSameDay(dayDate, today)}
+      {@const activeClassTypes = getActiveClassTypes(dateStr)}
+      {@const unprogrammedClassTypes = data.availableProgrammableTypes.filter((t: string) => !activeClassTypes.includes(t))}
 
-          <div class="flex-1 overflow-y-auto p-2 flex flex-col gap-7">
-            {#each activeClassTypes as class_type}
-              {#key `${dateStr}-${class_type}`}
-              <ProgramCell 
-                {class_type} 
-                programs={data.daysMap[dateStr]?.[class_type]?.programs || []} date={dayDate} 
-                isScheduled={isClassTypeScheduled(dateStr, class_type)}
-                onDelete={() => handleDeleted(dateStr, class_type)} />
-              {/key}
-            {/each}
-
-            {#if unprogrammedClassTypes.length > 0}
-              <DropdownMenu.Root>
-                <DropdownMenu.Trigger>
-                  {#snippet child({ props })}
-                    <Button {...props} variant="ghost" class="w-full font-mono text-muted-foreground border-dashed border-2 hover:border-primary bg-transparent hover:bg-muted/50 mt-2 font-semibold">
-                      <Plus class="w-4 h-4 mr-2" /> Add program type
-                    </Button>
-                  {/snippet}
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content>
-                  {#each unprogrammedClassTypes as class_type}
-                    <DropdownMenu.Item onclick={() => addClassTypeToDay(dateStr, class_type)}>
-                      {class_type}
-                    </DropdownMenu.Item>
-                  {/each}
-                </DropdownMenu.Content>
-              </DropdownMenu.Root>
-            {/if} 
-
-          </div>
+      <div class="flex flex-col w-[280px] shrink-0 h-full snap-start {isToday && 'bg-primary/5'}">
+        <div class="p-3 text-left border-b bg-background/95 backdrop-blur z-10 sticky top-0">
+          <span class="font-semibold text-sm {isToday ? 'text-primary' : 'text-foreground'}">
+            {format(dayDate, "EEEE")}
+          </span>
+          <span class="text-xs {isToday ? 'text-primary/80' : 'text-muted-foreground'}">
+            {format(dayDate, "d MMM")}
+          </span>
         </div>
-      {/each}
+
+        <div class="flex-1 overflow-y-auto p-2 flex flex-col gap-7">
+          {#each activeClassTypes as class_type}
+            {#key `${dateStr}-${class_type}`}
+              <ProgramCell
+                {class_type}
+                programs={data.daysMap[dateStr]?.[class_type]?.programs || []}
+                date={dayDate}
+                isScheduled={isClassTypeScheduled(dateStr, class_type)}
+                onDelete={() => handleDeleted(dateStr, class_type)}
+              />
+            {/key}
+          {/each}
+
+          {#if unprogrammedClassTypes.length > 0}
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger>
+                {#snippet child({ props })}
+                  <Button
+                    {...props}
+                    variant="ghost"
+                    class="w-full font-mono text-muted-foreground border-dashed border-2 hover:border-primary bg-transparent hover:bg-muted/50 mt-2 font-semibold"
+                  >
+                    <Plus class="w-4 h-4 mr-2" />
+                    Add program type
+                  </Button>
+                {/snippet}
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content>
+                {#each unprogrammedClassTypes as class_type}
+                  <DropdownMenu.Item onclick={() => addClassTypeToDay(dateStr, class_type)}>
+                    {class_type}
+                  </DropdownMenu.Item>
+                {/each}
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          {/if}
+        </div>
+      </div>
+    {/each}
   </div>
 </div>

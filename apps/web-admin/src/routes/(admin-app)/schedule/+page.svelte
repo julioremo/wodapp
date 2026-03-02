@@ -55,9 +55,7 @@ function goToday() {
 <div class="flex flex-col h-full gap-5 overflow-hidden p-6">
   <div class="flex items-center justify-between shrink-0">
     <h1 class="text-3xl tracking-tight text-foreground">
-      <span class="font-bold inline-block">
-        Week {getWeek(currentDate, { weekStartsOn: 1 })}
-      </span>
+      <span class="font-bold inline-block"> Week {getWeek(currentDate, { weekStartsOn: 1 })} </span>
       <span>—</span>
       <span class="hidden lg:inline-block">{format(currentDate, "MMMM")}</span>
       <span>{format(currentDate, "yyyy")}</span>
@@ -81,7 +79,8 @@ function goToday() {
           variant="ghost"
           size="sm"
           onclick={goToday}
-          class="text-muted-foreground hover:text-foreground rounded p-2 text-xs">This week</Button
+          class="text-muted-foreground hover:text-foreground rounded p-2 text-xs"
+          >This week</Button
         >
       </div>
 
@@ -92,9 +91,15 @@ function goToday() {
   </div>
 
   <div class="flex-1 min-h-0 relative">
-    <WeeklyGrid classes={thisWeekClasses} weekStart={currentMonday}>
+    <WeeklyGrid
+      visibleDayIndices={data.visibleDayIndices}
+      classes={thisWeekClasses}
+      weekStart={currentMonday}
+      settings={data.settings}>
       {#snippet children({ item })}
-        <ScheduleCard session={item}>
+        <ScheduleCard
+          session={item}
+          color={data.settings.classTypes.find((t: any) => t.name === item.class_type)?.color}>
           {#snippet children(close)}
             <EditClassForm
               data={{
@@ -117,8 +122,7 @@ function goToday() {
               programs={data.programs}
               updateActionUrl="/schedule?/updateClass"
               deleteActionUrl="/schedule?/deleteClass"
-              onCancel={close}
-            />
+              onCancel={close} />
           {/snippet}
         </ScheduleCard>
       {/snippet}

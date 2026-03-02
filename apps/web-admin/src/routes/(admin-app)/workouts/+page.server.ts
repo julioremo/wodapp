@@ -1,56 +1,62 @@
 import { fail } from "@sveltejs/kit";
 import { addDays, endOfWeek, format, parseISO, startOfWeek } from "date-fns";
-import { SCHEDULE_CONFIG } from "$lib/config/schedule";
 
 export const load = async ({ locals, url, parent }) => {
   const parentData = await parent();
-  const uniqueClassTypes = parentData.uniqueClassTypes || [];
-  const availableProgrammableTypes = uniqueClassTypes.filter(
-    (t: string) => !SCHEDULE_CONFIG.nonProgrammableTypes.includes(t)
-  );
+  const settings = parentData.settings;
 
-  const dateParam = url.searchParams.get('date');
+  const availableProgrammableTypes = settings.classTypes
+    .filter((ct: any) => ct.isProgrammable && ct.isActive)
+    .map((ct: any) => ct.name);
+
+  const nonProgrammableTypes = settings.classTypes
+    .filter((ct: any) => !ct.isProgrammable)
+    .map((ct: any) => ct.name);
+
+  const dateParam = url.searchParams.get("date");
   const targetDate = dateParam ? parseISO(dateParam) : new Date();
 
   const startOfWk = startOfWeek(targetDate, { weekStartsOn: 1 });
-  const weekStart = format(startOfWk, 'yyyy-MM-dd');
-  const weekEnd = format(endOfWeek(targetDate, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+  const weekStart = format(startOfWk, "yyyy-MM-dd");
+  const weekEnd = format(endOfWeek(targetDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
 
   // 1. Initialize the 7 days with completely empty objects
-  const daysMap: Record<string, Record<string, { isScheduled: boolean, programs: any[] }>> = {};
+  const daysMap: Record<string, Record<string, { isScheduled: boolean; programs: any[] }>> = {};
   for (let i = 0; i < 7; i++) {
-    const dateStr = format(addDays(startOfWk, i), 'yyyy-MM-dd');
-    daysMap[dateStr] = {}; 
+    const dateStr = format(addDays(startOfWk, i), "yyyy-MM-dd");
+    daysMap[dateStr] = {};
   }
 
   // 2. Fetch Classes and Programs simultaneously for performance
   // Note: We fetch classes up to the start of the *next* week to ensure we catch late-night classes
   const [classesResult, programsResult] = await Promise.all([
     locals.supabase
-      .from('classes')
-      .select('start_time, class_type')
-      .gte('start_time', weekStart)
-      .lt('start_time', format(addDays(startOfWk, 7), 'yyyy-MM-dd')),
+      .from("classes")
+      .select("start_time, class_type")
+      .gte("start_time", weekStart)
+      .lt("start_time", format(addDays(startOfWk, 7), "yyyy-MM-dd")),
     locals.supabase
-      .from('programs')
-      .select(`
+      .from("programs")
+      .select(
+        `
         id, title, class_type, program_date,
         program_workouts (
           sort_order,
           workout:workouts (id, title, description, clean_description, duration, workout_type, tags, coach_notes, slug)
         )
-      `)
-      .gte('program_date', weekStart)
-      .lte('program_date', weekEnd)
+      `
+      )
+      .gte("program_date", weekStart)
+      .lte("program_date", weekEnd)
   ]);
 
-// 3. LAYER ONE: Populate empty slots based on the actual class schedule
+  // 3. LAYER ONE: Populate empty slots based on the actual class schedule
   if (classesResult.data) {
     for (const cls of classesResult.data) {
-      if (SCHEDULE_CONFIG.nonProgrammableTypes.includes(cls.class_type)) continue;
+      if (nonProgrammableTypes.includes(cls.class_type)) continue;
 
-      const clsDateStr = format(new Date(cls.start_time), 'yyyy-MM-dd');
-      
+      const clsDateStr = format(new Date(cls.start_time), "yyyy-MM-dd");
+
       if (daysMap[clsDateStr]) {
         if (!daysMap[clsDateStr][cls.class_type]) {
           // It's on the schedule!
@@ -92,9 +98,10 @@ export const load = async ({ locals, url, parent }) => {
     daysMap,
     weekStart,
     weekEnd,
-    availableProgrammableTypes
+    availableProgrammableTypes,
+    settings
   };
-}
+};
 
 const generateSlug = (text: string) =>
   text
@@ -199,13 +206,11 @@ export const actions = {
     const data = await request.formData();
     const programId = data.get("program_id")?.toString();
 
-    if (!programId) { 
+    if (!programId) {
       return fail(400, { message: "No program ID provided." });
     }
 
-    const { error } = await locals.supabase.rpc('delete_program', { 
-      p_program_id: programId 
-    });
+    const { error } = await locals.supabase.rpc("delete_program", { p_program_id: programId });
 
     if (error) {
       console.error("Database Delete Error:", error);

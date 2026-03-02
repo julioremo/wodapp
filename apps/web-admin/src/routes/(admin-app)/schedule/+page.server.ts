@@ -14,24 +14,25 @@ export const load = async ({ locals }) => {
 
   const editForm = await superValidate(zod4(editClassSchema));
 
-  const { data: classes } = await locals.supabase
-    .from("classes")
-    .select("*, program:programs(title), coach:profiles(full_name)")
-    .eq("location_id", locals.location?.id)
-    .gte("start_time", startBuffer.toISOString())
-    .lt("start_time", endBuffer.toISOString())
-    .order("start_time", { ascending: true });
-
-  const { data: workouts } = await locals.supabase
-    .from("workouts")
-    .select("id, title, slug, class_type, created_at")
-    .order("created_at", { ascending: false })
-    .limit(200);
+  const [classesResult, programsResult] = await Promise.all([
+    locals.supabase
+      .from("classes")
+      .select("*, program:programs(title), coach:profiles(full_name)")
+      .eq("location_id", locals.location?.id)
+      .gte("start_time", startBuffer.toISOString())
+      .lt("start_time", endBuffer.toISOString())
+      .order("start_time", { ascending: true }),
+    locals.supabase
+      .from("programs")
+      .select("id, program_date, class_type, title, slug, created_at") // select what the form needs
+      .order("created_at", { ascending: false })
+      .limit(200)
+  ]);
 
   return {
     editForm,
-    classes: classes ?? [],
-    workouts: workouts ?? []
+    classes: classesResult.data || [],
+    programs: programsResult.data || []
   };
 };
 

@@ -229,7 +229,7 @@ function handleSubmit({ action, cancel }) {
 </script>
 
 <div
-  class="flex flex-col relative group/cell bg-paper focus-within:bg-card shadow-md/5 focus-within:shadow-lg/10 rounded-none hover:border-muted-foreground/50 focus-within:border-primary border-2 transition-shadow font-mono"
+  class="flex flex-col relative group/cell bg-stone-100 focus-within:bg-stone-50 shadow-md/5 focus-within:shadow-lg/10 rounded-none hover:border-muted-foreground/50 focus-within:border-primary border-2 transition-shadow font-mono"
 >
   <form bind:this={formRef} novalidate method="POST" action="?/saveProgram" use:enhance={handleSubmit} class="flex flex-col min-h-[320px] px-2 py-2 gap-3 selection:bg-yellow">
     <input type="hidden" name="program_id" value={programId || ""} />
@@ -289,7 +289,7 @@ function handleSubmit({ action, cancel }) {
 
     <div class="flex flex-col gap-1 flex-1">
       {#each blocks as block, i}
-        <div class="group/block relative flex gap-2 p-1 py-2 -mx-1 rounded hover:bg-muted/30 transition-colors">
+        <div class="group/block relative flex gap-2 p-1 py-2 -mx-1 rounded hover:bg-card/70 transition-colors">
           <div class="flex flex-col w-full gap-1 py-1">
             <div class="flex items-center justify-between mt-1">
               <div class="w-full flex justify-between">
@@ -298,14 +298,14 @@ function handleSubmit({ action, cancel }) {
                   onchange={() => {
                     block.duration = getDefaultDuration(block.workout_type);
                     triggerSave(true)}}
-                  class="bg-muted/50 text-muted-foreground rounded px-1.5 py-0.5 border-none text-[9px] font-semibold uppercase tracking-wider focus:ring-0 focus:outline-none cursor-pointer"
+                  class="bg-stone-100 text-muted-foreground rounded px-1.5 py-0.5 border-none text-[9px] font-semibold uppercase tracking-wider focus:ring-0 focus:outline-none cursor-pointer"
                 >
                   {#each ["Warmup", "Strength", "Skill", "WOD", "Cool Down"] as blockType }
                     <option value={blockType}>{blockType}</option>
                   {/each}
                 </select>
 
-                <div class="flex items-center text-[10px] text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded focus-within:bg-background focus-within:ring-1 focus-within:ring-border focus-within:text-foreground hover:bg-background/80 transition-all cursor-text">
+                <div class="flex items-center text-[10px] text-muted-foreground bg-stone-100 px-1.5 py-0.5 rounded focus-within:bg-background focus-within:ring-1 focus-within:ring-border focus-within:text-foreground hover:bg-background/80 transition-all cursor-text">
                   <input
                     type="number"
                     placeholder="0"

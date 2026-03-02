@@ -1,164 +1,164 @@
 <script lang="ts">
-  import { Plus, Trash2, CircleAlert, RotateCcw, Copy, Clock8Icon } from "lucide-svelte";
-  //   import ClassTypePicker from "./ClassTypePicker.svelte";
-  import * as Form from "$lib/components/ui/form";
-  import { Input } from "$lib/components/ui/input";
-  import { Switch } from "$lib/components/ui/switch";
-  import * as Select from "$lib/components/ui/select";
-  import { Spinner } from "$lib/components/ui/spinner";
-  import { Button } from "$lib/components/ui/button";
-  import { toast } from "svelte-sonner";
-  import { goto } from "$app/navigation";
-  import { slide } from "svelte/transition";
-  import { cn } from "$lib/utils";
-  import * as ToggleGroup from "$lib/components/ui/toggle-group";
-  import { scheduleFormSchema, type ScheduleForm, defaultSession } from "$lib/schemas/schedule.js";
-  import { type SuperValidated, type Infer, superForm } from "sveltekit-superforms";
-  import { zod4Client } from "sveltekit-superforms/adapters";
+import { CircleAlert, Clock8Icon, Copy, Plus, RotateCcw, Trash2 } from "lucide-svelte";
+import { slide } from "svelte/transition";
+import { toast } from "svelte-sonner";
+import { type Infer, type SuperValidated, superForm } from "sveltekit-superforms";
+import { zod4Client } from "sveltekit-superforms/adapters";
+import { goto } from "$app/navigation";
+import { Button } from "$lib/components/ui/button";
+//   import ClassTypePicker from "./ClassTypePicker.svelte";
+import * as Form from "$lib/components/ui/form";
+import { Input } from "$lib/components/ui/input";
+import * as Select from "$lib/components/ui/select";
+import { Spinner } from "$lib/components/ui/spinner";
+import { Switch } from "$lib/components/ui/switch";
+import * as ToggleGroup from "$lib/components/ui/toggle-group";
+import { defaultSession, type ScheduleForm, scheduleFormSchema } from "$lib/schemas/schedule.js";
+import { cn } from "$lib/utils";
 
-  let {
-    data
-  }: {
-    data: {
-      form: SuperValidated<ScheduleForm>;
-      coaches: { id: string; full_name: string }[];
-      uniqueClassTypes: [];
-    };
-  } = $props();
+let {
+  data
+}: {
+  data: {
+    form: SuperValidated<ScheduleForm>;
+    coaches: { id: string; full_name: string }[];
+    uniqueClassTypes: [];
+  };
+} = $props();
 
-  const form = superForm(data.form, {
-    dataType: "json",
-    validators: zod4Client(scheduleFormSchema),
-    resetForm: false,
-    taintedMessage: "You have unsaved changes. Are you sure you want to leave?",
-    onUpdated: ({ form: f }) => {
-      if (f.valid) {
-        toast.success("Schedule saved successfully!");
-      } else {
-        toast.error("Please fix the errors in the schedule.");
-      }
-    }
-  });
-
-  const { form: formData, enhance, errors, tainted, submitting } = form;
-
-  const daysOfWeek = [
-    { id: "1", label: "Monday" },
-    { id: "2", label: "Tuesday" },
-    { id: "3", label: "Wednesday" },
-    { id: "4", label: "Thursday" },
-    { id: "5", label: "Friday" },
-    { id: "6", label: "Saturday" },
-    { id: "0", label: "Sunday" }
-  ];
-
-  function addSession() {
-    const lastSession = $formData.sessions[$formData.sessions.length - 1];
-    let newSession;
-
-    if (lastSession && lastSession.time) {
-      const [hours, minutes] = lastSession.time.split(":").map(Number);
-      // Create a dummy date to handle the math (automatically handles 60+ mins)
-      const date = new Date();
-      date.setHours(hours, minutes, 0, 0);
-      date.setMinutes(date.getMinutes() + (lastSession.duration || 60));
-      // Format back to "HH:MM" (Force 2-digit format)
-      const nextTime = date.toLocaleTimeString("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      });
-      newSession = {
-        ...lastSession,
-        time: nextTime
-      };
+const form = superForm(data.form, {
+  dataType: "json",
+  validators: zod4Client(scheduleFormSchema),
+  resetForm: false,
+  taintedMessage: "You have unsaved changes. Are you sure you want to leave?",
+  onUpdated: ({ form: f }) => {
+    if (f.valid) {
+      toast.success("Schedule saved successfully!");
     } else {
-      // Fallback if it's the first session or previous time is missing
-      newSession = { ...defaultSession };
-    }
-
-    // 2. Update the store
-    $formData.sessions = [...$formData.sessions, newSession];
-  }
-
-  // TODO: UNDO option: change the row to a "Deleted" state for 3 seconds
-  function removeSession(i: number) {
-    if ($formData.sessions.length > 1) {
-      $formData.sessions = $formData.sessions.filter((_, idx) => idx !== i);
+      toast.error("Please fix the errors in the schedule.");
     }
   }
+});
 
-  // Helper to convert "HH:MM" -> minutes
-  function getMinutes(timeStr: string) {
-    if (!timeStr) return -1;
-    const [h, m] = timeStr.split(":").map(Number);
-    return h * 60 + m;
-  }
-  // --- OVERLAP DETECTION ---
-  // Reactive calculation: Re-runs whenever $formData.sessions changes
-  let overlappingIndices = $derived.by(() => {
-    const overlaps = new Set<number>();
-    const sessions = $formData.sessions;
+const { form: formData, enhance, errors, tainted, submitting } = form;
 
-    for (let i = 0; i < sessions.length; i++) {
-      const s1 = sessions[i];
-      const start1 = getMinutes(s1.time);
-      if (start1 === -1) continue;
+const daysOfWeek = [
+  { id: "1", label: "Monday" },
+  { id: "2", label: "Tuesday" },
+  { id: "3", label: "Wednesday" },
+  { id: "4", label: "Thursday" },
+  { id: "5", label: "Friday" },
+  { id: "6", label: "Saturday" },
+  { id: "0", label: "Sunday" }
+];
 
-      const end1 = start1 + (s1.duration || 60);
+function addSession() {
+  const lastSession = $formData.sessions[$formData.sessions.length - 1];
+  let newSession;
 
-      for (let j = i + 1; j < sessions.length; j++) {
-        const s2 = sessions[j];
-        const start2 = getMinutes(s2.time);
-        if (start2 === -1) continue;
-
-        const end2 = start2 + (s2.duration || 60);
-
-        // 💥 THE FORMULA: StartA < EndB AND StartB < EndA
-        if (start1 < end2 && start2 < end1) {
-          overlaps.add(i);
-          overlaps.add(j);
-        }
-      }
-    }
-    return overlaps;
-  });
-
-  function getSessionError(index: number, field: string) {
-    // @ts-ignore - Typescript sometimes struggles with dynamic nested keys in Superforms
-    return $errors.sessions?.[index]?.[field];
-  }
-
-  function cloneSession(index: number) {
-    const sessionToClone = $formData.sessions[index];
-
-    // Calculate next time logic (reused from before)
-    const [h, m] = sessionToClone.time.split(":").map(Number);
+  if (lastSession && lastSession.time) {
+    const [hours, minutes] = lastSession.time.split(":").map(Number);
+    // Create a dummy date to handle the math (automatically handles 60+ mins)
     const date = new Date();
-    date.setHours(h, m, 0, 0);
-    date.setMinutes(date.getMinutes() + (sessionToClone.duration || 60));
-    const nextTime = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-
-    const newSession = {
-      ...sessionToClone,
+    date.setHours(hours, minutes, 0, 0);
+    date.setMinutes(date.getMinutes() + (lastSession.duration || 60));
+    // Format back to "HH:MM" (Force 2-digit format)
+    const nextTime = date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    });
+    newSession = {
+      ...lastSession,
       time: nextTime
     };
-
-    // Insert immediately after the clicked row
-    const newSessions = [...$formData.sessions];
-    newSessions.splice(index + 1, 0, newSession);
-    $formData.sessions = newSessions;
+  } else {
+    // Fallback if it's the first session or previous time is missing
+    newSession = { ...defaultSession };
   }
 
-  function resetForm() {
-    if (confirm("This will clear the present form. Are you sure?")) {
-      $formData.sessions = [{ ...defaultSession }];
-      $formData.start_date = new Date().toISOString().split("T")[0];
-      $formData.is_recurring = false;
-      $formData.weekdays = [];
-      toast.info("Form cleared");
+  // 2. Update the store
+  $formData.sessions = [...$formData.sessions, newSession];
+}
+
+// TODO: UNDO option: change the row to a "Deleted" state for 3 seconds
+function removeSession(i: number) {
+  if ($formData.sessions.length > 1) {
+    $formData.sessions = $formData.sessions.filter((_, idx) => idx !== i);
+  }
+}
+
+// Helper to convert "HH:MM" -> minutes
+function getMinutes(timeStr: string) {
+  if (!timeStr) return -1;
+  const [h, m] = timeStr.split(":").map(Number);
+  return h * 60 + m;
+}
+// --- OVERLAP DETECTION ---
+// Reactive calculation: Re-runs whenever $formData.sessions changes
+let overlappingIndices = $derived.by(() => {
+  const overlaps = new Set<number>();
+  const sessions = $formData.sessions;
+
+  for (let i = 0; i < sessions.length; i++) {
+    const s1 = sessions[i];
+    const start1 = getMinutes(s1.time);
+    if (start1 === -1) continue;
+
+    const end1 = start1 + (s1.duration || 60);
+
+    for (let j = i + 1; j < sessions.length; j++) {
+      const s2 = sessions[j];
+      const start2 = getMinutes(s2.time);
+      if (start2 === -1) continue;
+
+      const end2 = start2 + (s2.duration || 60);
+
+      // 💥 THE FORMULA: StartA < EndB AND StartB < EndA
+      if (start1 < end2 && start2 < end1) {
+        overlaps.add(i);
+        overlaps.add(j);
+      }
     }
   }
+  return overlaps;
+});
+
+function getSessionError(index: number, field: string) {
+  // @ts-expect-error - Typescript sometimes struggles with dynamic nested keys in Superforms
+  return $errors.sessions?.[index]?.[field];
+}
+
+function cloneSession(index: number) {
+  const sessionToClone = $formData.sessions[index];
+
+  // Calculate next time logic (reused from before)
+  const [h, m] = sessionToClone.time.split(":").map(Number);
+  const date = new Date();
+  date.setHours(h, m, 0, 0);
+  date.setMinutes(date.getMinutes() + (sessionToClone.duration || 60));
+  const nextTime = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+
+  const newSession = {
+    ...sessionToClone,
+    time: nextTime
+  };
+
+  // Insert immediately after the clicked row
+  const newSessions = [...$formData.sessions];
+  newSessions.splice(index + 1, 0, newSession);
+  $formData.sessions = newSessions;
+}
+
+function resetForm() {
+  if (confirm("This will clear the present form. Are you sure?")) {
+    $formData.sessions = [{ ...defaultSession }];
+    $formData.start_date = new Date().toISOString().split("T")[0];
+    $formData.is_recurring = false;
+    $formData.weekdays = [];
+    toast.info("Form cleared");
+  }
+}
 </script>
 
 <form method="POST" use:enhance class="space-y-8 max-w-4xl mx-auto">
@@ -166,7 +166,9 @@
   <div class="gap-6">
     <h3 class="text-lg font-semibold flex items-center gap-2">
       Date and recurrence
-      <span class="text-xs font-normal text-muted-foreground">(Apply this day schedule to one or more days)</span>
+      <span class="text-xs font-normal text-muted-foreground"
+        >(Apply this day schedule to one or more days)</span
+      >
     </h3>
     <div class="rounded bg-muted/50 p-4 flex flex-col gap-6">
       <div class="flex flex-row gap-12">
@@ -291,7 +293,8 @@
                   </div>
                 {:else if overlappingIndices.has(i)}
                   <div class="text-[0.8rem] font-medium text-yellow-600 flex items-center gap-1">
-                    <CircleAlert class="h-4 w-4" /> Overlap
+                    <CircleAlert class="h-4 w-4" />
+                    Overlap
                   </div>
                 {/if}
               </Form.Field>
@@ -319,9 +322,7 @@
                       <Select.Trigger class="w-full">{data.coaches[0].full_name}</Select.Trigger>
                       <Select.Content>
                         {#each data.coaches as coach}
-                          <Select.Item value={coach.id}>
-                            {coach.full_name}
-                          </Select.Item>
+                          <Select.Item value={coach.id}> {coach.full_name} </Select.Item>
                         {/each}
                       </Select.Content>
                     </Select.Root>
@@ -335,7 +336,12 @@
               <Form.Field {form} name={`sessions[${i}].capacity`}>
                 <Form.Control>
                   {#snippet children({ props })}
-                    <Input {...props} type="number" bind:value={$formData.sessions[i].capacity} placeholder="Cap" />
+                    <Input
+                      {...props}
+                      type="number"
+                      bind:value={$formData.sessions[i].capacity}
+                      placeholder="Cap"
+                    />
                   {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -346,7 +352,12 @@
               <Form.Field {form} name={`sessions[${i}].duration`}>
                 <Form.Control>
                   {#snippet children({ props })}
-                    <Input {...props} type="number" bind:value={$formData.sessions[i].duration} placeholder="Min" />
+                    <Input
+                      {...props}
+                      type="number"
+                      bind:value={$formData.sessions[i].duration}
+                      placeholder="Min"
+                    />
                   {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -407,13 +418,19 @@
         class="text-muted-foreground rounded-full"
         onclick={() => cloneSession($formData.sessions.length - 1)}
       >
-        <Plus class="h-4 w-4 mr-2" /> Add Class
+        <Plus class="h-4 w-4 mr-2" />
+        Add Class
       </Button>
     </div>
   </div>
 
   <div class="flex items-center justify-between pt-4 border-t">
-    <Button type="button" variant="ghost" class="text-muted-foreground hover:text-destructive" onclick={resetForm}>
+    <Button
+      type="button"
+      variant="ghost"
+      class="text-muted-foreground hover:text-destructive"
+      onclick={resetForm}
+    >
       <RotateCcw class="h-4 w-4 mr-2" />
       Clear Form
     </Button>

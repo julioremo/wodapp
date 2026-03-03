@@ -1,7 +1,7 @@
 <script lang="ts">
 import { TriangleAlert as AlertTriangle, Info, Plus, Trash2 } from "lucide-svelte";
 import { toast } from "svelte-sonner";
-import { type Infer, type SuperValidated, superForm } from "sveltekit-superforms";
+import { superForm } from "sveltekit-superforms";
 import { zod4Client as zodClient } from "sveltekit-superforms/adapters";
 import * as AlertDialog from "$lib/components/ui/alert-dialog";
 import { Button } from "$lib/components/ui/button";
@@ -14,7 +14,7 @@ import * as Select from "$lib/components/ui/select/index.js";
 import SwatchPicker from "$lib/components/ui/swatch-picker/SwatchPicker.svelte";
 import * as Tooltip from "$lib/components/ui/tooltip";
 import { PALETTE } from "$lib/config/colors";
-import { type GymSettingsSchema, gymSettingsBaseSchema } from "$lib/schemas/settings";
+import { gymSettingsBaseSchema } from "$lib/schemas/settings";
 
 let { data } = $props();
 
@@ -222,7 +222,7 @@ function confirmArchive() {
                     name="defaultCoach"
                     value={ct.defaultCoachId ?? "none"}
                     onValueChange={(val) => ct.defaultCoachId = val === "none" ? null : val}>
-                    <Select.Trigger class="h-8 w-40 text-sm">
+                    <Select.Trigger class="h-8 w-40 text-sm bg-background">
                       {data.coaches.find(c => c.id === ct.defaultCoachId)?.full_name || "No default coach"}
                     </Select.Trigger>
                     <Select.Content>
@@ -239,7 +239,8 @@ function confirmArchive() {
                     <Checkbox
                       bind:checked={ct.isProgrammable}
                       id="prog-{i}"
-                      aria-label="Toggle programming" />
+                      aria-label="Toggle programming"
+                      class="bg-background" />
                     <Label
                       for="prog-{i}"
                       class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">

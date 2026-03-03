@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Calendar, ClipboardList, Dumbbell, House, Settings, Users } from "lucide-svelte";
+import { Calendar, ClipboardList, House, LibraryBig, Settings, Users } from "lucide-svelte";
 import { Button } from "$lib/components/ui/button";
 
 let { data, children } = $props();
@@ -7,8 +7,8 @@ let { data, children } = $props();
 const navItems = [
   { label: "Home", href: `/`, icon: House },
   { label: "Schedule", href: `/schedule`, icon: Calendar },
-  { label: "Programming", href: `/workouts`, icon: ClipboardList },
-  { label: "Workouts", href: `/workouts`, icon: Dumbbell },
+  { label: "Programming", href: `/programming`, icon: ClipboardList },
+  { label: "Workout Library", href: `/workouts`, icon: LibraryBig },
   { label: "Members", href: `/members`, icon: Users },
   { label: "Settings", href: `/settings`, icon: Settings }
 ];
@@ -29,8 +29,7 @@ const navItems = [
             <Button
               href={item.href}
               variant="ghost"
-              class="w-full justify-center md:justify-start rounded-full text-muted-foreground"
-            >
+              class="w-full justify-center md:justify-start rounded-full text-muted-foreground">
               <Icon class="w-4 h-4" />
               <span class="hidden md:inline-block">{item.label}</span>
             </Button>
@@ -42,7 +41,5 @@ const navItems = [
     </div>
   </aside>
 
-  <main class="flex-1 overflow-y-auto">
-    {@render children()}
-  </main>
+  <main class="flex-1 overflow-y-auto">{@render children()}</main>
 </div>

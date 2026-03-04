@@ -1,147 +1,213 @@
 <script lang="ts">
-import { addDays, format, isSameDay } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-svelte";
-import ProgramCell from "$lib/components/program/ProgramCell.svelte";
+import { Funnel, LayoutGrid, List, Search } from "lucide-svelte";
+import { Badge } from "$lib/components/ui/badge";
 import { Button } from "$lib/components/ui/button";
-import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+import * as Card from "$lib/components/ui/card";
+import { Input } from "$lib/components/ui/input";
+import * as Sheet from "$lib/components/ui/sheet";
+import WorkoutEditor from "$lib/components/workouts/WorkoutEditor.svelte";
+import { PALETTE } from "$lib/config/colors";
 
 let { data } = $props();
-const today = new Date();
 
-// Track manually opened cells
-let manualCells = $state<Record<string, string[]>>({});
+// New State for the Sheet
+let sheetOpen = $state(false);
+let selectedWorkout = $state<any>(null);
 
-function getDateForColumn(dayIndex: number) {
-  const baseDate = typeof data.weekStart === "string" ? new Date(data.weekStart) : data.weekStart;
-  const offset = (dayIndex + 6) % 7;
-  return addDays(baseDate, offset);
+function openEditor(workout: any) {
+  selectedWorkout = workout;
+  sheetOpen = true;
 }
 
-function addClassTypeToDay(dateStr: string, class_type: string) {
-  if (!manualCells[dateStr]) manualCells[dateStr] = [];
-  if (!manualCells[dateStr].includes(class_type)) {
-    manualCells[dateStr] = [...manualCells[dateStr], class_type];
+function handleCreateNew() {
+  selectedWorkout = {
+    id: null,
+    slug: `new-workout-${Math.floor(Math.random() * 1000)}`,
+    description: "",
+    duration: 15,
+    workout_type: "WOD",
+    class_type: data.uniqueClassTypes?.[0] || ""
+  };
+  sheetOpen = true;
+}
+
+let searchQuery = $state("");
+let viewMode = $state<"grid" | "list">("grid");
+
+function getColorForString(str: string | null) {
+  if (!str) return "bg-muted text-muted-foreground";
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
+  const index = Math.abs(hash) % PALETTE.length;
+  return PALETTE[index];
 }
 
-function isClassTypeScheduled(dateStr: string, class_type: string) {
-  return data.daysMap[dateStr]?.[class_type]?.isScheduled ?? false;
-}
-
-// Get active class_types for a day (Scheduled + Manually Added), sorted by config
-function getActiveClassTypes(dateStr: string) {
-  const scheduledClassTypes = Object.keys(data.daysMap[dateStr] || {});
-  const manuallyAdded = manualCells[dateStr] || [];
-  // Deduplicate:
-  const combined = Array.from(new Set([...scheduledClassTypes, ...manuallyAdded]));
-
-  const classTypeSortingMap = new Map(
-    data.settings.classTypes.map((ct: any, index: number) => [ct.name, index])
-  );
-
-  return combined.sort((a, b) => {
-    const iA = classTypeSortingMap.get(a) ?? 999;
-    const iB = classTypeSortingMap.get(b) ?? 999;
-    // If indices are different, sort by index. Otherwise, sort alphabetically.
-    return iA - iB || a.localeCompare(b);
-  });
-}
-
-function handleDeleted(dateStr: string, class_type: string) {
-  if (!isClassTypeScheduled(dateStr, class_type)) {
-    // Remove it from our manual UI state so it vanishes instantly
-    if (manualCells[dateStr]) {
-      manualCells[dateStr] = manualCells[dateStr].filter((t) => t !== class_type);
-    }
-  }
-}
+let filteredWorkouts = $derived(
+  data.workouts.filter((w) => {
+    const searchTarget = `${w.slug || ""} ${w.description || ""}`.toLowerCase();
+    return searchTarget.includes(searchQuery.toLowerCase());
+  })
+);
 </script>
 
-<div class="flex flex-col h-full gap-5 overflow-hidden p-6 bg-neutral-50">
-  <div class="flex items-center justify-between shrink-0">
+<div class="max-w-7xl mx-auto p-6 space-y-8">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold tracking-tight">Programming</h1>
-      <!-- <p class="text-sm text-muted-foreground">Weekly block editor</p> -->
+      <h1 class="text-3xl font-bold tracking-tight">Workout Library</h1>
+      <p class="text-muted-foreground mt-2">
+        Manage your repository of workouts, strength cycles, and structured data.
+      </p>
     </div>
-
-    <div class="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="icon"
-        href="?date={format(addDays(data.weekStart, -7), 'yyyy-MM-dd')}"
-      >
-        <ChevronLeft class="h-4 w-4" />
-      </Button>
-      <span class="font-mono font-medium w-32 text-center text-sm">
-        {format(data.weekStart, "d MMM")}- {format(data.weekEnd, "d MMM")}
-      </span>
-      <Button
-        variant="outline"
-        size="icon"
-        href="?date={format(addDays(data.weekStart, 7), 'yyyy-MM-dd')}"
-      >
-        <ChevronRight class="h-4 w-4" />
-      </Button>
-    </div>
+    <Button onclick={handleCreateNew}>Create Workout</Button>
   </div>
 
-  <!-- TODO: review snap behavior on mobile -->
-  <div class="flex-1 overflow-x-auto overflow-y-hidden flex h-full snap-x snap-proximity">
-    {#each data.visibleDayIndices as dayIndex}
-      {@const dayDate = getDateForColumn(dayIndex)}
-      {@const dateStr = format(dayDate, "yyyy-MM-dd")}
-      {@const isToday = isSameDay(dayDate, today)}
-      {@const activeClassTypes = getActiveClassTypes(dateStr)}
-      {@const unprogrammedClassTypes = data.availableProgrammableTypes.filter((t: string) => !activeClassTypes.includes(t))}
-
-      <div class="flex flex-col w-[280px] shrink-0 h-full snap-start {isToday && 'bg-primary/5'}">
-        <div class="p-3 text-left border-b bg-background/95 backdrop-blur z-10 sticky top-0">
-          <span class="font-semibold text-sm {isToday ? 'text-primary' : 'text-foreground'}">
-            {format(dayDate, "EEEE")}
-          </span>
-          <span class="text-xs {isToday ? 'text-primary/80' : 'text-muted-foreground'}">
-            {format(dayDate, "d MMM")}
-          </span>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-2 flex flex-col gap-7">
-          {#each activeClassTypes as class_type}
-            {#key `${dateStr}-${class_type}`}
-              <ProgramCell
-                {class_type}
-                programs={data.daysMap[dateStr]?.[class_type]?.programs || []}
-                date={dayDate}
-                isScheduled={isClassTypeScheduled(dateStr, class_type)}
-                onDelete={() => handleDeleted(dateStr, class_type)}
-              />
-            {/key}
-          {/each}
-
-          {#if unprogrammedClassTypes.length > 0}
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger>
-                {#snippet child({ props })}
-                  <Button
-                    {...props}
-                    variant="ghost"
-                    class="w-full font-mono text-muted-foreground border-dashed border-2 hover:border-primary bg-transparent hover:bg-muted/50 mt-2 font-semibold"
-                  >
-                    <Plus class="w-4 h-4 mr-2" />
-                    Add program type
-                  </Button>
-                {/snippet}
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content>
-                {#each unprogrammedClassTypes as class_type}
-                  <DropdownMenu.Item onclick={() => addClassTypeToDay(dateStr, class_type)}>
-                    {class_type}
-                  </DropdownMenu.Item>
-                {/each}
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          {/if}
-        </div>
+  <div class="flex items-center gap-2 justify-between">
+    <div class="flex items-center gap-2 flex-1 max-w-md">
+      <div class="relative flex-1">
+        <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Search by slug or description..."
+          class="pl-9 bg-background font-mono text-sm"
+          bind:value={searchQuery} />
       </div>
-    {/each}
+      <!-- TODO: advanced filtering
+       <Button variant="outline" size="icon"> <Funnel class="h-4 w-4" /> </Button> -->
+    </div>
+
+    <div class="flex items-center bg-muted/50 p-1 rounded-md border">
+      <Button
+        variant={viewMode === "grid" ? "secondary" : "ghost"}
+        size="sm"
+        class="h-7 px-2"
+        onclick={() => viewMode = "grid"}>
+        <LayoutGrid class="h-4 w-4" />
+      </Button>
+      <Button
+        variant={viewMode === "list" ? "secondary" : "ghost"}
+        size="sm"
+        class="h-7 px-2"
+        onclick={() => viewMode = "list"}>
+        <List class="h-4 w-4" />
+      </Button>
+    </div>
   </div>
+
+  {#if filteredWorkouts.length === 0}
+    <div
+      class="flex flex-col items-center justify-center p-12 border border-dashed rounded-lg bg-muted/20">
+      <p class="text-muted-foreground">No workouts found matching your search.</p>
+    </div>
+  {:else if viewMode === "grid"}
+    <div class="flex flex-wrap gap-6 items-start">
+      {#each filteredWorkouts as workout}
+        <Card.Root
+          class="w-80 shrink-0 rounded-none border-2 border-border bg-stone-100 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer flex flex-col font-mono"
+          onclick={() => openEditor(workout)}>
+          <Card.Content class="p-4 flex flex-col h-full">
+            <div class="flex flex-wrap gap-1.5 mb-3">
+              {#if workout.class_type}
+                <Badge
+                  variant="secondary"
+                  class="rounded-none border border-foreground/10 uppercase text-[10px]"
+                  style="background-color: {getColorForString(workout.class_type)}20; color: {getColorForString(workout.class_type)};">
+                  {workout.class_type}
+                </Badge>
+              {/if}
+              {#if workout.workout_type}
+                <Badge
+                  variant="outline"
+                  class="rounded-none border-foreground/30 text-foreground/70 uppercase text-[10px]">
+                  {workout.workout_type}
+                </Badge>
+              {/if}
+              {#if workout.duration}
+                <Badge
+                  variant="outline"
+                  class="rounded-none border-foreground/30 text-foreground/70 uppercase text-[10px]">
+                  {workout.duration}m
+                </Badge>
+              {/if}
+            </div>
+
+            <div class="text-sm font-bold lowercase text-foreground">
+              {workout.slug || "untitled-slug"}
+            </div>
+
+            <hr class="border-t-2 border-dashed border-border my-3" />
+
+            <p
+              class="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed line-clamp-[10]">
+              {workout.description}
+            </p>
+          </Card.Content>
+        </Card.Root>
+      {/each}
+    </div>
+  {:else if viewMode === "list"}
+    <div class="flex flex-col gap-2">
+      {#each filteredWorkouts as workout}
+        <div
+          class="flex items-center gap-4 p-3 border rounded-lg bg-background hover:bg-muted/30 transition-colors cursor-pointer font-mono group"
+          role="button"
+          tabindex="0"
+          onclick={() => openEditor(workout)}>
+          <div class="text-sm font-bold lowercase text-foreground w-50 shrink-0 truncate">
+            {workout.slug || "untitled-slug"}
+          </div>
+
+          <div
+            class="text-sm text-muted-foreground truncate flex-1 group-hover:text-foreground transition-colors">
+            {workout.description}
+          </div>
+
+          <div class="flex items-center gap-1.5 shrink-0 ml-4">
+            {#if workout.class_type}
+              <Badge
+                variant="secondary"
+                class="uppercase text-[10px]"
+                style="background-color: {getColorForString(workout.class_type)}20; color: {getColorForString(workout.class_type)};">
+                {workout.class_type}
+              </Badge>
+            {/if}
+            {#if workout.workout_type}
+              <Badge
+                variant="outline"
+                class="border-muted-foreground/30 text-muted-foreground uppercase text-[10px]">
+                {workout.workout_type}
+              </Badge>
+            {/if}
+            {#if workout.duration}
+              <Badge
+                variant="outline"
+                class="border-muted-foreground/30 text-muted-foreground uppercase text-[10px]">
+                {workout.duration}m
+              </Badge>
+            {/if}
+          </div>
+        </div>
+      {/each}
+    </div>
+  {/if}
 </div>
+
+<Sheet.Root bind:open={sheetOpen}>
+  <Sheet.Content side="right" class="w-full sm:max-w-xl p-0 border-none shadow-2xl">
+    {#if selectedWorkout}
+      <WorkoutEditor
+        workout={selectedWorkout}
+        uniqueClassTypes={data.uniqueClassTypes}
+        formData={data.form}
+        onSaved={() => {
+          // Optional: You could invalidateAll() here to refresh the grid, 
+          // but the SvelteKit form action will actually do it automatically!
+        }}
+        onDeleted={() => {
+          sheetOpen = false;
+          selectedWorkout = null;
+        }} />
+    {/if}
+  </Sheet.Content>
+</Sheet.Root>

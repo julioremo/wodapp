@@ -1,12 +1,15 @@
 import { z } from "zod";
 
 export const workoutSchema = z.object({
-  title: z.string().optional(), // e.g. "Murph"
-  description: z.string().min(1, "Description is required"),
-  date: z.string().optional(),
-  class_type: z.string().default(""),
-  apply_to_all: z.boolean().default(true),
-  selected_class_ids: z.array(z.string()).default([])
+  id: z.uuid().nullable().optional(),
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .regex(/^[a-z0-9-]+$/, "Only lowercase letters, numbers, and hyphens"),
+  description: z.string().min(1, "Description cannot be empty"),
+  duration: z.number().int().min(1, "Must be > 0").max(300, "Too long"),
+  workout_type: z.string().min(1, "Block type required"),
+  class_type: z.string().nullable().optional()
 });
 
 export type WorkoutSchema = z.infer<typeof workoutSchema>;

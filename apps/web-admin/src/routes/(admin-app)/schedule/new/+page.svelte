@@ -21,7 +21,7 @@ let {
 }: {
   data: {
     form: SuperValidated<ScheduleForm>;
-    coaches: { id: string; full_name: string }[];
+    coaches: { id: string; display_name: string }[];
     uniqueClassTypes: [];
   };
 } = $props();
@@ -204,8 +204,7 @@ function resetForm() {
                   {...props}
                   bind:value={$formData.recurrence_end_date}
                   required={$formData.is_recurring}
-                  class="w-36"
-                />
+                  class="w-36" />
               {/snippet}
             </Form.Control>
           </Form.Field>
@@ -223,20 +222,21 @@ function resetForm() {
                   value={$formData.weekdays.map(String)}
                   onValueChange={(vals) => {
                     $formData.weekdays = vals.map(Number);
-                  }}
-                >
+                  }}>
                   {#each daysOfWeek as day}
                     <ToggleGroup.Item
                       value={day.id}
                       aria-label={day.label}
-                      class="rounded-full data-[state=on]:bg-blue-100"
-                    >
+                      class="rounded-full data-[state=on]:bg-blue-100">
                       {day.label.slice(0, 3)}
                     </ToggleGroup.Item>
                   {/each}
                 </ToggleGroup.Root>
 
-                <input type="hidden" name={props.name} value={JSON.stringify($formData.weekdays)} />
+                <input
+                  type="hidden"
+                  name={props.name}
+                  value={JSON.stringify($formData.weekdays)} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -254,8 +254,7 @@ function resetForm() {
 
     <div class="border rounded overflow-hidden bg-card">
       <div
-        class="hidden md:grid grid-cols-10 gap-3 p-3 bg-muted/50 text-xs font-medium text-muted-foreground uppercase tracking-wider"
-      >
+        class="hidden md:grid grid-cols-10 gap-3 p-3 bg-muted/50 text-xs font-medium text-muted-foreground uppercase tracking-wider">
         <div class="col-span-1">Time</div>
         <div class="col-span-3">Class Type</div>
         <div class="col-span-3">Coach</div>
@@ -282,8 +281,7 @@ function resetForm() {
                           : overlappingIndices.has(i)
                             ? "border-yellow-500 focus-visible:ring-yellow-500 bg-yellow-50/30"
                             : ""
-                      )}
-                    />
+                      )} />
                   {/snippet}
                 </Form.Control>
                 <Form.FieldErrors class="text-[10px]" />
@@ -319,10 +317,10 @@ function resetForm() {
                   <!-- TODO: Responsive Select -->
                   {#snippet children({ props })}
                     <Select.Root {...props} bind:value={$formData.sessions[i].coach_id}>
-                      <Select.Trigger class="w-full">{data.coaches[0].full_name}</Select.Trigger>
+                      <Select.Trigger class="w-full">{data.coaches[0].display_name}</Select.Trigger>
                       <Select.Content>
                         {#each data.coaches as coach}
-                          <Select.Item value={coach.id}> {coach.full_name} </Select.Item>
+                          <Select.Item value={coach.id}> {coach.display_name} </Select.Item>
                         {/each}
                       </Select.Content>
                     </Select.Root>
@@ -340,8 +338,7 @@ function resetForm() {
                       {...props}
                       type="number"
                       bind:value={$formData.sessions[i].capacity}
-                      placeholder="Cap"
-                    />
+                      placeholder="Cap" />
                   {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -356,8 +353,7 @@ function resetForm() {
                       {...props}
                       type="number"
                       bind:value={$formData.sessions[i].duration}
-                      placeholder="Min"
-                    />
+                      placeholder="Min" />
                   {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -390,8 +386,7 @@ function resetForm() {
                 class="rounded-full"
                 onclick={() => cloneSession(i)}
                 type="button"
-                title="Clone this class"
-              >
+                title="Clone this class">
                 <Copy class="h-4 w-4" />
               </Button>
 
@@ -400,8 +395,7 @@ function resetForm() {
                 variant="ghost"
                 onclick={() => removeSession(i)}
                 disabled={$formData.sessions.length === 1}
-                class="rounded-full hover:text-destructive"
-              >
+                class="rounded-full hover:text-destructive">
                 <Trash2 class="h-4 w-4" />
               </Button>
             </div>
@@ -416,8 +410,7 @@ function resetForm() {
         variant="outline"
         size="sm"
         class="text-muted-foreground rounded-full"
-        onclick={() => cloneSession($formData.sessions.length - 1)}
-      >
+        onclick={() => cloneSession($formData.sessions.length - 1)}>
         <Plus class="h-4 w-4 mr-2" />
         Add Class
       </Button>
@@ -429,8 +422,7 @@ function resetForm() {
       type="button"
       variant="ghost"
       class="text-muted-foreground hover:text-destructive"
-      onclick={resetForm}
-    >
+      onclick={resetForm}>
       <RotateCcw class="h-4 w-4 mr-2" />
       Clear Form
     </Button>

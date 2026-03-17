@@ -5,7 +5,7 @@ export const load = async ({ locals }) => {
 
   const { data: coaches } = await locals.supabase
     .from("memberships")
-    .select("...profiles(id, full_name)")
+    .select("...profiles(id, display_name)")
     .eq("location_id", locals.location?.id)
     .in("role", ["coach", "manager", "admin"]);
 

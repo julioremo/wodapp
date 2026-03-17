@@ -1,5 +1,6 @@
 <!-- TODO: make sure today's column is shaded. RN columns don't exist  -->
 <script lang="ts">
+import type { GymSettings } from "@wodapp/types";
 import { addDays, format, isSameDay } from "date-fns";
 import type { Snippet } from "svelte";
 import { SCHEDULE_GRID_CONFIG as config } from "$lib/config/schedule";
@@ -15,7 +16,7 @@ let {
   visibleDayIndices: number[];
   classes: any[];
   weekStart?: Date;
-  settings: App.GymSettings;
+  settings: GymSettings;
   children: Snippet<[{ item: any }]>;
 }>();
 

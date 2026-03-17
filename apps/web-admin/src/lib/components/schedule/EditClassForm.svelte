@@ -1,75 +1,79 @@
 <script lang="ts">
-  import * as Form from "$lib/components/ui/form";
-  import * as Select from "$lib/components/ui/select";
-  import { Input } from "$lib/components/ui/input";
-  import * as InputGroup from "$lib/components/ui/input-group";
-  import { Button } from "$lib/components/ui/button";
-  import { Combobox } from "$lib/components/ui/combobox";
-  import { toast } from "svelte-sonner";
-  import { Plus, Trash } from "lucide-svelte";
-  import { editClassSchema, type EditClass } from "$lib/schemas/schedule";
-  import { type SuperValidated, superForm } from "sveltekit-superforms";
-  import { zod4Client } from "sveltekit-superforms/adapters";
+import { Plus, Trash } from "lucide-svelte";
+import { toast } from "svelte-sonner";
+import { type SuperValidated, superForm } from "sveltekit-superforms";
+import { zod4Client } from "sveltekit-superforms/adapters";
+import { Button } from "$lib/components/ui/button";
+import { Combobox } from "$lib/components/ui/combobox";
+import * as Form from "$lib/components/ui/form";
+import { Input } from "$lib/components/ui/input";
+import * as InputGroup from "$lib/components/ui/input-group";
+import * as Select from "$lib/components/ui/select";
+import { type EditClass, editClassSchema } from "$lib/schemas/schedule";
 
-  let {
-    data,
-    updateActionUrl,
-    deleteActionUrl,
-    coaches = [],
-    classTypes = [],
-    programs = [],
-    onCancel
-  } = $props<{
-    data: SuperValidated<EditClass>;
-    updateActionUrl: string;
-    deleteActionUrl: string;
-    coaches: { id: string; full_name: string }[];
-    classTypes: string[];
-    programs: { id: string; title: string }[];
-    onCancel: () => void;
-  }>();
+let {
+  data,
+  updateActionUrl,
+  deleteActionUrl,
+  coaches = [],
+  classTypes = [],
+  programs = [],
+  onCancel
+} = $props<{
+  data: SuperValidated<EditClass>;
+  updateActionUrl: string;
+  deleteActionUrl: string;
+  coaches: { id: string; display_name: string }[];
+  classTypes: string[];
+  programs: { id: string; title: string }[];
+  onCancel: () => void;
+}>();
 
-  const form = superForm(data, {
-    dataType: "json",
-    resetForm: false,
-    validators: zod4Client(editClassSchema),
-    onResult: ({ result }) => {
-      if (result.type === "success") {
-        toast.success(result.data?.deleted ? "Class deleted" : "Class updated");
-        onCancel(); // Close popover
-      }
+const form = superForm(data, {
+  dataType: "json",
+  resetForm: false,
+  validators: zod4Client(editClassSchema),
+  onResult: ({ result }) => {
+    if (result.type === "success") {
+      toast.success(result.data?.deleted ? "Class deleted" : "Class updated");
+      onCancel(); // Close popover
     }
+  }
+});
+
+const { form: formData, enhance, submitting } = form;
+
+// Helpers for Selects (Connects ID <-> Label)
+let selectedCoachLabel = $derived(
+  coaches.find((c) => c.id === $formData.coach_id)?.display_name ?? "Unassigned"
+);
+let selectedTypeLabel = $derived($formData.class_type || "Select type");
+let selectedprogramLabel = $derived(
+  programs.find((w) => w.id === $formData.program_id)?.title ?? "Unassigned"
+);
+
+let programOptions = $derived.by(() => {
+  const named = programs.filter((w) => w.title);
+  named.sort((a, b) => a.title.localeCompare(b.title));
+
+  const unnamed = programs.filter((w) => !w.title);
+  unnamed.sort((a, b) => {
+    // Primary: Type
+    const typeA = a.program_type || "zz"; // push nulls to end
+    const typeB = b.program_type || "zz";
+    if (typeA !== typeB) return typeA.localeCompare(typeB);
+    // Secondary: Date (Newest first)
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
-  const { form: formData, enhance, submitting } = form;
+  const sorted = [...named, ...unnamed];
 
-  // Helpers for Selects (Connects ID <-> Label)
-  let selectedCoachLabel = $derived(coaches.find((c) => c.id === $formData.coach_id)?.full_name ?? "Unassigned");
-  let selectedTypeLabel = $derived($formData.class_type || "Select type");
-  let selectedprogramLabel = $derived(programs.find((w) => w.id === $formData.program_id)?.title ?? "Unassigned");
-
-  let programOptions = $derived.by(() => {
-    const named = programs.filter((w) => w.title);
-    named.sort((a, b) => a.title.localeCompare(b.title));
-
-    const unnamed = programs.filter((w) => !w.title);
-    unnamed.sort((a, b) => {
-      // Primary: Type
-      const typeA = a.program_type || "zz"; // push nulls to end
-      const typeB = b.program_type || "zz";
-      if (typeA !== typeB) return typeA.localeCompare(typeB);
-      // Secondary: Date (Newest first)
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
-
-    const sorted = [...named, ...unnamed];
-
-    return sorted.map((w) => ({
-      value: w.id,
-      label: w.title || w.slug,
-      type: w.class_type
-    }));
-  });
+  return sorted.map((w) => ({
+    value: w.id,
+    label: w.title || w.slug,
+    type: w.class_type
+  }));
+});
 </script>
 
 <form method="POST" action={updateActionUrl} use:enhance>
@@ -113,15 +117,12 @@
               bind:value={$formData.program_id}
               options={programOptions}
               placeholder="Select program..."
-              searchPlaceholder="Search programs..."
-            >
+              searchPlaceholder="Search programs...">
               {#snippet itemSnippet({ option })}
                 <div class="flex flex-col text-left truncate">
                   <span class="font-medium">{option.label}</span>
                   {#if option.type}
-                    <span class="text-xs text-muted-foreground">
-                      {option.type}
-                    </span>
+                    <span class="text-xs text-muted-foreground"> {option.type} </span>
                   {/if}
                 </div>
               {/snippet}
@@ -132,9 +133,9 @@
               size="md"
               href={`/programs/new?date=${$formData.date}&type=${$formData.class_type}`}
               target="_blank"
-              class="grow"
-            >
-              <Plus class="h-4 w-4" /> Add new
+              class="grow">
+              <Plus class="h-4 w-4" />
+              Add new
             </Button>
           </div>
         {/snippet}
@@ -153,8 +154,8 @@
                 <span class="text-muted-foreground italic">Unassigned</span>
               </Select.Item>
               {#each coaches as coach}
-                <Select.Item value={coach.id} label={coach.full_name}>
-                  {coach.full_name}
+                <Select.Item value={coach.id} label={coach.display_name}>
+                  {coach.display_name}
                 </Select.Item>
               {/each}
             </Select.Content>
@@ -204,13 +205,15 @@
       formnovalidate
       onclick={(e) => {
         if (!confirm("Sure you want to delete this class?")) e.preventDefault();
-      }}
-    >
-      <Trash class="h-3 w-3" /> Delete Class
+      }}>
+      <Trash class="h-3 w-3" />
+      Delete Class
     </Button>
 
     <div class="flex gap-1">
-      <Button type="button" variant="outline" onclick={onCancel} class="rounded-full w-[5em]">Cancel</Button>
+      <Button type="button" variant="outline" onclick={onCancel} class="rounded-full w-[5em]"
+        >Cancel</Button
+      >
       <Button type="submit" disabled={$submitting} class="rounded-full w-[5em]">
         {$submitting ? "Saving..." : "Save"}
       </Button>

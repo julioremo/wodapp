@@ -82,7 +82,7 @@ let attendance = $derived(session.bookings_count ?? 0);
     <div class="flex justify-between items-center text-[11px]">
       <div class="truncate flex items-center gap-1 max-w-[75%]">
         {#if session.coach}
-          <span class="opacity-75 truncate">{session.coach.full_name}</span>
+          <span class="opacity-75 truncate">{session.coach.display_name}</span>
         {:else}
           <span
             class="text-destructive-foreground bg-destructive/15 p-0.5 rounded-full flex items-center gap-1 font-medium">

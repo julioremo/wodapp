@@ -1,20 +1,25 @@
 import { createServerClient } from "@supabase/ssr";
-import { type Handle, redirect } from "@sveltejs/kit";
+import type { Handle } from "@sveltejs/kit";
+import type { Database, GymSettings } from "@wodapp/types";
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from "$env/static/public";
 
 export const handle: Handle = async ({ event, resolve }) => {
   // 1. Initialize Supabase
-  event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
-    cookies: {
-      getAll: () => event.cookies.getAll(),
-      setAll: (cookiesToSet) => {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          // By wrapping this in { }, it no longer returns a value
-          event.cookies.set(name, value, { ...options, path: "/" });
-        });
+  event.locals.supabase = createServerClient<Database>(
+    PUBLIC_SUPABASE_URL,
+    PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll: () => event.cookies.getAll(),
+        setAll: (cookiesToSet) => {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            // By wrapping this in { }, it doesn't return a value
+            event.cookies.set(name, value, { ...options, path: "/" });
+          });
+        }
       }
     }
-  });
+  );
 
   // 2. Safe Session Fetch
   event.locals.safeGetSession = async () => {
@@ -63,14 +68,14 @@ export const handle: Handle = async ({ event, resolve }) => {
         id: location.id,
         name: location.name,
         slug: location.slug,
-        settings: location.settings
+        settings: location.settings as unknown as GymSettings
       };
     }
   }
 
   return resolve(event, {
     filterSerializedResponseHeaders(name) {
-      return name === "content-range";
+      return name === "content-range" || name === "x-supabase-api-version";
     }
   });
 };

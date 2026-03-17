@@ -116,6 +116,7 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          settings: Json | null
           slug: string
           theme: Json | null
         }
@@ -123,6 +124,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
+          settings?: Json | null
           slug: string
           theme?: Json | null
         }
@@ -130,6 +132,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+          settings?: Json | null
           slug?: string
           theme?: Json | null
         }
@@ -180,29 +183,50 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          birthdate: string | null
           created_at: string | null
+          display_name: string | null
           email: string | null
-          full_name: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string | null
+          gender: string | null
           id: string
           last_location_id: string | null
+          last_name: string | null
+          phone: string | null
           preferences: Json | null
         }
         Insert: {
           avatar_url?: string | null
+          birthdate?: string | null
           created_at?: string | null
+          display_name?: string | null
           email?: string | null
-          full_name?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string | null
+          gender?: string | null
           id: string
           last_location_id?: string | null
+          last_name?: string | null
+          phone?: string | null
           preferences?: Json | null
         }
         Update: {
           avatar_url?: string | null
+          birthdate?: string | null
           created_at?: string | null
+          display_name?: string | null
           email?: string | null
-          full_name?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string | null
+          gender?: string | null
           id?: string
           last_location_id?: string | null
+          last_name?: string | null
+          phone?: string | null
           preferences?: Json | null
         }
         Relationships: [
@@ -256,6 +280,7 @@ export type Database = {
           class_type: string
           created_at: string | null
           id: string
+          program_date: string | null
           title: string | null
           updated_at: string | null
         }
@@ -263,6 +288,7 @@ export type Database = {
           class_type: string
           created_at?: string | null
           id?: string
+          program_date?: string | null
           title?: string | null
           updated_at?: string | null
         }
@@ -270,6 +296,7 @@ export type Database = {
           class_type?: string
           created_at?: string | null
           id?: string
+          program_date?: string | null
           title?: string | null
           updated_at?: string | null
         }
@@ -330,37 +357,49 @@ export type Database = {
       workouts: {
         Row: {
           class_type: string | null
+          clean_description: string | null
+          coach_notes: string | null
           created_at: string | null
           created_by: string | null
           description: string
           duration: number | null
           id: string
+          location_id: string | null
           slug: string
           structured_data: Json | null
+          tags: string[] | null
           title: string | null
           workout_type: string | null
         }
         Insert: {
           class_type?: string | null
+          clean_description?: string | null
+          coach_notes?: string | null
           created_at?: string | null
           created_by?: string | null
           description: string
           duration?: number | null
           id?: string
+          location_id?: string | null
           slug: string
           structured_data?: Json | null
+          tags?: string[] | null
           title?: string | null
           workout_type?: string | null
         }
         Update: {
           class_type?: string | null
+          clean_description?: string | null
+          coach_notes?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string
           duration?: number | null
           id?: string
+          location_id?: string | null
           slug?: string
           structured_data?: Json | null
+          tags?: string[] | null
           title?: string | null
           workout_type?: string | null
         }
@@ -370,6 +409,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workouts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
             referencedColumns: ["id"]
           },
         ]
@@ -384,6 +430,7 @@ export type Database = {
       }
     }
     Functions: {
+      delete_program: { Args: { p_program_id: string }; Returns: undefined }
       get_unique_class_types: {
         Args: never
         Returns: {
@@ -393,6 +440,16 @@ export type Database = {
       invite_athlete: {
         Args: { loc_id: string; user_email: string }
         Returns: undefined
+      }
+      save_program: {
+        Args: {
+          p_blocks: Json
+          p_class_type: string
+          p_date: string
+          p_program_id: string
+          p_title: string
+        }
+        Returns: string
       }
     }
     Enums: {

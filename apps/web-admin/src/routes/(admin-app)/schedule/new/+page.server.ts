@@ -1,12 +1,12 @@
 import { fail } from "@sveltejs/kit";
-import { superValidate, setError } from "sveltekit-superforms";
-import { sessionSchema, scheduleFormSchema, defaultSession } from "$lib/schemas/schedule.js";
+import { setError, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
+import { defaultSession, scheduleFormSchema, sessionSchema } from "$lib/schemas/schedule.js";
 
 export const load = async ({ locals }) => {
   const { data: coaches } = await locals.supabase
     .from("memberships")
-    .select("...profiles(id, full_name)")
+    .select("...profiles(id, display_name)")
     .eq("location_id", locals.location?.id)
     .in("role", ["coach", "manager", "admin"]);
 

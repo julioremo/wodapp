@@ -17,7 +17,7 @@ export const load = async ({ locals }) => {
   const [classesResult, programsResult] = await Promise.all([
     locals.supabase
       .from("classes")
-      .select("*, program:programs(title), coach:profiles(full_name)")
+      .select("*, program:programs(title), coach:profiles(display_name)")
       .eq("location_id", locals.location?.id)
       .gte("start_time", startBuffer.toISOString())
       .lt("start_time", endBuffer.toISOString())

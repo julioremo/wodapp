@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
-  import { Button } from "$lib/components/ui/button";
-  import * as Card from "$lib/components/ui/card";
-  import { Plus, CircleAlert, Trash2, Calendar as CalendarIcon } from "lucide-svelte";
+import { Calendar as CalendarIcon, CircleAlert, Plus, Trash2 } from "lucide-svelte";
+import { enhance } from "$app/forms";
+import { Button } from "$lib/components/ui/button";
+import * as Card from "$lib/components/ui/card";
 
-  let { data } = $props();
+let { data } = $props();
 </script>
 
 <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -32,7 +32,7 @@
           <div class="flex justify-between border-b pb-1">
             <span>Coach:</span>
             <span class={session.coach ? "" : "text-muted-foreground italic"}>
-              {session.coach?.full_name ?? "TBD"}
+              {session.coach?.display_name ?? "TBD"}
             </span>
           </div>
           <div class="flex justify-between pt-1">
@@ -52,8 +52,7 @@
             return async ({ update }) => {
               await update(); // Wait for server to delete
             };
-          }}
-        >
+          }}>
           <input type="hidden" name="classId" value={session.id} />
           <Button
             variant="ghost"
@@ -64,8 +63,7 @@
               if (!confirm("Are you sure you want to cancel this class?")) {
                 e.preventDefault();
               }
-            }}
-          >
+            }}>
             <Trash2 class="h-4 w-4" />
             <span class="sr-only">Delete</span>
           </Button>

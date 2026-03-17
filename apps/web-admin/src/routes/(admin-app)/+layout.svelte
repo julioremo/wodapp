@@ -1,5 +1,13 @@
 <script lang="ts">
-import { Calendar, ClipboardList, House, LibraryBig, Settings, Users } from "lucide-svelte";
+import {
+  Calendar,
+  ClipboardList,
+  Dumbbell,
+  House,
+  LibraryBig,
+  Settings,
+  Users
+} from "lucide-svelte";
 import { Button } from "$lib/components/ui/button";
 
 let { data, children } = $props();
@@ -10,6 +18,7 @@ const navItems = [
   { label: "Programming", href: `/programming`, icon: ClipboardList },
   { label: "Workout Library", href: `/workouts`, icon: LibraryBig },
   { label: "Members", href: `/members`, icon: Users },
+  { label: "Staff", href: `/staff`, icon: Dumbbell },
   { label: "Settings", href: `/settings`, icon: Settings }
 ];
 </script>

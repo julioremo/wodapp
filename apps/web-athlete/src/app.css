@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;500;700&family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -10,7 +10,7 @@
 @theme {
   /* -- Fonts -- */
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: "DM Mono", SFMono-Regular, ui-monospace, monospace;
   --font-marker: "Permanent Marker", cursive;
 
   /* -- Border Widths (Thicker for the "Sketch" look) -- */

@@ -28,12 +28,25 @@ export const load = async ({ params, locals }) => {
     .select(`
       status,
       classes!inner (
-        date,
+        start_time,
         class_type
       )
     `)
     .eq("profile_id", membership.profiles.id)
     .in("status", ["confirmed"]); // Filter out cancelled/no-shows
+
+  const { data: infractions } = await locals.supabase
+    .from("infractions")
+    .select(`
+      id,
+      reason,
+      status,
+      created_at,
+      class:classes(class_type, start_time)
+    `)
+    .eq("profile_id", membership.profiles.id)
+    .eq("location_id", locals.location.id)
+    .order("created_at", { ascending: false });
 
   // Map to the year/month/day format expected by the calendar snippet
   const attendances = (bookings || []).map((b) => {
@@ -50,7 +63,8 @@ export const load = async ({ params, locals }) => {
 
   return {
     membership,
-    attendances
+    attendances,
+    infractions: infractions || []
   };
 };
 

@@ -1,0 +1,1 @@
+export { enforcePenalty } from "./penalties";

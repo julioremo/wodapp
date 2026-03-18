@@ -17,16 +17,19 @@ export type PenaltyConfig =
   | {
       type: "credit_deduction";
       strikes: number;
+      needs_confirmation: boolean;
     }
   | {
       type: "booking_delay";
       strikes: number;
       delay_minutes: number;
+      needs_confirmation: boolean;
     }
   | {
       type: "fee";
       strikes: number;
       amount: number;
+      needs_confirmation: boolean;
     };
 
 export interface GymSettings {

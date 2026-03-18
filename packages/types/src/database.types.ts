@@ -111,6 +111,61 @@ export type Database = {
           },
         ]
       }
+      infractions: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          location_id: string
+          notes: string | null
+          profile_id: string
+          reason: Database["public"]["Enums"]["infraction_reason"]
+          status: Database["public"]["Enums"]["infraction_status"]
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          location_id: string
+          notes?: string | null
+          profile_id: string
+          reason: Database["public"]["Enums"]["infraction_reason"]
+          status?: Database["public"]["Enums"]["infraction_status"]
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          location_id?: string
+          notes?: string | null
+          profile_id?: string
+          reason?: Database["public"]["Enums"]["infraction_reason"]
+          status?: Database["public"]["Enums"]["infraction_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "infractions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "infractions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "infractions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locations: {
         Row: {
           created_at: string | null
@@ -454,6 +509,12 @@ export type Database = {
     }
     Enums: {
       booking_status: "confirmed" | "waitlist" | "cancelled"
+      infraction_reason: "late_cancel" | "no_show"
+      infraction_status:
+        | "pending_review"
+        | "counted"
+        | "waived"
+        | "penalty_applied"
       user_role: "admin" | "manager" | "coach" | "athlete" | "guest"
     }
     CompositeTypes: {
@@ -583,6 +644,13 @@ export const Constants = {
   public: {
     Enums: {
       booking_status: ["confirmed", "waitlist", "cancelled"],
+      infraction_reason: ["late_cancel", "no_show"],
+      infraction_status: [
+        "pending_review",
+        "counted",
+        "waived",
+        "penalty_applied",
+      ],
       user_role: ["admin", "manager", "coach", "athlete", "guest"],
     },
   },

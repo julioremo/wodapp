@@ -27,6 +27,7 @@ export const load = async ({ locals }) => {
   return { form };
 };
 
+// TODO: check for clashes in the schedule and warn the user
 // Helper: Create one class from a specific session row
 function createClass(dateStr: string, session: any, location_id: string) {
   const startDateTime = new Date(`${dateStr}T${session.time}`);

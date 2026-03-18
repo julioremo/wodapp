@@ -38,13 +38,13 @@ let sorting = $state<SortingState>([
   { id: "display_name", desc: false }
 ]);
 
-// Intercept changes to the sorting state, forcing 'status' to the front
-$effect(() => {
-  if (sorting.length > 0 && sorting[0].id !== "status") {
-    const cleaned = sorting.filter((s) => s.id !== "status");
-    sorting = [{ id: "status", desc: false }, ...cleaned];
-  }
-});
+// Intercept sorting so that 'status' is always the fitst sorting key
+// $effect(() => {
+//   if (sorting.length > 0 && sorting[0].id !== "status") {
+//     const cleaned = sorting.filter((s) => s.id !== "status");
+//     sorting = [{ id: "status", desc: false }, ...cleaned];
+//   }
+// });
 
 const columns: ColumnDef<any>[] = [
   {

@@ -1,12 +1,12 @@
 <script lang="ts">
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { format, parseISO } from "date-fns";
 import { ArrowLeft, Calendar as CalendarIcon, CircleAlert, Mail, Phone, Save } from "lucide-svelte";
 import { MediaQuery } from "svelte/reactivity";
 import { toast } from "svelte-sonner";
 import { enhance } from "$app/forms";
 import * as Avatar from "$lib/components/ui/avatar";
 import { Badge } from "$lib/components/ui/badge";
-
 import { Button } from "$lib/components/ui/button";
 import Calendar from "$lib/components/ui/calendar/calendar.svelte";
 import CalendarDay from "$lib/components/ui/calendar/calendar-day.svelte";
@@ -15,20 +15,20 @@ import * as Select from "$lib/components/ui/select";
 import { PALETTE } from "$lib/config/colors";
 
 let { data } = $props();
-const m = data.membership;
-const p = m.profiles;
+const membership = data.membership;
+const profile = membership.profiles;
 
-const initials = (p.display_name || "?")
+const initials = (profile.display_name || "?")
   .split(" ")
   .map((n: string) => n[0])
   .join("")
   .substring(0, 2)
   .toUpperCase();
-const fullName = `${p.first_name || ""} ${p.last_name || ""}`.trim();
+const fullName = `${profile.first_name || ""} ${profile.last_name || ""}`.trim();
 
 // State for the administration form
-let role = $state(m.role);
-let status = $state(m.status);
+let role = $state(membership.role);
+let status = $state(membership.status);
 // Derived state to check if the form is dirty
 let hasChanges = $derived(role !== data.membership.role || status !== data.membership.status);
 // Sync state if the server data updates after a successful form submission
@@ -70,7 +70,22 @@ function getColorForString(str: string | null) {
   return PALETTE[Math.abs(hash) % PALETTE.length];
 }
 
-const joinedDate = new Date(m.created_at);
+function getStatusBadge(status: string) {
+  switch (status) {
+    case "pending_review":
+      return { label: "Pending", variant: "secondary" };
+    case "counted":
+      return { label: "Strike", variant: "destructive" };
+    case "penalty_applied":
+      return { label: "Applied", variant: "destructive" };
+    case "waived":
+      return { label: "Waived", variant: "outline" };
+    default:
+      return { label: status, variant: "default" };
+  }
+}
+
+const joinedDate = new Date(membership.created_at);
 const joinedStr = joinedDate.toLocaleDateString("en-US", {
   month: "short",
   day: "numeric",
@@ -91,27 +106,27 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
     <div class="p-6 border-b flex flex-row justify-between">
       <div class="flex flex-row gap-6">
         <Avatar.Root class="h-28 w-28 border shrink-0">
-          <Avatar.Image src={p.avatar_url || ''} alt={p.display_name} />
+          <Avatar.Image src={profile.avatar_url || ''} alt={profile.display_name} />
           <Avatar.Fallback class="text-lg font-mono">{initials}</Avatar.Fallback>
         </Avatar.Root>
 
         <div class="flex flex-col items-start gap-1.5 text-sm text-muted-foreground">
           <div class="flex items-center gap-4">
-            <h1 class="text-2xl font-bold tracking-tight text-primary">{p.display_name}</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-primary">{profile.display_name}</h1>
             <Badge
-              variant={m.status === 'active' ? 'default' : m.status === 'pending' ? 'secondary' : 'destructive'}>
-              {m.status}
+              variant={membership.status === 'active' ? 'default' : membership.status === 'pending' ? 'secondary' : 'destructive'}>
+              {membership.status}
             </Badge>
           </div>
 
-          {#if fullName && fullName !== p.display_name}
+          {#if fullName && fullName !== profile.display_name}
             <span class="text-muted-foreground text-sm">{fullName}</span>
           {/if}
           <span class="flex items-center gap-2">
-            <Mail class="h-3.5 w-3.5" /> {p.email || 'No email provided'}
+            <Mail class="h-3.5 w-3.5" /> {profile.email || 'No email provided'}
           </span>
           <span class="flex items-center gap-2">
-            <Phone class="h-3.5 w-3.5" /> {p.phone || 'No phone provided'}
+            <Phone class="h-3.5 w-3.5" /> {profile.phone || 'No phone provided'}
           </span>
           <span class="flex items-center gap-2">
             <CalendarIcon class="h-3.5 w-3.5" />
@@ -127,10 +142,12 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
           <CircleAlert class="h-3.5 w-3.5" />
           Emergency Contact
         </span>
-        {#if p.emergency_contact_name || p.emergency_contact_phone}
+        {#if profile.emergency_contact_name || profile.emergency_contact_phone}
           <div class="text-sm space-y-1">
-            <p class="font-medium">{p.emergency_contact_name || 'Name not provided'}</p>
-            <p class="text-muted-foreground">{p.emergency_contact_phone || 'Phone not provided'}</p>
+            <p class="font-medium">{profile.emergency_contact_name || 'Name not provided'}</p>
+            <p class="text-muted-foreground">
+              {profile.emergency_contact_phone || 'Phone not provided'}
+            </p>
           </div>
         {:else}
           <p class="text-sm text-muted-foreground italic">No emergency information on file.</p>
@@ -188,6 +205,48 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
         class="border border-dashed rounded-lg p-8 flex items-center justify-center text-muted-foreground text-sm bg-background/50">
         TODO: Stripe Integration & Subscription Logic
       </div>
+    </div>
+
+    <div class="p-6 border-b bg-muted/5">
+      <h3 class="text-lg tracking-tight mb-4">Infractions</h3>
+      {#if data.infractions.length === 0}
+        <p class="text-sm text-muted-foreground py-4 text-center">No recorded infractions.</p>
+      {:else}
+        <div class="space-y-4">
+          {#each data.infractions as record}
+            {@const badgeConfig = getStatusBadge(record.status)}
+            <div class="flex items-center justify-between p-4 border rounded-lg">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium text-sm">
+                    {record.reason === 'late_cancel' ? 'Late Cancellation' : 'No Show'}
+                  </span>
+                  <Badge variant={badgeConfig.variant}>{badgeConfig.label}</Badge>
+                </div>
+                <p class="text-xs text-muted-foreground">
+                  {record.class?.name}
+                  • {format(parseISO(record.class?.start_time), "MMM d, yyyy h:mm a")}
+                </p>
+              </div>
+
+              {#if record.status === 'pending_review'}
+                <div class="flex items-center gap-2">
+                  <form method="POST" action="?/resolveInfraction" use:enhance>
+                    <input type="hidden" name="infractionId" value={record.id} />
+                    <input type="hidden" name="resolution" value="waived" />
+                    <Button variant="ghost" size="sm" type="submit">Waive</Button>
+                  </form>
+                  <form method="POST" action="?/resolveInfraction" use:enhance>
+                    <input type="hidden" name="infractionId" value={record.id} />
+                    <input type="hidden" name="resolution" value="counted" />
+                    <Button variant="default" size="sm" type="submit">Count Strike</Button>
+                  </form>
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
 
     <div class="p-6">

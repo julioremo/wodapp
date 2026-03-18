@@ -2,7 +2,10 @@
 import type { z } from "zod";
 import { Input } from "$lib/components/ui/input";
 import * as InputGroup from "$lib/components/ui/input-group/index.js";
+import { Label } from "$lib/components/ui/label";
 import * as Select from "$lib/components/ui/select/index.js";
+import { Switch } from "$lib/components/ui/switch";
+
 import type { penaltySchema } from "$lib/schemas/settings";
 
 let {
@@ -18,11 +21,16 @@ function handleTypeChange(newType: string) {
   const currentStrikes = penalty.strikes;
 
   if (newType === "credit_deduction") {
-    penalty = { type: "credit_deduction", strikes: currentStrikes };
+    penalty = { type: "credit_deduction", strikes: currentStrikes, needs_confirmation: false };
   } else if (newType === "booking_delay") {
-    penalty = { type: "booking_delay", strikes: currentStrikes, delay_minutes: 60 };
+    penalty = {
+      type: "booking_delay",
+      strikes: currentStrikes,
+      delay_minutes: 60,
+      needs_confirmation: false
+    };
   } else if (newType === "fee") {
-    penalty = { type: "fee", strikes: currentStrikes, amount: 5.0 };
+    penalty = { type: "fee", strikes: currentStrikes, amount: 5.0, needs_confirmation: false };
   }
 }
 </script>
@@ -67,6 +75,16 @@ function handleTypeChange(newType: string) {
           <span class="text-sm text-muted-foreground">€</span>
         </div>
       {/if}
+
+      <div class="flex items-center justify-between mt-4 pt-4 border-t border-muted-foreground/20">
+        <div class="flex flex-col space-y-1">
+          <Label for="confirm-switch" class="text-sm cursor-pointer">Require Manual Review</Label>
+          <span class="text-xs text-muted-foreground"
+            >Do not apply automatically. Managers must approve this penalty.</span
+          >
+        </div>
+        <Switch id="confirm-switch" bind:checked={penalty.needs_confirmation} />
+      </div>
     </div>
   </div>
 </div>

@@ -17,10 +17,13 @@ export const load = async ({ locals }) => {
         last_name,
         email,
         phone,
-        avatar_url
+        avatar_url,
+        infractions ( id )
       )
     `)
     .eq("location_id", locals.location.id)
+    .eq("profiles.infractions.status", "pending_review")
+    .eq("profiles.infractions.location_id", locals.location.id)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -38,7 +41,8 @@ export const load = async ({ locals }) => {
     role: m.role,
     status: m.status,
     avatar_url: m.profiles?.avatar_url || null,
-    joined: m.created_at
+    joined: m.created_at,
+    pending_infractions: m.profiles?.infractions?.length || 0
   }));
 
   return { members };

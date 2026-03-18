@@ -31,17 +31,20 @@ export const schedulePreferencesSchema = z.object({
 export const penaltySchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("credit_deduction"),
-    strikes: z.coerce.number().int().min(1).default(1)
+    strikes: z.coerce.number().int().min(1).default(1),
+    needs_confirmation: z.boolean().default(false)
   }),
   z.object({
     type: z.literal("booking_delay"),
     strikes: z.coerce.number().int().min(1).default(1),
-    delay_minutes: z.coerce.number().int().min(1).default(60)
+    delay_minutes: z.coerce.number().int().min(1).default(60),
+    needs_confirmation: z.boolean().default(false)
   }),
   z.object({
     type: z.literal("fee"),
     strikes: z.coerce.number().int().min(1).default(1),
-    amount: z.coerce.number().min(0.1).default(5.0)
+    amount: z.coerce.number().min(0.1).default(5.0),
+    needs_confirmation: z.boolean().default(true)
   })
 ]);
 

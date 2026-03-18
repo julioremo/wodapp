@@ -1,19 +1,17 @@
 {
-  "name": "@wodapp/supabase-client",
-  "version": "0.0.1",
-  "type": "module",
-  "main": "./src/index.ts",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.x.x",
-    "@wodapp/types": "workspace:*"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.4.4",
-    "leasot": "^14.4.0",
-    "supabase": "^2.76.8"
+  "name": "wodapp-monorepo",
+  "private": true,
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
-    "types:generate": "npx supabase gen types typescript --schema public --project-id dcocwpokwurfothfjcws > packages/types/src/database.types.ts",
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "lint": "biome check .",
     "tasks:sync": "leasot 'apps/**/*.{svelte,ts,css}' --reporter markdown > tasks.md"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.8",
+    "leasot": "^14.4.0"
   }
 }

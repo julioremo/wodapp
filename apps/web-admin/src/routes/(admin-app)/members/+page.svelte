@@ -20,17 +20,31 @@ import { toast } from "svelte-sonner";
 import { enhance } from "$app/forms";
 import * as Avatar from "$lib/components/ui/avatar";
 import { Button } from "$lib/components/ui/button";
-import { renderSnippet } from "$lib/components/ui/data-table/index.js";
+import { DataTable, renderSnippet } from "$lib/components/ui/data-table";
 import { Input } from "$lib/components/ui/input";
-import DataTable from "./data-table.svelte";
+import * as Tabs from "$lib/components/ui/tabs";
 
 let { data } = $props();
+
+let activeTab = $state("all");
+
+let filteredMembers = $derived(
+  activeTab === "all" ? data.members : data.members.filter((m) => m.status === activeTab)
+);
 
 let globalFilter = $state("");
 let sorting = $state<SortingState>([
   { id: "status", desc: false },
   { id: "display_name", desc: false }
 ]);
+
+// Intercept changes to the sorting state, forcing 'status' to the front
+$effect(() => {
+  if (sorting.length > 0 && sorting[0].id !== "status") {
+    const cleaned = sorting.filter((s) => s.id !== "status");
+    sorting = [{ id: "status", desc: false }, ...cleaned];
+  }
+});
 
 const columns: ColumnDef<any>[] = [
   {
@@ -49,7 +63,8 @@ const columns: ColumnDef<any>[] = [
       const status = row.getValue("status") as string;
       const avatar = row.original.avatar_url;
       const name = row.original.display_name;
-      return renderSnippet(statusSnippet, { status, avatar, name });
+      const pending_infractions = row.original.pending_infractions;
+      return renderSnippet(statusSnippet, { status, avatar, name, pending_infractions });
     },
     meta: {
       class: "w-4 text-center"
@@ -118,7 +133,7 @@ const columns: ColumnDef<any>[] = [
   </div>
 {/snippet}
 
-{#snippet statusSnippet({ status, avatar, name }: { status: string, avatar: string | null, name: string })}
+{#snippet statusSnippet({ status, avatar, name, pending_infractions }: { status: string, avatar: string | null, name: string, pending_infractions: number})}
   {@const initials = (name || "?").split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
 
   <div class="flex justify-center relative w-fit mx-auto" title={status}>
@@ -131,7 +146,12 @@ const columns: ColumnDef<any>[] = [
       </Avatar.Fallback>
     </Avatar.Root>
 
-    {#if status === 'active'}
+    {#if pending_infractions > 0}
+      <span
+        class="absolute -bottom-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-500 border-2 border-background text-[9px] font-bold text-white font-mono">
+        !
+      </span>
+    {:else if status === 'active'}
       <span
         class="absolute bottom-0 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-background"></span>
     {/if}
@@ -224,5 +244,21 @@ const columns: ColumnDef<any>[] = [
     </div>
   </div>
 
-  <DataTable data={data.members} {columns} bind:globalFilter bind:sorting />
+  <!-- <DataTable data={data.members} {columns} bind:globalFilter bind:sorting /> -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <Tabs.Root bind:value={activeTab} class="w-full">
+        <Tabs.List>
+          <Tabs.Trigger value="all">All</Tabs.Trigger>
+          <Tabs.Trigger value="pending">Pending</Tabs.Trigger>
+          <Tabs.Trigger value="active">Active</Tabs.Trigger>
+          <Tabs.Trigger value="inactive">Inactive</Tabs.Trigger>
+        </Tabs.List>
+
+        <Tabs.Content value={activeTab} class="mt-4 m-0">
+          <DataTable data={filteredMembers} {columns} bind:globalFilter />
+        </Tabs.Content>
+      </Tabs.Root>
+    </div>
+  </div>
 </div>

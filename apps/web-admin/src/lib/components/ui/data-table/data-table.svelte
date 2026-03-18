@@ -6,8 +6,9 @@ import {
   getSortedRowModel,
   type SortingState
 } from "@tanstack/table-core";
-import { createSvelteTable, FlexRender } from "$lib/components/ui/data-table/index.js";
 import * as Table from "$lib/components/ui/table";
+import { createSvelteTable } from "./data-table.svelte.js";
+import { default as FlexRender } from "./flex-render.svelte";
 
 let {
   data,
@@ -37,11 +38,7 @@ const table = createSvelteTable({
     }
   },
   onSortingChange: (updater) => {
-    let next = typeof updater === "function" ? updater(sorting) : updater;
-    // Strip out status if it somehow got in there via a user click
-    next = next.filter((s) => s.id !== "status");
-    // Force status to ALWAYS be the primary sort
-    sorting = [{ id: "status", desc: false }, ...next];
+    sorting = typeof updater === "function" ? updater(sorting) : updater;
   },
   onGlobalFilterChange: (updater) => {
     if (typeof updater === "function") globalFilter = updater(globalFilter);
@@ -81,7 +78,7 @@ const table = createSvelteTable({
         </Table.Row>
       {:else}
         <Table.Row>
-          <Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
+          <Table.Cell colspan={columns.length} class="h-12 text-center">No results.</Table.Cell>
         </Table.Row>
       {/each}
     </Table.Body>

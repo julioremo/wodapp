@@ -22,7 +22,7 @@ let {
   data: {
     form: SuperValidated<ScheduleForm>;
     coaches: { id: string; display_name: string }[];
-    uniqueClassTypes: [];
+    activeClassTypes: [];
   };
 } = $props();
 

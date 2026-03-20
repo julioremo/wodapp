@@ -11,13 +11,13 @@ import { workoutSchema } from "$lib/schemas/workout";
 let {
   workout,
   formData, // Pass data.form from the page
-  uniqueClassTypes = [],
+  activeClassTypes = [],
   onSaved,
   onDeleted
 } = $props<{
   workout: any;
   formData: any;
-  uniqueClassTypes?: string[];
+  activeClassTypes?: string[];
   onSaved?: () => void;
   onDeleted?: () => void;
 }>();
@@ -149,7 +149,7 @@ function handlePaste(e: ClipboardEvent) {
               </Select.Trigger>
               <Select.Content>
                 <Select.Item value="">Global / Unassigned</Select.Item>
-                {#each uniqueClassTypes as type}
+                {#each activeClassTypes as type}
                   <Select.Item value={type}>{type}</Select.Item>
                 {/each}
               </Select.Content>

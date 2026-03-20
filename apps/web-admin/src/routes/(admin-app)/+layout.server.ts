@@ -37,9 +37,7 @@ export const load = async ({ locals }) => {
     (d) => !settings.schedulePrefs.hiddenDays.includes(d)
   );
 
-  const uniqueClassTypes = settings.classTypes
-    .filter((ct: any) => ct.isActive)
-    .map((ct: any) => ct.name);
+  const activeClassTypes = settings.classTypes.filter((ct) => ct.isActive);
 
   const { data: coaches, error: coachesError } = await locals.supabase
     .from("memberships")
@@ -57,7 +55,7 @@ export const load = async ({ locals }) => {
     userRole: role,
     settings,
     visibleDayIndices,
-    uniqueClassTypes,
+    activeClassTypes,
     coaches: coaches || []
   };
 };

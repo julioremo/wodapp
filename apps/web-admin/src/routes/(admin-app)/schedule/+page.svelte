@@ -118,7 +118,7 @@ function goToday() {
                 }
               }}
               coaches={data.coaches}
-              classTypes={data.uniqueClassTypes}
+              classTypes={data.activeClassTypes}
               programs={data.programs}
               updateActionUrl="/schedule?/updateClass"
               deleteActionUrl="/schedule?/deleteClass"

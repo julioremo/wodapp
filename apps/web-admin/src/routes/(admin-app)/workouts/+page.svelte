@@ -26,7 +26,7 @@ function handleCreateNew() {
     description: "",
     duration: 15,
     workout_type: "WOD",
-    class_type: data.uniqueClassTypes?.[0] || ""
+    class_type: data.activeClassTypes?.[0] || ""
   };
   sheetOpen = true;
 }
@@ -198,7 +198,7 @@ let filteredWorkouts = $derived(
     {#if selectedWorkout}
       <WorkoutEditor
         workout={selectedWorkout}
-        uniqueClassTypes={data.uniqueClassTypes}
+        activeClassTypes={data.activeClassTypes}
         formData={data.form}
         onSaved={() => {
           // Optional: You could invalidateAll() here to refresh the grid, 

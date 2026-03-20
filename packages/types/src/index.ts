@@ -15,6 +15,10 @@ export type BookingStatus = Database["public"]["Enums"]["booking_status"];
 
 export type PenaltyConfig =
   | {
+      type: "none";
+      strikes: number;
+    }
+  | {
       type: "credit_deduction";
       strikes: number;
       needs_confirmation: boolean;
@@ -31,50 +35,6 @@ export type PenaltyConfig =
       amount: number;
       needs_confirmation: boolean;
     };
-
-export interface GymSettings {
-  schedulePrefs: {
-    hiddenDays: number[];
-    startHour: number;
-    endHour: number;
-  };
-  classTypes: {
-    name: string;
-    color: string;
-    isProgrammable: boolean;
-    isActive: boolean;
-    defaultCoachId: string | null;
-    defaultDuration: number;
-    defaultCapacity: number;
-  }[];
-  policies: {
-    booking_opens: {
-      type: "immediately" | "fixed_day" | "rolling_days";
-      dayOfWeek: number | null; // 0-6 for Sun-Sat
-      hour: number | null; // 0-23
-      days: number | null;
-    };
-    booking_closes: {
-      active: boolean;
-      minutes_prior: number | null;
-    };
-    cancellation: {
-      active: boolean;
-      window_hours: number | null;
-      penalty: PenaltyConfig;
-    };
-    no_show: {
-      active: boolean;
-      penalty: PenaltyConfig;
-    };
-    waitlist: {
-      active: boolean;
-      max_size: number | null;
-      mode: "broadcast" | "auto_enroll";
-      auto_enroll_cutoff_hours: number | null;
-    };
-  };
-}
 
 export type Block = {
   id?: string;

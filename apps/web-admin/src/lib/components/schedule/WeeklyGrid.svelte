@@ -1,6 +1,6 @@
 <!-- TODO: make sure today's column is shaded. RN columns don't exist  -->
 <script lang="ts">
-import type { GymSettings } from "@wodapp/types";
+import type { GymSettings } from "@wodapp/core";
 import { addDays, format, isSameDay } from "date-fns";
 import type { Snippet } from "svelte";
 import { SCHEDULE_GRID_CONFIG as config } from "$lib/config/schedule";

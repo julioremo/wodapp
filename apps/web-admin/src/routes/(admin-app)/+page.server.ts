@@ -1,6 +1,6 @@
 import { fail } from "@sveltejs/kit";
 import { enforcePenalty } from "@wodapp/core";
-import type { GymSettings } from "@wodapp/types";
+import type { GymSettings } from "@wodapp/core";
 
 export const load = async ({ locals }) => {
   // Fetch only pending infractions for the active location

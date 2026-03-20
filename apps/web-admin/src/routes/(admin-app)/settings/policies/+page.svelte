@@ -15,7 +15,7 @@ import * as RadioGroup from "$lib/components/ui/radio-group/index.js";
 import * as Select from "$lib/components/ui/select/index.js";
 import { Separator } from "$lib/components/ui/separator";
 import { Switch } from "$lib/components/ui/switch";
-import { bookingPoliciesSchema } from "$lib/schemas/settings";
+import { bookingPoliciesSchema } from "@wodapp/core";
 
 let { data } = $props();
 

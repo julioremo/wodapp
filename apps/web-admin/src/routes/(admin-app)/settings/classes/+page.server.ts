@@ -1,7 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import { zod4 as zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
-import { classTypesFormSchema } from "$lib/schemas/settings";
+import { classTypesFormSchema } from "@wodapp/core";
 
 export const load = async ({ parent }) => {
   const { settings } = await parent();

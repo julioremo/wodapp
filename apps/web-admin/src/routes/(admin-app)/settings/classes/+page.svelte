@@ -15,7 +15,7 @@ import SwatchPicker from "$lib/components/ui/swatch-picker/SwatchPicker.svelte";
 import { Switch } from "$lib/components/ui/switch";
 import * as Tooltip from "$lib/components/ui/tooltip";
 import { PALETTE } from "$lib/config/colors";
-import { classTypesFormSchema } from "$lib/schemas/settings";
+import { classTypesFormSchema } from "@wodapp/core";
 
 let { data } = $props();
 

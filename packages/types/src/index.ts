@@ -13,29 +13,6 @@ export type Program = Database["public"]["Tables"]["programs"]["Row"];
 export type UserRole = Database["public"]["Enums"]["user_role"];
 export type BookingStatus = Database["public"]["Enums"]["booking_status"];
 
-export type PenaltyConfig =
-  | {
-      type: "none";
-      strikes: number;
-    }
-  | {
-      type: "credit_deduction";
-      strikes: number;
-      needs_confirmation: boolean;
-    }
-  | {
-      type: "booking_delay";
-      strikes: number;
-      delay_minutes: number;
-      needs_confirmation: boolean;
-    }
-  | {
-      type: "fee";
-      strikes: number;
-      amount: number;
-      needs_confirmation: boolean;
-    };
-
 export type Block = {
   id?: string;
   title: string;

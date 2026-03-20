@@ -30,10 +30,6 @@ export const schedulePreferencesSchema = z.object({
 
 export const penaltySchema = z.discriminatedUnion("type", [
   z.object({
-    type: z.literal("none"),
-    strikes: z.coerce.number().int().min(1).default(1)
-  }),
-  z.object({
     type: z.literal("credit_deduction"),
     strikes: z.coerce.number().int().min(1).default(1),
     needs_confirmation: z.boolean().default(false)
@@ -67,11 +63,11 @@ export const bookingPoliciesSchema = z.object({
     cancellation: z.object({
       active: z.boolean(),
       window_hours: z.coerce.number().nullable(),
-      penalty: penaltySchema
+      penalty: penaltySchema.nullable()
     }),
     no_show: z.object({
       active: z.boolean(),
-      penalty: penaltySchema
+      penalty: penaltySchema.nullable()
     }),
     waitlist: z.object({
       active: z.boolean(),
@@ -99,11 +95,11 @@ export const policyPresets = {
     cancellation: {
       active: false,
       window_hours: null,
-      penalty: { type: "none", strikes: 1 }
+      penalty: null
     },
     no_show: {
       active: false,
-      penalty: { type: "none", strikes: 1 }
+      penalty: null
     }
   },
   lenient: {

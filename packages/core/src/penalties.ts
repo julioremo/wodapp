@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { addMinutes } from "date-fns";
+import type { Penalty } from "./schemas/settings";
 
 export async function enforcePenalty(
   supabase: SupabaseClient,
   profileId: string,
   locationId: string,
-  penalty: any,
+  penalty: Penalty,
   infractionIds: string[]
 ) {
   if (penalty.type === "credit_deduction") {

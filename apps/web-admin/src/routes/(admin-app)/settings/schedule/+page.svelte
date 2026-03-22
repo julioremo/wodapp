@@ -15,7 +15,7 @@ import { Switch } from "$lib/components/ui/switch";
 import { Toggle } from "$lib/components/ui/toggle";
 import * as Tooltip from "$lib/components/ui/tooltip";
 import { PALETTE } from "$lib/config/colors";
-import { schedulePreferencesSchema } from "$lib/schemas/settings";
+import { schedulePreferencesSchema } from "@wodapp/core";
 
 let { data } = $props();
 

@@ -6,11 +6,7 @@ import { schedulePreferencesSchema } from "@wodapp/core";
 export const load = async ({ parent }) => {
   const { settings } = await parent();
 
-  console.log("1. RAW DB SETTINGS:", settings);
-
   const form = await superValidate(settings, zod(schedulePreferencesSchema));
-
-  console.log("2. ZOD PARSED FORM:", form.data); // Did Zod accept it, or wipe it to defaults?
 
   return { form };
 };

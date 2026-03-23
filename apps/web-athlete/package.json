@@ -16,14 +16,14 @@
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
     "@eslint/js": "^9.39.1",
-    "@internationalized/date": "^3.10.1",
-    "@lucide/svelte": "^0.561.0",
+    "@internationalized/date": "^3.12.0",
+    "@lucide/svelte": "^1.0.1",
     "@sveltejs/adapter-auto": "^7.0.0",
     "@sveltejs/kit": "^2.49.1",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^24",
-    "bits-ui": "^2.15.4",
+    "bits-ui": "^2.16.3",
     "clsx": "^2.1.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
@@ -45,8 +45,8 @@
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
-    "@wodapp/supabase-client": "workspace:^",
     "@wodapp/core": "workspace:^",
+    "@wodapp/supabase-client": "workspace:^",
     "@wodapp/types": "workspace:^",
     "date-fns": "^4.1.0",
     "lucide-svelte": "^0.563.0"

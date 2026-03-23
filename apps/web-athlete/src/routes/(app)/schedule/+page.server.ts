@@ -1,27 +1,32 @@
 import { error, fail } from "@sveltejs/kit";
+import type { Actions } from "./$types";
 import {
-  subDays,
-  set,
-  isBefore,
   addSeconds,
+  format,
+  isAfter,
+  isBefore,
+  parseISO,
+  set,
+  setDay,
   startOfDay,
   startOfWeek,
+  subDays,
   subHours,
-  subWeeks,
-  setDay,
-  parseISO,
-  isAfter,
   subMinutes,
-  format
+  subWeeks,
 } from "date-fns";
 import { defaultSettings, type GymSettings } from "@wodapp/core";
 import { enforcePenalty } from "@wodapp/core";
+import { calculateOpenTime } from "@wodapp/core";
 
 export const load = async ({ locals, url, parent }) => {
   const { user, activeLocation, memberships } = await parent();
 
   if (!activeLocation) {
-    return { classes: [], filterOptions: { allClassTypes: [], bounds: { min: 0, max: 0 } } };
+    return {
+      classes: [],
+      filterOptions: { allClassTypes: [], bounds: { min: 0, max: 0 } },
+    };
   }
 
   const userId = user.id;
@@ -34,40 +39,47 @@ export const load = async ({ locals, url, parent }) => {
 
   // 2. Fetch settings and classes concurrently
   const [locationReq, classesReq] = await Promise.all([
-    locals.supabase.from("locations").select("settings").eq("id", locationId).single(),
+    locals.supabase.from("locations").select("settings").eq("id", locationId)
+      .single(),
     locals.supabase
       .from("classes")
       .select(`
-        id, class_type, start_time, capacity,
+        id, class_type, start_time, capacity, confirmed_bookings_count,
         coach:profiles!classes_coach_id_fkey ( display_name, avatar_url ),
         bookings ( 
-          id, status, profile_id,
+          id, status, profile_id, created_at,
           profile:profiles!bookings_user_id_fkey ( avatar_url ) 
         )
       `)
       .eq("location_id", locationId)
       .gte("start_time", startOfDay(new Date()).toISOString())
-      .order("start_time", { ascending: true })
+      .order("start_time", { ascending: true }),
   ]);
 
-  if (locationReq.error) {
-    throw error(500, "Failed to load scheduling context.");
-  }
+  if (locationReq.error) throw error(500, "Failed to load location settings.");
+  if (classesReq.error) throw error(500, "Failed to load classes.");
+
+  const classes = classesReq.data || [];
+
+  const allCoaches = Object.keys(
+    classes.reduce((acc: Record<string, boolean>, curr) => {
+      if (curr.coach?.display_name) acc[curr.coach.display_name] = true;
+      return acc;
+    }, {}),
+  ).sort();
+
+  const classesByType = Object.groupBy(classes, (c) => c.class_type);
+  const showCoachFilter = Object.values(classesByType).some((g) =>
+    new Set(g.map((c) => c.coach?.display_name).filter(Boolean)).size > 1
+  );
 
   const dbSettings = locationReq.data.settings as Partial<GymSettings> | null;
   const settings: GymSettings = {
     ...defaultSettings,
     ...dbSettings,
-    schedulePrefs: {
-      ...defaultSettings.schedulePrefs,
-      ...(dbSettings?.schedulePrefs || {})
-    },
-    policies: {
-      ...defaultSettings.policies,
-      ...(dbSettings?.policies || {})
-    }
   };
-  const classes = classesReq.data || [];
+
+  console.log("settings", settings);
 
   const allClassTypes = settings.classTypes
     .filter((ct) => ct.isActive)
@@ -76,96 +88,51 @@ export const load = async ({ locals, url, parent }) => {
 
   const bounds = {
     min: settings.schedulePrefs.startHour * 60,
-    max: settings.schedulePrefs.endHour * 60
+    max: settings.schedulePrefs.endHour * 60,
   };
 
   const bookingOpens = settings.policies.booking_opens;
-  const schedulePrefs = settings.schedulePrefs;
-  const now = new Date();
+  // const schedulePrefs = settings.schedulePrefs;
+  // const now = new Date();
 
   // 3. Evaluate the temporal states and capacities
   const rawSchedule = classes.map((c) => {
-    const classTime = new Date(c.start_time);
-    let openTime = classTime;
+    const openTime = calculateOpenTime(
+      c.start_time,
+      bookingOpens,
+      membership.booking_delay_minutes,
+    );
 
-    // A. Rolling Days Policy
-    if (bookingOpens.type === "rolling_days" && bookingOpens.days !== null) {
-      openTime = subDays(classTime, bookingOpens.days);
-      if (bookingOpens.hour !== null) {
-        openTime = set(openTime, {
-          hours: bookingOpens.hour,
-          minutes: 0,
-          seconds: 0,
-          milliseconds: 0
-        });
-      }
-    }
-    // B. Fixed Day Policy
-    else if (
-      bookingOpens.type === "fixed_day"
-      && bookingOpens.dayOfWeek !== null
-      && bookingOpens.hour !== null
-    ) {
-      const classWeekStart = startOfWeek(classTime, { weekStartsOn: 1 });
-      const previousWeek = subWeeks(classWeekStart, 1);
-      const targetDate = setDay(previousWeek, bookingOpens.dayOfWeek, { weekStartsOn: 1 });
-      openTime = set(targetDate, {
-        hours: bookingOpens.hour,
-        minutes: 0,
-        seconds: 0,
-        milliseconds: 0
-      });
-    }
-    // C. Immediate Policy
-    else if (bookingOpens.type === "immediately") {
-      openTime = new Date(0); // Opened at the dawn of time
-    }
+    const userBooking = c.bookings.find(
+      (b: any) => b.profile_id === userId && b.status !== "cancelled",
+    );
+    const userStatus = userBooking?.status || null;
 
-    // Apply personal penalty delay
-    if (membership.booking_delay_minutes) {
-      openTime = addSeconds(openTime, Math.round(membership.booking_delay_minutes * 60));
-    }
+    // Filter and sort the waitlist by timestamp (FIFO)
+    const waitlistBookings = c.bookings
+      .filter((b: any) => b.status === "waitlist")
+      .sort((a: any, b: any) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      );
 
-    // Evaluate the user's specific booking
-    const userBooking = c.bookings.find((b) => b.profile_id === userId);
-    const userStatus = userBooking?.status || null; // 'confirmed', 'waitlist', or null
+    const waitlistTotal = waitlistBookings.length;
+    let waitlistPosition = null;
 
-    // Evaluate capacity
-    const confirmedCount = c.bookings.filter((b) => b.status === "confirmed").length;
-    const isFull = c.capacity !== null && confirmedCount >= c.capacity;
-    // Determine the exact UI state
-    let uiState = "bookable";
-    let buttonText = "Book";
-
-    if (isBefore(classTime, now)) {
-      uiState = "past";
-    } else if (userStatus === "confirmed") {
-      uiState = "booked";
-      buttonText = "Cancel";
-    } else if (userStatus === "waitlist") {
-      uiState = "waitlist";
-      buttonText = "Leave Waitlist";
-    } else if (isBefore(now, openTime)) {
-      uiState = "outside_window";
-      // Format to something clean like "Opens Tue 6:00 AM"
-      const formatString = openTime.toLocaleTimeString([], {
-        weekday: "short",
-        hour: "numeric",
-        minute: "2-digit"
-      });
-      buttonText = `Opens ${formatString}`;
-    } else if (isFull) {
-      uiState = "waitlist_available";
-      buttonText = "Waitlist";
+    if (userStatus === "waitlist") {
+      waitlistPosition = waitlistBookings.findIndex((b: any) =>
+        b.profile_id === userId
+      ) + 1;
     }
 
     return {
       ...c,
       openTime,
-      uiState,
-      buttonText,
-      confirmedCount,
-      userStatus
+      userStatus,
+      waitlistTotal,
+      waitlistPosition,
+      bookingOpensType: bookingOpens.type,
+      cancellationWindowHours: settings.policies.cancellation.window_hours || 0,
+      waitlistPolicy: settings.policies.waitlist.mode,
     };
   });
 
@@ -183,23 +150,21 @@ export const load = async ({ locals, url, parent }) => {
     return true;
   });
 
-  console.log("rawSchedule", rawSchedule[0]);
-  console.log("schedulePrefs", schedulePrefs);
-  console.log("schedule", schedule[0]);
-
   return {
     schedule,
     filterOptions: {
       allClassTypes,
-      bounds
-    }
+      bounds,
+      showCoachFilter,
+      allCoaches,
+    },
   };
 };
 
 async function getBookingContext(supabase: any, classId: string) {
   const { data: targetClass, error: classError } = await supabase
     .from("classes")
-    .select("start_time, location_id, capacity")
+    .select("start_time, location_id")
     .eq("id", classId)
     .single();
 
@@ -215,198 +180,112 @@ async function getBookingContext(supabase: any, classId: string) {
 
   return {
     targetClass,
-    settings: (location.settings || {}) as GymSettings
+    settings: (location.settings || {}) as GymSettings,
   };
 }
 
-export const actions = {
-  book: async ({ request, locals }) => {
-    const formData = await request.formData();
-    const classId = formData.get("classId") as string;
+export const actions: Actions = {
+  book: async ({ request, locals: { supabase, user } }) => {
+    if (!user) return fail(401, { error: "Unauthorized" });
 
-    if (!locals.user) return fail(401, { error: "Unauthorized" });
+    const formData = await request.formData();
+    const classId = formData.get("classId")?.toString();
+
+    if (!classId) return fail(400, { message: "Class ID is required." });
 
     try {
-      const { targetClass, settings } = await getBookingContext(locals.supabase, classId);
-      const policies = settings.policies;
+      const { targetClass, settings } = await getBookingContext(
+        supabase,
+        classId,
+      );
+      const classTime = new Date(targetClass.start_time);
       const now = new Date();
-      const startTime = parseISO(targetClass.start_time);
 
-      const { data: membership } = await locals.supabase
-        .from("memberships")
-        .select("booking_lockout_until")
-        .match({ profile_id: locals.user.id, location_id: targetClass.location_id })
-        .single();
-
-      if (membership?.booking_lockout_until) {
-        const lockoutDate = new Date(membership.booking_lockout_until);
-        if (isAfter(lockoutDate, now)) {
-          return fail(403, {
-            error: `Your booking privileges are suspended until ${format(lockoutDate, "h:mm a")}.`
-          });
-        }
+      // 1. Prevent booking past classes
+      if (classTime < now) {
+        return fail(400, {
+          message: "Cannot book a class that has already started.",
+        });
       }
 
-      if (policies?.booking_closes?.active && policies.booking_closes.minutes_prior != null) {
-        const closeTime = subMinutes(startTime, policies.booking_closes.minutes_prior);
-        if (isAfter(now, closeTime)) {
-          return fail(400, { error: "Booking is closed for this class." });
-        }
+      // 2. Prevent booking before the window opens
+      const openTime = calculateOpenTime(
+        classTime,
+        settings.policies.booking_opens,
+      );
+      if (now < openTime) {
+        return fail(400, { message: "Booking window is not open yet." });
       }
 
-      if (policies?.booking_opens) {
-        let openTime: Date | null = null;
-
-        if (policies.booking_opens.type === "rolling_days" && policies.booking_opens.days != null) {
-          openTime = subDays(startTime, policies.booking_opens.days);
-        } else if (
-          policies.booking_opens.type === "fixed_day"
-          && policies.booking_opens.dayOfWeek != null
-          && policies.booking_opens.hour != null
-        ) {
-          const classWeekStart = startOfWeek(startTime, { weekStartsOn: 1 });
-          const previousWeek = subWeeks(classWeekStart, 1);
-          const targetDate = setDay(previousWeek, policies.booking_opens.dayOfWeek, {
-            weekStartsOn: 1
-          });
-          openTime = set(targetDate, {
-            hours: policies.booking_opens.hour,
-            minutes: 0,
-            seconds: 0,
-            milliseconds: 0
-          });
-        }
-
-        if (openTime && isBefore(now, openTime)) {
-          return fail(400, { error: "Booking window is not yet open." });
-        }
-      }
-
-      // Check current capacities to determine status
-      const { data: currentBookings } = await locals.supabase
-        .from("bookings")
-        .select("status")
-        .eq("class_id", classId);
-
-      const confirmedCount = currentBookings?.filter((b) => b.status === "confirmed").length || 0;
-      const waitlistCount = currentBookings?.filter((b) => b.status === "waitlist").length || 0;
-
-      let newStatus: "confirmed" | "waitlist" = "confirmed";
-
-      if (targetClass.capacity != null && confirmedCount >= targetClass.capacity) {
-        if (!policies?.waitlist?.active) {
-          return fail(400, { error: "Class is full and waitlist is not active." });
-        }
-        if (policies.waitlist.max_size != null && waitlistCount >= policies.waitlist.max_size) {
-          return fail(400, { error: "Waitlist is at maximum capacity." });
-        }
-        newStatus = "waitlist";
-      }
-
-      const { error } = await locals.supabase.from("bookings").insert({
-        class_id: classId,
-        profile_id: locals.user.id,
-        status: newStatus
+      // 3. Hand off to the database for capacity and locking
+      const { data, error } = await supabase.rpc("book_class", {
+        p_profile_id: user.id,
+        p_class_id: classId,
       });
 
       if (error) {
-        if (error.code === "23505") {
-          return fail(400, { error: "You are already booked or on the waitlist." });
-        }
-        if (error.message.includes("maximum capacity")) {
-          return fail(400, { error: "Class filled up just now. Please try joining the waitlist." });
-        }
-        return fail(500, { error: "Could not book class." });
+        console.error("Booking RPC error:", error);
+        return fail(500, { message: "Could not secure your spot." });
       }
 
-      return { success: true };
+      return {
+        success: true,
+        status: data.status,
+      };
     } catch (err: any) {
-      return fail(400, { error: err.message });
+      console.error("Context error:", err);
+      return fail(500, { message: "Could not process booking request." });
     }
   },
 
-  cancel: async ({ request, locals }) => {
-    const formData = await request.formData();
-    const classId = formData.get("classId") as string;
+  cancel: async ({ request, locals: { supabase, user } }) => {
+    if (!user) return fail(401, { error: "Unauthorized" });
 
-    if (!locals.user) return fail(401, { error: "Unauthorized" });
+    const formData = await request.formData();
+    const classId = formData.get("classId")?.toString();
+
+    if (!classId) return fail(400, { message: "Class ID is required." });
 
     try {
-      const { targetClass, settings } = await getBookingContext(locals.supabase, classId);
-      const policies = settings.policies;
+      const { targetClass, settings } = await getBookingContext(
+        supabase,
+        classId,
+      );
+      const classTime = new Date(targetClass.start_time);
       const now = new Date();
-      const startTime = parseISO(targetClass.start_time);
 
-      if (policies?.cancellation?.active && policies.cancellation.window_hours != null) {
-        const penaltyCutoff = subHours(startTime, policies.cancellation.window_hours);
-
-        if (isAfter(now, penaltyCutoff)) {
-          const penalty = policies.cancellation.penalty;
-
-          if (penalty) {
-            const initialStatus = penalty.needs_confirmation ? "pending_review" : "counted";
-
-            const { error: infractionError } = await locals.supabase.from("infractions").insert({
-              profile_id: locals.user.id,
-              location_id: targetClass.location_id,
-              class_id: classId,
-              reason: "late_cancel",
-              status: initialStatus
-            });
-
-            if (infractionError) {
-              console.error("Infraction recording failed:", infractionError);
-              return fail(500, { error: "Failed to process cancellation penalty." });
-            }
-
-            if (initialStatus === "counted") {
-              const { data: activeInfractions } = await locals.supabase
-                .from("infractions")
-                .select("id")
-                .match({
-                  profile_id: locals.user.id,
-                  location_id: targetClass.location_id,
-                  reason: "late_cancel",
-                  status: "counted"
-                });
-
-              if (activeInfractions && activeInfractions.length >= penalty.strikes) {
-                const infractionIds = activeInfractions.map((i) => i.id);
-
-                await enforcePenalty(
-                  locals.supabase,
-                  locals.user.id,
-                  targetClass.location_id,
-                  penalty,
-                  infractionIds
-                );
-              }
-            }
-          }
-        }
+      // Check if the class has already passed
+      if (classTime < now) {
+        return fail(400, {
+          message: "Cannot cancel a class that has already started.",
+        });
       }
 
-      // Fetch the specific booking ID for the RPC
-      const { data: booking } = await locals.supabase
-        .from("bookings")
-        .select("id")
-        .match({ class_id: classId, profile_id: locals.user.id })
-        .single();
+      // Optional: Check late cancellation window based on your JSON settings
+      // const cancelWindowHours = settings.policies.cancellation_window_hours || 0;
+      // const cutoffTime = new Date(classTime.getTime() - cancelWindowHours * 60 * 60 * 1000);
+      // if (now > cutoffTime) {
+      //   // Handle late cancellation logic here (e.g., apply a penalty or block the action)
+      // }
 
-      if (!booking) {
-        return fail(400, { error: "Booking not found." });
-      }
-
-      // Execute cancellation and promotion state machine
-      const { error } = await locals.supabase.rpc("cancel_booking_and_promote", {
-        p_booking_id: booking.id
+      const { data, error } = await supabase.rpc("cancel_class", {
+        p_profile_id: user.id,
+        p_class_id: classId,
       });
 
-      if (error) return fail(500, { error: "Could not cancel booking." });
+      if (error) {
+        console.error("Cancellation RPC error:", error);
+        return fail(500, { message: "Failed to cancel booking." });
+      }
+
+      if (!data.success) {
+        return fail(400, { message: data.message });
+      }
 
       return { success: true };
     } catch (err: any) {
-      return fail(400, { error: err.message });
+      console.error("Context error:", err);
+      return fail(500, { message: "Could not process cancellation request." });
     }
-  }
+  },
 };

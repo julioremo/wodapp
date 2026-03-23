@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@sveltejs/kit": "^2.49.1",
+    "svelte": "^5.45.6",
     "zod": "^4.3.6"
   }
 }

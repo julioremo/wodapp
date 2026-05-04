@@ -71,26 +71,31 @@ class WebhookPayload(BaseModel):
 # ---------------------------------------------------------------------------
 # Dummy parser — replace body with Claude Haiku or Outlines call
 # ---------------------------------------------------------------------------
-def dummy_parse(clean_description: str) -> Workout:
-    """
-    Placeholder. Replace with one of:
-      1. outlines + llama_cpp constrained generation (local SmolLM3 / Qwen)
-      2. anthropic.Anthropic().messages.create(model="claude-haiku-4-5", ...)
-    """
+def dummy_parse(norm_description: str) -> Workout:
+    # Extract keys that exist in the text
+    extracted_exercises = [w for w in norm_description.split(" ") if "[" in w]
+
+    # 2. Build the Movement list dynamically
+    movements = []
+    for key in extracted_exercises:
+        movements.append(
+            Movement(
+                reps=15,  # Hardcoded for the test
+                exercise_id=key,
+                load="RX",  # Hardcoded for the test
+            )
+        )
+
+    # 3. Return the strict Pydantic model
     return Workout(
         workout_type=WorkoutType.AMRAP,
         time_cap_minutes=20,
         time_extension_minutes=None,
         rounds_to_complete=None,
         interval_minutes=None,
-        rounds=[
-            Round(
-                movements=[
-                    Movement(reps=21, exercise_id="THRUSTER", load="95 / 65 lb."),
-                    Movement(reps=21, exercise_id="PULLUP", load=None),
-                ]
-            )
-        ],
+        rounds=[Round(movements=movements)]
+        if movements
+        else [],  # Prevents failure if no movements are found
     )
 
 
@@ -141,15 +146,15 @@ async def process_workout(row_id: str, description: str) -> None:
         await set_status(db, row_id, "processing")
 
         # Step 1 — flashtext normalization
-        clean_description = normalize_text(description, kp)
+        norm_description = normalize_text(description, kp)
         logger.info(f"[{row_id}] clean_description ready.")
 
         # Step 2 — parse  (swap dummy_parse here when ready)
-        workout = dummy_parse(clean_description)
+        workout = dummy_parse(norm_description)
         logger.info(f"[{row_id}] Parsed as {workout.workout_type}.")
 
         # Step 3 — persist; triggers Svelte realtime update
-        await write_result(db, row_id, clean_description, workout)
+        await write_result(db, row_id, norm_description, workout)
         logger.info(f"[{row_id}] Done.")
 
     except Exception as exc:

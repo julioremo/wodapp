@@ -12,6 +12,7 @@ datasets/*
 
 # Model Checkpoints & Weights
 models/*
+huggingface/*
 !models/.gitkeep
 *.pt
 *.pth
@@ -30,3 +31,9 @@ __marimo__/
 .env
 .env.local
 .env.*
+
+# Notebooks
+notebooks/*
+
+# General
+_*

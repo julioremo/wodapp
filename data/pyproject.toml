@@ -1,0 +1,27 @@
+[project]
+name = "data"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=0.97.0",
+    "fastapi[standard]>=0.136.1",
+    "flashtext>=2.7",
+    "instructor>=1.15.1",
+    "llama-cpp-python>=0.3.20",
+    "marimo>=0.22.4",
+    "pandas>=3.0.2",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.2",
+    "supabase>=2.29.0",
+    "tool>=0.8.0",
+]
+
+[[tool.uv.index]]
+name = "llama-cpp-metal"
+url = "https://abetlen.github.io/llama-cpp-python/whl/metal"
+explicit = true
+
+[tool.uv.sources]
+llama-cpp-python = { index = "llama-cpp-metal" }

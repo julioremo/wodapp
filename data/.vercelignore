@@ -1,0 +1,6 @@
+# .vercelignore
+datasets/
+models/
+notebooks/
+scripts/
+.venv/

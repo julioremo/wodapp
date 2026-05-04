@@ -1,0 +1,32 @@
+# Virtual Environments (uv)
+.venv/
+env/
+
+# Data 
+datasets/*
+!datasets/.gitkeep
+*.csv
+*.tsv
+*.parquet
+*.jsonl
+
+# Model Checkpoints & Weights
+models/*
+!models/.gitkeep
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.onnx
+*.gguf
+
+# Marimo & Caches
+__pycache__/
+__marimo__/
+.pytest_cache/
+.ruff_cache/
+
+# Environment Variables
+.env
+.env.local
+.env.*

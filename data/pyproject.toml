@@ -9,7 +9,6 @@ dependencies = [
     "fastapi[standard]>=0.136.1",
     "flashtext>=2.7",
     "instructor>=1.15.1",
-    "llama-cpp-python>=0.3.20",
     "marimo>=0.22.4",
     "pandas>=3.0.2",
     "pydantic>=2.12.5",
@@ -22,6 +21,3 @@ dependencies = [
 name = "llama-cpp-metal"
 url = "https://abetlen.github.io/llama-cpp-python/whl/metal"
 explicit = true
-
-[tool.uv.sources]
-llama-cpp-python = { index = "llama-cpp-metal" }

@@ -5,6 +5,7 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+*.code-workspace
 
 # === Node & Package Managers ===
 node_modules/
@@ -20,19 +21,21 @@ build/
 .vercel/
 .netlify/
 
-# === Environment Variables (CRITICAL) ===
-# This ignores .env in root AND in any subfolder
+# === Environment Variables ===
 .env
 .env.*
 !.env.example
 !.env.test
 
-# === Supabase (If you run it locally) ===
+# === Infrastructure ===
+terraform.tfvars
+
+# === Supabase (local) ===
 supabase/functions/*/deno.lock
 supabase/.temp/
 
 # === Turbo Repo ===
 .turbo/
 
-# === Mocks ===
+# === Do not track ===
 __*

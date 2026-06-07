@@ -1,13 +1,13 @@
 import { fail } from "@sveltejs/kit";
 import { zod4 as zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
-import { bookingPoliciesSchema } from "$lib/schemas/settings";
+import { bookingPoliciesSchema } from "@wodapp/core";
 
 export const load = async ({ parent }) => {
   const { settings } = await parent();
 
   return {
-    form: await superValidate(settings, zod(bookingPoliciesSchema))
+    form: await superValidate(settings, zod(bookingPoliciesSchema)),
   };
 };
 
@@ -35,5 +35,5 @@ export const actions = {
     if (error) return fail(500, { form, message: "Internal server error." });
 
     return { form };
-  }
+  },
 };

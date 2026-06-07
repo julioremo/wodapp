@@ -1,6 +1,6 @@
-export { fetchUserContext, setupSupabase } from "./auth";
-export * from "./booking";
-export { enforcePenalty } from "./penalties";
+export { fetchUserContext, setupSupabase } from "./auth.ts";
+export * from "./booking.ts";
+export { enforcePenalty } from "./penalties.ts";
 export {
   bookingPoliciesSchema,
   classTypesFormSchema,
@@ -10,5 +10,4 @@ export {
   type Penalty,
   penaltySchema,
   schedulePreferencesSchema,
-} from "./schemas/settings";
-export { globalClock } from "./time.svelte";
+} from "./schemas/settings.ts";

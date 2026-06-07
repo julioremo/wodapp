@@ -1,12 +1,12 @@
 <script lang="ts">
+import { Badge } from "@ui/badge";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import * as Table from "@ui/table";
 import { enhance } from "$app/forms";
 import PageShell from "$lib/components/admin/PageShell.svelte";
-import { Badge } from "$lib/components/ui/badge";
-import { Button } from "$lib/components/ui/button";
-import * as Card from "$lib/components/ui/card";
-import { Input } from "$lib/components/ui/input";
-import { Label } from "$lib/components/ui/label";
-import * as Table from "$lib/components/ui/table";
 
 let { data, form } = $props();
 </script>

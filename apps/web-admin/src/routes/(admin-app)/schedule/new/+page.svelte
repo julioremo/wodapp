@@ -1,20 +1,20 @@
 <script lang="ts">
-import { CircleAlert, Clock8Icon, Copy, Plus, RotateCcw, Trash2 } from "lucide-svelte";
+import { CircleAlert, Clock8Icon, Copy, Plus, RotateCcw, Trash2 } from "@lucide/svelte";
+import { Button } from "@ui/button";
+//   import ClassTypePicker from "./ClassTypePicker.svelte";
+import * as Form from "@ui/form";
+import { Input } from "@ui/input";
+import * as Select from "@ui/select";
+import { Spinner } from "@ui/spinner";
+import { Switch } from "@ui/switch";
+import * as ToggleGroup from "@ui/toggle-group";
+import { cn } from "@ui-utils";
 import { slide } from "svelte/transition";
 import { toast } from "svelte-sonner";
 import { type Infer, type SuperValidated, superForm } from "sveltekit-superforms";
 import { zod4Client } from "sveltekit-superforms/adapters";
 import { goto } from "$app/navigation";
-import { Button } from "$lib/components/ui/button";
-//   import ClassTypePicker from "./ClassTypePicker.svelte";
-import * as Form from "$lib/components/ui/form";
-import { Input } from "$lib/components/ui/input";
-import * as Select from "$lib/components/ui/select";
-import { Spinner } from "$lib/components/ui/spinner";
-import { Switch } from "$lib/components/ui/switch";
-import * as ToggleGroup from "$lib/components/ui/toggle-group";
 import { defaultSession, type ScheduleForm, scheduleFormSchema } from "$lib/schemas/schedule.js";
-import { cn } from "$lib/utils";
 
 let {
   data

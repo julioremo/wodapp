@@ -1,10 +1,10 @@
 <script lang="ts">
-import { Funnel, LayoutGrid, List, Search } from "lucide-svelte";
-import { Badge } from "$lib/components/ui/badge";
-import { Button } from "$lib/components/ui/button";
-import * as Card from "$lib/components/ui/card";
-import { Input } from "$lib/components/ui/input";
-import * as Sheet from "$lib/components/ui/sheet";
+import { Funnel, LayoutGrid, List, Search } from "@lucide/svelte";
+import { Badge } from "@ui/badge";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
+import { Input } from "@ui/input";
+import * as Sheet from "@ui/sheet";
 import WorkoutEditor from "$lib/components/workouts/WorkoutEditor.svelte";
 import { PALETTE } from "$lib/config/colors";
 

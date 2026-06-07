@@ -1,21 +1,21 @@
 <script lang="ts">
-import { TriangleAlert as AlertTriangle, Info, Plus, Trash2 } from "lucide-svelte";
+import { TriangleAlert as AlertTriangle, Info, Plus, Trash2 } from "@lucide/svelte";
+import * as AlertDialog from "@ui/alert-dialog";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
+import { Checkbox } from "@ui/checkbox";
+import { Input } from "@ui/input";
+import * as InputGroup from "@ui/input-group/index.js";
+import { Label } from "@ui/label";
+import * as Select from "@ui/select/index.js";
+import SwatchPicker from "@ui/swatch-picker/SwatchPicker.svelte";
+import { Switch } from "@ui/switch";
+import * as Tooltip from "@ui/tooltip";
+import { classTypesFormSchema } from "@wodapp/core";
 import { toast } from "svelte-sonner";
 import { superForm } from "sveltekit-superforms";
 import { zod4Client as zodClient } from "sveltekit-superforms/adapters";
-import * as AlertDialog from "$lib/components/ui/alert-dialog";
-import { Button } from "$lib/components/ui/button";
-import * as Card from "$lib/components/ui/card";
-import { Checkbox } from "$lib/components/ui/checkbox";
-import { Input } from "$lib/components/ui/input";
-import * as InputGroup from "$lib/components/ui/input-group/index.js";
-import { Label } from "$lib/components/ui/label";
-import * as Select from "$lib/components/ui/select/index.js";
-import SwatchPicker from "$lib/components/ui/swatch-picker/SwatchPicker.svelte";
-import { Switch } from "$lib/components/ui/switch";
-import * as Tooltip from "$lib/components/ui/tooltip";
 import { PALETTE } from "$lib/config/colors";
-import { classTypesFormSchema } from "@wodapp/core";
 
 let { data } = $props();
 

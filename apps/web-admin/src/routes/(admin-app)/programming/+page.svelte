@@ -1,9 +1,9 @@
 <script lang="ts">
+import { ChevronLeft, ChevronRight, Plus } from "@lucide/svelte";
+import { Button } from "@ui/button";
+import * as DropdownMenu from "@ui/dropdown-menu";
 import { addDays, format, isSameDay } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-svelte";
 import ProgramCell from "$lib/components/programming/ProgramCell.svelte";
-import { Button } from "$lib/components/ui/button";
-import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
 
 let { data } = $props();
 const today = new Date();

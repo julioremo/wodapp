@@ -7,10 +7,10 @@ import {
   Clock,
   TriangleAlert,
   Users
-} from "lucide-svelte";
+} from "@lucide/svelte";
+import * as Popover from "@ui/popover";
+import { cn } from "@ui-utils";
 import type { Snippet } from "svelte";
-import * as Popover from "$lib/components/ui/popover";
-import { cn } from "$lib/utils";
 
 let {
   session,

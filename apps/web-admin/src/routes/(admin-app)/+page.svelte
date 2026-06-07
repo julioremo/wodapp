@@ -1,7 +1,7 @@
 <script lang="ts">
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
 import PendingInfractions from "$lib/components/dashboard/PendingInfractions.svelte";
-import { Button } from "$lib/components/ui/button";
-import * as Card from "$lib/components/ui/card";
 
 let { data } = $props();
 </script>

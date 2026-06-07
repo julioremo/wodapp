@@ -1,17 +1,23 @@
 <script lang="ts">
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { ArrowLeft, Calendar as CalendarIcon, CircleAlert, Mail, Phone, Save } from "lucide-svelte";
+import {
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  CircleAlert,
+  Mail,
+  Phone,
+  Save
+} from "@lucide/svelte";
+import * as Avatar from "@ui/avatar";
+import { Badge } from "@ui/badge";
+import { Button } from "@ui/button";
+import Calendar from "@ui/calendar/calendar.svelte";
+import CalendarDay from "@ui/calendar/calendar-day.svelte";
+import { Label } from "@ui/label";
+import * as Select from "@ui/select";
 import { MediaQuery } from "svelte/reactivity";
 import { toast } from "svelte-sonner";
 import { enhance } from "$app/forms";
-import * as Avatar from "$lib/components/ui/avatar";
-import { Badge } from "$lib/components/ui/badge";
-
-import { Button } from "$lib/components/ui/button";
-import Calendar from "$lib/components/ui/calendar/calendar.svelte";
-import CalendarDay from "$lib/components/ui/calendar/calendar-day.svelte";
-import { Label } from "$lib/components/ui/label";
-import * as Select from "$lib/components/ui/select";
 import { PALETTE } from "$lib/config/colors";
 
 let { data } = $props();

@@ -23,5 +23,8 @@
     "fs",
     "http",
     "net"
-  ]
+  ],
+  "ruff.interpreter": [
+    "${workspaceFolder}/data/.venv/bin/python"
+  ],
 }

@@ -10,9 +10,9 @@ import {
   Settings,
   Sun,
   User
-} from "lucide-svelte";
+} from "@lucide/svelte";
+import { Button } from "@ui/button";
 import { enhance } from "$app/forms";
-import { Button } from "$lib/components/ui/button";
 
 let { data } = $props();
 

@@ -1,16 +1,16 @@
 <script lang="ts">
-import { enhance } from "$app/forms";
-import { format } from "date-fns";
-import { globalClock } from "@wodapp/core";
-import { Check, CircleAlert, Users, X } from "lucide-svelte";
-import * as Avatar from "$lib/components/ui/avatar";
-import { Badge } from "$lib/components/ui/badge";
-import { Button } from "$lib/components/ui/button";
-import * as Card from "$lib/components/ui/card";
-import { Spinner } from "$lib/components/ui/spinner";
-import * as Dialog from "$lib/components/ui/dialog";
-import { cn } from "$lib/utils";
+import { Check, CircleAlert, Users, X } from "@lucide/svelte";
+import * as Avatar from "@ui/avatar";
+import { Badge } from "@ui/badge";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
+import * as Dialog from "@ui/dialog";
+import { Spinner } from "@ui/spinner";
+import { cn } from "@ui-utils";
 import type { Booking } from "@wodapp/types";
+import { format } from "date-fns";
+import { enhance } from "$app/forms";
+import { globalClock } from "$lib/time.svelte";
 
 let { classData } = $props();
 

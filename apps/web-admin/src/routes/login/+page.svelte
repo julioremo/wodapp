@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button";
-  import { Input } from "$lib/components/ui/input";
-  import { PasswordInput } from "$lib/components/ui/password-input";
-  import { Label } from "$lib/components/ui/label";
-  import * as Card from "$lib/components/ui/card";
-  import * as Tabs from "$lib/components/ui/tabs";
-  import { enhance } from "$app/forms";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { PasswordInput } from "@ui/password-input";
+import * as Tabs from "@ui/tabs";
+import { enhance } from "$app/forms";
 
-  let { form } = $props();
+let { form } = $props();
 </script>
 
 <div class="flex items-center justify-center min-h-screen bg-muted/20 p-4">
@@ -35,8 +35,7 @@
                 id="password"
                 name="password"
                 autocomplete="current-password"
-                required
-              />
+                required />
             </div>
             {#if form?.error && !form?.isSignupError}
               <p class="text-sm text-destructive">{form.error}</p>
@@ -65,8 +64,7 @@
                 id="su_password"
                 name="password"
                 autocomplete="new-password"
-                required
-              />
+                required />
             </div>
 
             {#if form?.error && form?.isSignupError}

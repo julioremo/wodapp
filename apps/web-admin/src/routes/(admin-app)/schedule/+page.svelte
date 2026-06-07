@@ -1,17 +1,17 @@
 <script lang="ts">
-import { addWeeks, endOfWeek, format, getWeek, startOfWeek } from "date-fns";
 import {
   Calendar,
   Calendar as CalendarIcon,
   ArrowLeft as ChevronLeft,
   ArrowRight as ChevronRight,
   Plus
-} from "lucide-svelte";
+} from "@lucide/svelte";
+import { Button } from "@ui/button";
+import * as ButtonGroup from "@ui/button-group";
+import { addWeeks, endOfWeek, format, getWeek, startOfWeek } from "date-fns";
 import EditClassForm from "$lib/components/schedule/EditClassForm.svelte";
 import ScheduleCard from "$lib/components/schedule/ScheduleCard.svelte";
 import WeeklyGrid from "$lib/components/schedule/WeeklyGrid.svelte";
-import { Button } from "$lib/components/ui/button";
-import * as ButtonGroup from "$lib/components/ui/button-group";
 
 let { data } = $props();
 

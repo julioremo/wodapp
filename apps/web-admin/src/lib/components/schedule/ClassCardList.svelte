@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Calendar as CalendarIcon, CircleAlert, Plus, Trash2 } from "lucide-svelte";
+import { Calendar as CalendarIcon, CircleAlert, Plus, Trash2 } from "@lucide/svelte";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
 import { enhance } from "$app/forms";
-import { Button } from "$lib/components/ui/button";
-import * as Card from "$lib/components/ui/card";
 
 let { data } = $props();
 </script>

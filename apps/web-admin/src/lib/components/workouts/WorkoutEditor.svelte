@@ -1,11 +1,10 @@
 <script lang="ts">
-import { CircleCheck, LoaderCircle, Trash2 } from "lucide-svelte";
+import { CircleCheck, LoaderCircle, Trash2 } from "@lucide/svelte";
+import * as Form from "@ui/form";
+import { Input } from "@ui/input";
+import * as Select from "@ui/select";
 import { zod4Client as zodClient } from "sveltekit-superforms/adapters";
 import { superForm } from "sveltekit-superforms/client";
-
-import * as Form from "$lib/components/ui/form";
-import { Input } from "$lib/components/ui/input";
-import * as Select from "$lib/components/ui/select";
 import { workoutSchema } from "$lib/schemas/workout";
 
 let {

@@ -7,8 +7,8 @@ import {
   LibraryBig,
   Settings,
   Users
-} from "lucide-svelte";
-import { Button } from "$lib/components/ui/button";
+} from "@lucide/svelte";
+import { Button } from "@ui/button";
 
 let { data, children } = $props();
 

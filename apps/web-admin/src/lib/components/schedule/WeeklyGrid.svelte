@@ -1,10 +1,10 @@
 <!-- TODO: make sure today's column is shaded. RN columns don't exist  -->
 <script lang="ts">
+import { cn } from "@ui-utils";
 import type { GymSettings } from "@wodapp/core";
 import { addDays, format, isSameDay } from "date-fns";
 import type { Snippet } from "svelte";
 import { SCHEDULE_GRID_CONFIG as config } from "$lib/config/schedule";
-import { cn } from "$lib/utils";
 
 let {
   visibleDayIndices,
@@ -100,11 +100,8 @@ function getPositionStyle(startTime: string, endTime: string) {
     </div>
     {#if classes.length === 0}
       <div
-        class="absolute z-0 flex flex-col items-center justify-center pointer-events-none w-full h-full">
-        <div
-          class="bg-background/80 backdrop-blur-[2px] p-6 rounded-xl text-center opacity-70 text-red-100 w-4/5">
-          <p class="text-8xl font-semibold">No classes<br />this week.</p>
-        </div>
+        class="w-full mx-auto sticky top-50 backdrop-blur-[2px] p-12 text-center opacity-70 text-red-100">
+        <p class="text-8xl font-semibold">No classes<br />this week.</p>
       </div>
     {/if}
   </div>

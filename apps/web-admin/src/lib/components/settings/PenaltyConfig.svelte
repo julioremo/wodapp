@@ -1,10 +1,10 @@
 <script lang="ts">
-import { Input } from "$lib/components/ui/input";
-import * as InputGroup from "$lib/components/ui/input-group/index.js";
-import { Label } from "$lib/components/ui/label";
-import * as Select from "$lib/components/ui/select/index.js";
-import { Switch } from "$lib/components/ui/switch";
-import { Button } from "$lib/components/ui/button";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import * as InputGroup from "@ui/input-group/index.js";
+import { Label } from "@ui/label";
+import * as Select from "@ui/select/index.js";
+import { Switch } from "@ui/switch";
 import type { Penalty } from "@wodapp/core";
 
 let {

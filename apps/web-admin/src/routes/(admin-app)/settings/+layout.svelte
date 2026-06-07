@@ -1,7 +1,7 @@
 <script lang="ts">
+import { buttonVariants } from "@ui/button";
+import { cn } from "@ui-utils";
 import { page } from "$app/stores";
-import { buttonVariants } from "$lib/components/ui/button";
-import { cn } from "$lib/utils";
 
 let { children } = $props();
 

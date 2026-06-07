@@ -1,11 +1,11 @@
 <script lang="ts">
+import { buttonVariants } from "@ui/button";
+import * as Drawer from "@ui/drawer";
+import * as Popover from "@ui/popover";
+import { Slider } from "@ui/slider";
+import * as ToggleGroup from "@ui/toggle-group";
+import { cn } from "@ui-utils";
 import type { Snippet } from "svelte";
-import { buttonVariants } from "$lib/components/ui/button";
-import * as Popover from "$lib/components/ui/popover";
-import * as Drawer from "$lib/components/ui/drawer";
-import { Slider } from "$lib/components/ui/slider";
-import * as ToggleGroup from "$lib/components/ui/toggle-group";
-import { cn } from "$lib/utils";
 
 let { filterOptions, onFilterChange } = $props();
 

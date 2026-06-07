@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button";
-  import { Input } from "$lib/components/ui/input";
-  import { Label } from "$lib/components/ui/label";
-  import * as Card from "$lib/components/ui/card";
-  import { enhance } from '$app/forms';
-  
-  let { form } = $props();
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { enhance } from "$app/forms";
+
+let { form } = $props();
 </script>
 
 <div class="flex items-center justify-center min-h-screen bg-muted/20 p-4">

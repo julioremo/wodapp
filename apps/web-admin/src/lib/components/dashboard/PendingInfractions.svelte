@@ -1,9 +1,9 @@
 <script lang="ts">
+import { Loader2, Settings2 } from "@lucide/svelte";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
 import { format, parseISO } from "date-fns";
-import { Loader2, Settings2 } from "lucide-svelte";
 import { enhance } from "$app/forms";
-import { Button } from "$lib/components/ui/button";
-import * as Card from "$lib/components/ui/card";
 
 let { infractions } = $props();
 let resolvingId = $state<string | null>(null);

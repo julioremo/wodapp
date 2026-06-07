@@ -1,14 +1,14 @@
 <script lang="ts">
-import { Plus, Trash } from "lucide-svelte";
+import { Plus, Trash } from "@lucide/svelte";
+import { Button } from "@ui/button";
+import { Combobox } from "@ui/combobox";
+import * as Form from "@ui/form";
+import { Input } from "@ui/input";
+import * as InputGroup from "@ui/input-group";
+import * as Select from "@ui/select";
 import { toast } from "svelte-sonner";
 import { type SuperValidated, superForm } from "sveltekit-superforms";
 import { zod4Client } from "sveltekit-superforms/adapters";
-import { Button } from "$lib/components/ui/button";
-import { Combobox } from "$lib/components/ui/combobox";
-import * as Form from "$lib/components/ui/form";
-import { Input } from "$lib/components/ui/input";
-import * as InputGroup from "$lib/components/ui/input-group";
-import * as Select from "$lib/components/ui/select";
 import { type EditClass, editClassSchema } from "$lib/schemas/schedule";
 
 let {

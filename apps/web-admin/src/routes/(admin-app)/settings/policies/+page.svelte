@@ -1,21 +1,20 @@
 <script lang="ts">
-import { Loader2 } from "lucide-svelte";
+import { Loader2 } from "@lucide/svelte";
+import { Badge } from "@ui/badge";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
+import { Input } from "@ui/input";
+import * as InputGroup from "@ui/input-group/index.js";
+import { Label } from "@ui/label";
+import * as RadioGroup from "@ui/radio-group/index.js";
+import * as Select from "@ui/select/index.js";
+import { Separator } from "@ui/separator";
+import { Switch } from "@ui/switch";
+import { bookingPoliciesSchema } from "@wodapp/core";
 import { toast } from "svelte-sonner";
 import { superForm } from "sveltekit-superforms";
 import { zod4Client as zodClient } from "sveltekit-superforms/adapters";
 import PenaltyConfig from "$lib/components/settings/PenaltyConfig.svelte";
-
-import { Badge } from "$lib/components/ui/badge";
-import { Button } from "$lib/components/ui/button";
-import * as Card from "$lib/components/ui/card";
-import { Input } from "$lib/components/ui/input";
-import * as InputGroup from "$lib/components/ui/input-group/index.js";
-import { Label } from "$lib/components/ui/label";
-import * as RadioGroup from "$lib/components/ui/radio-group/index.js";
-import * as Select from "$lib/components/ui/select/index.js";
-import { Separator } from "$lib/components/ui/separator";
-import { Switch } from "$lib/components/ui/switch";
-import { bookingPoliciesSchema } from "@wodapp/core";
 
 let { data } = $props();
 

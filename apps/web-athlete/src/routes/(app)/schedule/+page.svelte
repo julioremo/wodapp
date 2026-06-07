@@ -1,13 +1,14 @@
 <script lang="ts">
-import { globalClock, getAvailability } from "@wodapp/core";
-import { addDays, format, isSameDay, startOfWeek, subWeeks, addWeeks } from "date-fns";
-import { ChevronLeft, ChevronRight, Settings2, Calendar as CalIcon } from "lucide-svelte";
+import { Calendar as CalIcon, ChevronLeft, ChevronRight, Settings2 } from "@lucide/svelte";
+import { Button } from "@ui/button";
+import { getAvailability } from "@wodapp/core";
+import { addDays, addWeeks, format, isSameDay, startOfWeek, subWeeks } from "date-fns";
 import { goto } from "$app/navigation";
 import ClassCard from "$lib/components/schedule/ClassCard.svelte";
-import { Button } from "$lib/components/ui/button";
-import FilterSheet from "$lib/components/schedule/FilterSheet.svelte";
-import type { PageData } from "./$types";
 import FilterBar from "$lib/components/schedule/FilterBar.svelte";
+import FilterSheet from "$lib/components/schedule/FilterSheet.svelte";
+import { globalClock } from "$lib/time.svelte";
+import type { PageData } from "./$types";
 
 let { data }: { data: PageData } = $props();
 
@@ -72,7 +73,8 @@ let viewState = $derived.by(() => {
 
 let availability = $derived(
   firstClass && viewState === "locked_incoming"
-    ? getAvailability(firstClass.openTime, globalClock.now)
+    // ? getAvailability(firstClass.openTime, globalClock.now)
+    ? null
     : null
 );
 

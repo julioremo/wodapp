@@ -1,6 +1,4 @@
 <script lang="ts">
-import type { ColumnDef, SortingState } from "@tanstack/table-core";
-import { format } from "date-fns";
 import {
   ArrowDown01,
   ArrowDownAZ,
@@ -15,14 +13,16 @@ import {
   Search,
   Send,
   X
-} from "lucide-svelte";
+} from "@lucide/svelte";
+import type { ColumnDef, SortingState } from "@tanstack/table-core";
+import * as Avatar from "@ui/avatar";
+import { Button } from "@ui/button";
+import { DataTable, renderSnippet } from "@ui/data-table";
+import { Input } from "@ui/input";
+import * as Tabs from "@ui/tabs";
+import { format } from "date-fns";
 import { toast } from "svelte-sonner";
 import { enhance } from "$app/forms";
-import * as Avatar from "$lib/components/ui/avatar";
-import { Button } from "$lib/components/ui/button";
-import { DataTable, renderSnippet } from "$lib/components/ui/data-table";
-import { Input } from "$lib/components/ui/input";
-import * as Tabs from "$lib/components/ui/tabs";
 
 let { data } = $props();
 

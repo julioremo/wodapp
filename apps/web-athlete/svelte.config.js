@@ -9,10 +9,9 @@ const config = {
   kit: {
     adapter: adapter(),
     alias: {
-      "@root": path.resolve("../../")
-      // "@wodapp/core": path.resolve("../../packages/core/src/index.ts"),
-      // "@wodapp/types": path.resolve("../../packages/types/src/index.ts"),
-      // "@wodapp/supabase-client": path.resolve("../../packages/supabase-client/src/index.ts")
+      "@root": path.resolve("../../"),
+      "@ui": "../../packages/ui/src/lib/components/ui",
+      "@ui-utils": "../../packages/ui/src/lib/utils.ts"
     }
   }
 };

@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button";
-  import { Input } from "$lib/components/ui/input";
-  import { Label } from "$lib/components/ui/label";
-  import * as Card from "$lib/components/ui/card";
-  import { enhance } from '$app/forms';
-  
-  // Svelte 5 Runes
-  let isSignUp = $state(false);
-  let { form } = $props(); // Get form response from server
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { enhance } from "$app/forms";
+
+let isSignUp = $state(false);
+let { form } = $props(); // Get form response from server
 </script>
 
 <div class="flex items-center justify-center min-h-screen bg-muted/40 p-4">
@@ -22,7 +21,7 @@
           : "Enter your email to sign in to your account"}
       </Card.Description>
     </Card.Header>
-    
+
     <Card.Content>
       <form method="POST" action={isSignUp ? '?/signup' : '?/login'} class="space-y-4">
         <input type="hidden" name="type" value={isSignUp ? 'signup' : 'login'} />
@@ -47,19 +46,16 @@
           </div>
         {/if}
 
-        <Button type="submit" class="w-full">
-          {isSignUp ? "Create Account" : "Sign In"}
-        </Button>
+        <Button type="submit" class="w-full"> {isSignUp ? "Create Account" : "Sign In"} </Button>
       </form>
     </Card.Content>
-    
+
     <Card.Footer>
       <div class="text-sm text-center w-full text-muted-foreground">
         {isSignUp ? "Already have an account?" : "Don't have an account?"}
-        <button 
+        <button
           class="underline underline-offset-4 hover:text-primary ml-1"
-          onclick={() => isSignUp = !isSignUp}
-        >
+          onclick={() => isSignUp = !isSignUp}>
           {isSignUp ? "Sign In" : "Sign Up"}
         </button>
       </div>

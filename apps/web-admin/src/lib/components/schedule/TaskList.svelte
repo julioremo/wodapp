@@ -1,21 +1,21 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button";
-  import * as Card from "$lib/components/ui/card";
-  import { Plus, CircleAlert, Trash2, Calendar as CalendarIcon } from "lucide-svelte";
+import { Calendar as CalendarIcon, CircleAlert, Plus, Trash2 } from "@lucide/svelte";
+import { Button } from "@ui/button";
+import * as Card from "@ui/card";
 
-  let { classes } = $props();
+let { classes } = $props();
 
-  // ⚡️ REAL-TIME DERIVATION
-  // This automatically updates if 'classes' changes (e.g. next week)
-  let tasks = $derived.by(() => {
-    const missingCoach = classes.filter((c) => !c.coach_id);
-    const missingprogram = classes.filter((c) => !c.program_id);
+// ⚡️ REAL-TIME DERIVATION
+// This automatically updates if 'classes' changes (e.g. next week)
+let tasks = $derived.by(() => {
+  const missingCoach = classes.filter((c) => !c.coach_id);
+  const missingprogram = classes.filter((c) => !c.program_id);
 
-    return [
-      ...missingCoach.map((c) => ({ type: "coach", ...c })),
-      ...missingprogram.map((c) => ({ type: "program", ...c }))
-    ];
-  });
+  return [
+    ...missingCoach.map((c) => ({ type: "coach", ...c })),
+    ...missingprogram.map((c) => ({ type: "program", ...c }))
+  ];
+});
 </script>
 
 <Card.Root class="border-orange-200 bg-orange-50/10 dark:border-orange-900/50">
@@ -49,10 +49,14 @@
               <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">Missing Coach</span>
             {/if}
             {#if !task.program_id}
-              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Missing WOD</span>
+              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded"
+                >Missing WOD</span
+              >
             {/if}
           </div>
-          <Button variant="ghost" size="sm" class="h-6" href={`schedule/${task.id}/edit`}>Fix</Button>
+          <Button variant="ghost" size="sm" class="h-6" href={`schedule/${task.id}/edit`}
+            >Fix</Button
+          >
         </div>
       {/each}
     </div>

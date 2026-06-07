@@ -1,14 +1,15 @@
-import { redirect, error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 
 export const load = async ({ locals, url }) => {
-  const { user, supabase } = locals;
+  const { user, session, supabase } = locals;
 
   // Guard the entire (app) group
   if (!user) throw redirect(303, "/login");
 
   // 1. Fetch Profile and Memberships (concurrently)
   const [profileReq, membershipsReq] = await Promise.all([
-    supabase.from("profiles").select("last_location_id").eq("id", user.id).single(),
+    supabase.from("profiles").select("last_location_id").eq("id", user.id)
+      .single(),
     supabase
       .from("memberships")
       .select(`
@@ -18,7 +19,7 @@ export const load = async ({ locals, url }) => {
         booking_delay_minutes,
         location:locations ( id, name, slug )
       `)
-      .eq("profile_id", user.id)
+      .eq("profile_id", user.id),
   ]);
 
   if (membershipsReq.error) {
@@ -42,8 +43,12 @@ export const load = async ({ locals, url }) => {
   if (activeMemberships.length === 1) {
     activeLocation = activeMemberships[0].location;
   } else if (activeMemberships.length > 1) {
-    const lastUsed = activeMemberships.find((m) => m.location.id === profile?.last_location_id);
-    activeLocation = lastUsed ? lastUsed.location : activeMemberships[0].location;
+    const lastUsed = activeMemberships.find((m) =>
+      m.location.id === profile?.last_location_id
+    );
+    activeLocation = lastUsed
+      ? lastUsed.location
+      : activeMemberships[0].location;
   }
 
   // === SCENARIO 4: NO GYM ===
@@ -53,8 +58,9 @@ export const load = async ({ locals, url }) => {
   //}
 
   return {
+    session,
     user,
     activeLocation,
-    memberships
+    memberships,
   };
 };

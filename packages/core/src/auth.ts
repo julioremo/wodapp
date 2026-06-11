@@ -1,8 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
-import type { RequestEvent } from "@sveltejs/kit";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { RequestEvent } from "@sveltejs/kit";
 
-export function setupSupabase(event: RequestEvent, supabaseUrl: string, supabaseKey: string) {
+export function setupSupabase(
+  event: RequestEvent,
+  supabaseUrl: string,
+  supabaseKey: string,
+) {
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll: () => event.cookies.getAll(),
@@ -10,21 +14,20 @@ export function setupSupabase(event: RequestEvent, supabaseUrl: string, supabase
         cookiesToSet.forEach(({ name, value, options }) => {
           event.cookies.set(name, value, { ...options, path: "/" });
         });
-      }
-    }
+      },
+    },
   });
 
   const safeGetSession = async () => {
     const {
-      data: { session }
-    } = await supabase.auth.getSession();
-    if (!session) return { session: null, user: null };
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error || !user) return { session: null, user: null };
 
     const {
-      data: { user },
-      error
-    } = await supabase.auth.getUser();
-    if (error) return { session: null, user: null };
+      data: { session },
+    } = await supabase.auth.getSession();
 
     return { session, user };
   };
@@ -32,7 +35,10 @@ export function setupSupabase(event: RequestEvent, supabaseUrl: string, supabase
   return { supabase, safeGetSession };
 }
 
-export async function fetchUserContext(supabase: SupabaseClient, userId: string) {
+export async function fetchUserContext(
+  supabase: SupabaseClient,
+  userId: string,
+) {
   const { data: location } = await supabase
     .from("locations")
     .select(`
@@ -52,7 +58,7 @@ export async function fetchUserContext(supabase: SupabaseClient, userId: string)
       id: location.id,
       name: location.name,
       slug: location.slug,
-      settings: location.settings
-    }
+      settings: location.settings,
+    },
   };
 }

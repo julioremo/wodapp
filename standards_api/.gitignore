@@ -38,3 +38,5 @@
 *.ipynb
 .ipynb_checkpoints/
 
+.env
+

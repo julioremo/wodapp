@@ -1,6 +1,6 @@
 require 'nokogiri'
 require 'open-uri'
-require 'json'
+require 'csv'
 require 'fileutils'
 
 movements = ['Bench', 'Deadlift', 'Press', 'Clean', 'Snatch', 'Squat']
@@ -12,7 +12,6 @@ FileUtils.mkdir_p(output_dir)
 movements.product(ages).each do |movement, age|
   standard_word = (movement == 'Bench' && !age.empty?) ? 'Standard' : 'Standards'
   url = "https://exrx.net/Testing/WeightLifting/#{movement}#{standard_word}#{age}Kg"
-  
   puts "Fetching: #{url}"
   
   begin
@@ -20,46 +19,38 @@ movements.product(ages).each do |movement, age|
     doc = Nokogiri::HTML(html)
     
 		doc.css('table').each do |table|
-      first_row_text = table.at_css('tr')&.text || ""
+      # Extract all cells into a 2D array of text strings
+      raw_table = table.css('tr').map do |row|
+        row.css('th, td').map { |cell| cell.text.strip }
+      end
       
-      # Determine gender from the table header
+      # Determine gender from table header
+      first_row_text = raw_table.first&.join(" ") || ""
       gender = nil
       if first_row_text.include?("Men")
         gender = "male"
       elsif first_row_text.include?("Women")
         gender = "female"
       end
-
 			next unless gender
 
-			table_data = []
-      
-      table.css('tr').each do |row|
-        cells = row.css('td').map { |td| td.text.strip }
-        
-        table_data << cells unless cells.empty?
-      end
+      row_lengths = raw_table.map(&:length)
+      modal_length = row_lengths.tally.max_by { |_, count| count }&.first
+      next unless modal_length
+
+      table_data = raw_table.select { |row| row.length == modal_length }
 			
-      if table_data.any?
-        age_label = age.empty? ? "18" : age
-        filename = "#{movement.downcase}_#{gender}_#{age_label}.json"
-				filepath = File.join(output_dir, filename)
+      age_label = age.empty? ? "18" : age
+      filename = "#{movement.downcase}_#{gender}_#{age_label}.csv"
+      filepath = File.join(output_dir, filename)
 
-        payload = {
-          movement: movement,
-          gender: gender,
-          age_category: age_label,
-          raw_data: table_data
-          
-        }
-
-        File.open(filepath, "w") do |file|
-          file.write(JSON.pretty_generate(table_data))
-        end
-        
-        puts "  -> Saved #{filename}"
+      CSV.open(filepath, "w") do |csv|
+        table_data.each { |row| csv << row }
       end
+
+      puts "  -> Saved #{filepath}"
     end
+
   rescue => e
     puts "Failed to parse #{url}: #{e.message}"
   end

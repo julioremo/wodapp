@@ -47,7 +47,7 @@ let displayCategory = $derived(
               {#if movement.pr}
                 <span
                   class="text-base text-foreground text-center align-baseline"
-                  >{movement.pr}</span>
+                  >{Math.round(movement.pr * 10) / 10}</span>
               {:else}
                 <Badge
                   variant="outline"

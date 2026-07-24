@@ -51,7 +51,7 @@ let displayCategory = $derived(
               {:else}
                 <Badge
                   variant="outline"
-                  class="font-mono text-[10px] uppercase px-1.5 py-0.5 rounded-none text-tomato-200 border-tomato-200"
+                  class="font-mono text-[10px] uppercase px-1.5 py-0.5 rounded-none text-grey-200 border-grey-200"
                   >! No record</Badge>
               {/if}
               <div

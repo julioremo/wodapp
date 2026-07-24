@@ -10,7 +10,8 @@ import { onMount } from "svelte";
 import { goto } from "$app/navigation";
 import { page } from "$app/state";
 
-let { children, filterData = { types: [], bounds: { min: 360, max: 1320 } } } = $props();
+let { children, filterData = { types: [], bounds: { min: 360, max: 1320 } } } =
+  $props();
 
 // State
 let open = $state(false);
@@ -20,7 +21,9 @@ let isDesktop = $state(false);
 let hiddenTypes = $state<Set<string>>(new Set());
 // 2. Time Ranges (Array of [start, end] in minutes)
 // Default: One range covering the whole day
-let timeRanges = $state<number[][]>([[filterData.bounds.min, filterData.bounds.max]]);
+let timeRanges = $state<number[][]>([
+  [filterData.bounds.min, filterData.bounds.max],
+]);
 
 // --- 1. RESPONSIVENESS ---
 $effect(() => {
@@ -101,9 +104,9 @@ function applyFilters() {
   // 2. Apply Time Ranges
   // Only set param if it differs from default (full day)
   const isDefaultTime =
-    timeRanges.length === 1
-    && timeRanges[0][0] === filterData.bounds.min
-    && timeRanges[0][1] === filterData.bounds.max;
+    timeRanges.length === 1 &&
+    timeRanges[0][0] === filterData.bounds.min &&
+    timeRanges[0][1] === filterData.bounds.max;
 
   if (!isDefaultTime) {
     const rangeString = timeRanges.map((r) => `${r[0]}-${r[1]}`).join(",");
@@ -121,6 +124,7 @@ function resetAll() {
   resetTime();
 }
 </script>
+
 {#if isDesktop}
   <Sheet.Root bind:open>
     <Sheet.Trigger asChild>{@render children()}</Sheet.Trigger>
@@ -147,7 +151,9 @@ function resetAll() {
       </div>
 
       <Drawer.Footer class="pt-2">
-        <Drawer.Close asChild> <Button variant="outline">Cancel</Button> </Drawer.Close>
+        <Drawer.Close asChild>
+          <Button variant="outline">Cancel</Button>
+        </Drawer.Close>
       </Drawer.Footer>
     </Drawer.Content>
   </Drawer.Root>
@@ -171,7 +177,9 @@ function resetAll() {
       <div class="flex flex-wrap gap-2">
         {#each filterData.types as type}
           {@const isSelected = !hiddenTypes.has(type)}
-          <button class="focus:outline-none group" onclick={() => toggleType(type)}>
+          <button
+            class="focus:outline-none group"
+            onclick={() => toggleType(type)}>
             <Badge
               variant={isSelected ? "default" : "outline"}
               class="text-sm px-3 py-1 transition-all h-8 cursor-pointer select-none">
@@ -188,8 +196,16 @@ function resetAll() {
       <div class="flex justify-between items-center">
         <h4 class="text-sm font-medium">Time Ranges</h4>
         <div class="flex gap-2">
-          <Button variant="ghost" size="sm" class="h-7 text-xs" onclick={resetTime}>Reset</Button>
-          <Button variant="outline" size="sm" class="h-7 text-xs gap-1" onclick={addTimeRange}>
+          <Button
+            variant="ghost"
+            size="sm"
+            class="h-7 text-xs"
+            onclick={resetTime}>Reset</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-7 text-xs gap-1"
+            onclick={addTimeRange}>
             <Plus class="w-3 h-3" />
             Add
           </Button>
@@ -205,7 +221,8 @@ function resetAll() {
               <X class="w-3 h-3" />
             </button>
           {/if}
-          <div class="flex justify-between text-xs font-mono text-muted-foreground">
+          <div
+            class="flex justify-between text-xs font-mono text-muted-foreground">
             <span>{formatTime(range[0])}</span>
             <span>{formatTime(range[1])}</span>
           </div>
@@ -214,7 +231,7 @@ function resetAll() {
             min={filterData.bounds.min}
             max={filterData.bounds.max}
             step={15}
-            onValueChange={(vals) => timeRanges[i] = vals}
+            onValueChange={(vals) => (timeRanges[i] = vals)}
             class="w-full" />
         </div>
       {/each}
@@ -222,6 +239,8 @@ function resetAll() {
   </div>
 
   <div class="pt-4 pb-4">
-    <Button class="w-full font-bold" onclick={applyFilters}> Show Results </Button>
+    <Button class="w-full font-bold" onclick={applyFilters}>
+      Show Results
+    </Button>
   </div>
 {/snippet}

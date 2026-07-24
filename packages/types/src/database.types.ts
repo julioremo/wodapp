@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      ar_internal_metadata: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          created_at: string
+          key: string
+          updated_at: string
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
+      benchmarks: {
+        Row: {
+          created_at: string | null
+          date: string
+          estimated_1rm: number | null
+          id: string
+          movement_id: string
+          notes: string | null
+          profile_id: string
+          reps: number
+          score: number
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string
+          estimated_1rm?: number | null
+          id?: string
+          movement_id: string
+          notes?: string | null
+          profile_id: string
+          reps?: number
+          score: number
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          estimated_1rm?: number | null
+          id?: string
+          movement_id?: string
+          notes?: string | null
+          profile_id?: string
+          reps?: number
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benchmark_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benchmark_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           class_id: string
@@ -247,6 +319,104 @@ export type Database = {
           },
         ]
       }
+      movement_standards: {
+        Row: {
+          created_at: string
+          gender: string
+          id: string
+          level_advanced_kg: number | null
+          level_elite_kg: number | null
+          level_intermediate_kg: number | null
+          level_novice_kg: number | null
+          level_untrained_kg: number | null
+          level_world_record_kg: number | null
+          max_age: number
+          max_bodyweight_kg: number | null
+          min_age: number
+          min_bodyweight_kg: number
+          movement_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          gender: string
+          id?: string
+          level_advanced_kg?: number | null
+          level_elite_kg?: number | null
+          level_intermediate_kg?: number | null
+          level_novice_kg?: number | null
+          level_untrained_kg?: number | null
+          level_world_record_kg?: number | null
+          max_age: number
+          max_bodyweight_kg?: number | null
+          min_age: number
+          min_bodyweight_kg: number
+          movement_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          gender?: string
+          id?: string
+          level_advanced_kg?: number | null
+          level_elite_kg?: number | null
+          level_intermediate_kg?: number | null
+          level_novice_kg?: number | null
+          level_untrained_kg?: number | null
+          level_world_record_kg?: number | null
+          max_age?: number
+          max_bodyweight_kg?: number | null
+          min_age?: number
+          min_bodyweight_kg?: number
+          movement_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movement_standards_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "movements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movements: {
+        Row: {
+          aliases: string[] | null
+          category: string
+          created_at: string | null
+          description: string | null
+          distribution: Json | null
+          id: string
+          measurement_type: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          aliases?: string[] | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          distribution?: Json | null
+          id?: string
+          measurement_type: string
+          name: string
+          slug: string
+        }
+        Update: {
+          aliases?: string[] | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          distribution?: Json | null
+          id?: string
+          measurement_type?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       notification_events: {
         Row: {
           class_id: string
@@ -311,6 +481,7 @@ export type Database = {
           email: string | null
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
+          emoji: string | null
           first_name: string | null
           gender: string | null
           id: string
@@ -327,6 +498,7 @@ export type Database = {
           email?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
+          emoji?: string | null
           first_name?: string | null
           gender?: string | null
           id: string
@@ -343,6 +515,7 @@ export type Database = {
           email?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
+          emoji?: string | null
           first_name?: string | null
           gender?: string | null
           id?: string
@@ -402,6 +575,7 @@ export type Database = {
           class_type: string
           created_at: string | null
           id: string
+          location_id: string | null
           program_date: string | null
           title: string | null
           updated_at: string | null
@@ -410,6 +584,7 @@ export type Database = {
           class_type: string
           created_at?: string | null
           id?: string
+          location_id?: string | null
           program_date?: string | null
           title?: string | null
           updated_at?: string | null
@@ -418,11 +593,20 @@ export type Database = {
           class_type?: string
           created_at?: string | null
           id?: string
+          location_id?: string | null
           program_date?: string | null
           title?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_programs_location"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       results: {
         Row: {
@@ -476,6 +660,18 @@ export type Database = {
           },
         ]
       }
+      schema_migrations: {
+        Row: {
+          version: string
+        }
+        Insert: {
+          version: string
+        }
+        Update: {
+          version?: string
+        }
+        Relationships: []
+      }
       workouts: {
         Row: {
           class_type: string | null
@@ -485,9 +681,11 @@ export type Database = {
           created_by: string | null
           description: string
           duration: number | null
+          error: string | null
           id: string
           location_id: string | null
           slug: string
+          status: string
           structured_data: Json | null
           tags: string[] | null
           title: string | null
@@ -501,9 +699,11 @@ export type Database = {
           created_by?: string | null
           description: string
           duration?: number | null
+          error?: string | null
           id?: string
           location_id?: string | null
           slug: string
+          status?: string
           structured_data?: Json | null
           tags?: string[] | null
           title?: string | null
@@ -517,9 +717,11 @@ export type Database = {
           created_by?: string | null
           description?: string
           duration?: number | null
+          error?: string | null
           id?: string
           location_id?: string | null
           slug?: string
+          status?: string
           structured_data?: Json | null
           tags?: string[] | null
           title?: string | null
@@ -569,6 +771,7 @@ export type Database = {
         Returns: undefined
       }
       delete_program: { Args: { p_program_id: string }; Returns: undefined }
+      get_my_location_ids: { Args: never; Returns: string[] }
       get_unique_class_types: {
         Args: never
         Returns: {

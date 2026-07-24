@@ -8,7 +8,7 @@ const isActive = (path: string) => $page.url.pathname.startsWith(path);
 </script>
 
 <div class="flex flex-col h-screen max-w-md mx-auto bg-background">
-  <main class="flex-1 overflow-y-auto pb-20">
+  <main class="flex-1 overflow-y-auto pb-16">
     {@render children()}
   </main>
 

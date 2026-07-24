@@ -11,7 +11,10 @@ let { filterOptions, onFilterChange } = $props();
 
 let selectedTypes = $state<string[]>([]);
 let selectedCoaches = $state<string[]>([]);
-let timeRange = $state<number[]>([filterOptions.bounds.min, filterOptions.bounds.max]);
+let timeRange = $state<number[]>([
+  filterOptions.bounds.min,
+  filterOptions.bounds.max,
+]);
 
 let initialized = $state(false);
 let isDesktop = $state(true);
@@ -36,7 +39,10 @@ $effect(() => {
     const parsed = JSON.parse(stored);
     selectedTypes = parsed.selectedTypes || [];
     selectedCoaches = parsed.selectedCoaches || [];
-    timeRange = parsed.timeRange || [filterOptions.bounds.min, filterOptions.bounds.max];
+    timeRange = parsed.timeRange || [
+      filterOptions.bounds.min,
+      filterOptions.bounds.max,
+    ];
   }
   initialized = true;
 });
@@ -69,7 +75,11 @@ function getTriggerText(label: string, selected: string[]) {
     bind:value={selectedTypes}
     class="flex flex-wrap gap-2 justify-start">
     {#each filterOptions.allClassTypes as type}
-      <ToggleGroup.Item value={type} variant="outline" size="sm" class="rounded-full h-7 text-xs">
+      <ToggleGroup.Item
+        value={type}
+        variant="outline"
+        size="sm"
+        class="rounded-full h-7 text-xs">
         {type}
       </ToggleGroup.Item>
     {/each}
@@ -82,7 +92,11 @@ function getTriggerText(label: string, selected: string[]) {
     bind:value={selectedCoaches}
     class="flex flex-wrap gap-2 justify-start">
     {#each filterOptions.allCoaches as coach}
-      <ToggleGroup.Item value={coach} variant="outline" size="sm" class="rounded-full h-7 text-xs">
+      <ToggleGroup.Item
+        value={coach}
+        variant="outline"
+        size="sm"
+        class="rounded-full h-7 text-xs">
         {coach}
       </ToggleGroup.Item>
     {/each}
@@ -94,8 +108,7 @@ function getTriggerText(label: string, selected: string[]) {
     <div class="flex justify-between items-center">
       <span class="text-xs text-muted-foreground"
         >{formatTime(timeRange[0])}
-        - {formatTime(timeRange[1])}</span
-      >
+        - {formatTime(timeRange[1])}</span>
     </div>
     <Slider
       type="multiple"
@@ -106,13 +119,21 @@ function getTriggerText(label: string, selected: string[]) {
   </div>
 {/snippet}
 
-{#snippet FilterBlock(title: string, triggerText: string, isActive: boolean, contentSnippet: any)}
+{#snippet FilterBlock(
+  title: string,
+  triggerText: string,
+  isActive: boolean,
+  contentSnippet: any,
+)}
   {#if isDesktop}
     <Popover.Root>
       <Popover.Trigger
         class={cn(
-          buttonVariants({ variant: isActive ? "default" : "secondary", size: "sm" }), 
-          "rounded-full whitespace-nowrap"
+          buttonVariants({
+            variant: isActive ? "default" : "secondary",
+            size: "sm",
+          }),
+          "rounded-full whitespace-nowrap",
         )}>
         {triggerText}
       </Popover.Trigger>
@@ -127,8 +148,11 @@ function getTriggerText(label: string, selected: string[]) {
     <Drawer.Root>
       <Drawer.Trigger
         class={cn(
-          buttonVariants({ variant: isActive ? "default" : "secondary", size: "sm" }), 
-          "rounded-full whitespace-nowrap"
+          buttonVariants({
+            variant: isActive ? "default" : "secondary",
+            size: "sm",
+          }),
+          "rounded-full whitespace-nowrap",
         )}>
         {triggerText}
       </Drawer.Trigger>
@@ -146,25 +170,25 @@ function getTriggerText(label: string, selected: string[]) {
 
 <div class="flex overflow-x-auto flex-nowrap gap-2 py-2 no-scrollbar">
   {@render FilterBlock(
-    "Class Types", 
-    getTriggerText("Class Type", selectedTypes), 
-    selectedTypes.length > 0, 
-    classTypesContent
+    "Class Types",
+    getTriggerText("Class Type", selectedTypes),
+    selectedTypes.length > 0,
+    classTypesContent,
   )}
 
   {#if filterOptions.showCoachFilter}
     {@render FilterBlock(
-      "Coaches", 
-      getTriggerText("Coach", selectedCoaches), 
-      selectedCoaches.length > 0, 
-      coachesContent
+      "Coaches",
+      getTriggerText("Coach", selectedCoaches),
+      selectedCoaches.length > 0,
+      coachesContent,
     )}
   {/if}
 
   {@render FilterBlock(
-    "Time Window", 
-    `${formatTime(timeRange[0])} - ${formatTime(timeRange[1])}`, 
-    false, 
-    timeContent
+    "Time Window",
+    `${formatTime(timeRange[0])} - ${formatTime(timeRange[1])}`,
+    false,
+    timeContent,
   )}
 </div>

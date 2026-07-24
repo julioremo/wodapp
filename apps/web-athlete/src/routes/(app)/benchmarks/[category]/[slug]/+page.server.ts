@@ -103,6 +103,7 @@ export const load: PageServerLoad = async ({ params, parent, locals: { supabase 
     history: history ?? [],
     peers: flattenedPeers,
     profile,
-    user
+    user,
+    userAge
   };
 };

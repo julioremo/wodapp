@@ -20,7 +20,7 @@ import StreghtLevelsBg from "./StreghtLevelsBg.svelte";
 import WeightCalcStrip from "./WeightStrip.svelte";
 
 let { data } = $props();
-let { movement, standardsSelection, history, peers, profile, user } =
+let { movement, standardsSelection, history, peers, profile, user, userAge } =
   $derived(data);
 
 let oneRepMax = $derived.by(() => {
@@ -113,7 +113,7 @@ function handleSuccess() {
         <section class="mt-16 first:mt-4">
           <header class="flex items-end justify-between mb-3 ml-3">
             <h3 class="text-lg font-medium text-foreground">
-              Rep/percentage calculator
+              {stripMode === "reps" ? "Reps" : "Percentage"} calculator
             </h3>
             <ToggleGroup.Root
               type="single"
@@ -184,16 +184,18 @@ function handleSuccess() {
             <h3 class="text-lg font-medium text-foreground">
               How do I compare?
             </h3>
-            <ToggleGroup.Root
-              type="single"
-              bind:value={standardsMode}
-              class="h-6 border rounded-none font-mono uppercase">
-              {#each Object.entries(standardsModes) as [mode, { label }]}
-                <ToggleGroup.Item value={mode} class="h-full px-2 text-xs ">
-                  {label}
-                </ToggleGroup.Item>
-              {/each}
-            </ToggleGroup.Root>
+            {#if userAge < 18 || userAge > 39}
+              <ToggleGroup.Root
+                type="single"
+                bind:value={standardsMode}
+                class="h-6 border rounded-none font-mono uppercase">
+                {#each Object.entries(standardsModes) as [mode, { label }]}
+                  <ToggleGroup.Item value={mode} class="h-full px-2 text-xs ">
+                    {label}
+                  </ToggleGroup.Item>
+                {/each}
+              </ToggleGroup.Root>
+            {/if}
           </div>
           <div
             // class="overflow-hidden bg-white rounded-xl border-1 border-stone-300"

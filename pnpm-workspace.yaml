@@ -4,7 +4,5 @@ packages:
 
 allowBuilds:
   esbuild: set this to true or false
-
-onlyBuiltDependencies:
-  - esbuild
-  - supabase
+  supabase: true
+  '@tailwindcss/oxide': true

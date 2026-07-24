@@ -6,18 +6,18 @@ export const toggleVariants = tv({
   variants: {
     variant: {
       default: "bg-transparent",
-      outline: "border-input hover:bg-muted border bg-transparent"
+      outline: "border-input hover:bg-muted border bg-transparent",
     },
     size: {
       default: "h-8 min-w-8 px-2",
       sm: "h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-1.5 text-[0.8rem]",
-      lg: "h-9 min-w-9 px-2.5"
-    }
+      lg: "h-9 min-w-9 px-2.5",
+    },
   },
   defaultVariants: {
     variant: "default",
-    size: "default"
-  }
+    size: "default",
+  },
 });
 
 export type ToggleVariant = VariantProps<typeof toggleVariants>["variant"];

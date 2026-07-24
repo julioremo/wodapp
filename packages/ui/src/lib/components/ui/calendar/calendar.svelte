@@ -50,9 +50,9 @@ get along, so we shut typescript up by casting `value` to `never`.
   {weekdayFormat}
   {disableDaysOutsideMonth}
   class={cn(
-		"bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
-		className
-	)}
+    "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+    className,
+  )}
   {locale}
   {monthFormat}
   {yearFormat}
@@ -81,7 +81,7 @@ get along, so we shut typescript up by casting `value` to `never`.
             <Calendar.GridHead>
               <Calendar.GridRow class="select-none">
                 {#each weekdays as weekday (weekday)}
-                  <Calendar.HeadCell> {weekday.slice(0, 2)} </Calendar.HeadCell>
+                  <Calendar.HeadCell>{weekday.slice(0, 2)}</Calendar.HeadCell>
                 {/each}
               </Calendar.GridRow>
             </Calendar.GridHead>
@@ -92,9 +92,9 @@ get along, so we shut typescript up by casting `value` to `never`.
                     <Calendar.Cell {date} month={month.value}>
                       {#if day}
                         {@render day({
-													day: date,
-													outsideMonth: !isEqualMonth(date, month.value),
-												})}
+                          day: date,
+                          outsideMonth: !isEqualMonth(date, month.value),
+                        })}
                       {:else}
                         <Calendar.Day />
                       {/if}

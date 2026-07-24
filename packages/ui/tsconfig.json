@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@ui-utils": [
+                "src/lib/utils.ts"
+            ],
+            "@ui": [
+                "src/lib/components/ui"
+            ],
+            "@ui/*": [
+                "src/lib/components/ui/*"
+            ],
+            "@ui-hooks": [
+                "src/lib/hooks"
+            ],
+            "@ui-hooks/*": [
+                "src/lib/hooks/*"
+            ],
+            "@ui-lib": [
+                "src/lib"
+            ],
+            "@ui-lib/*": [
+                "src/lib/*"
+            ]
+        }
+    }
+}

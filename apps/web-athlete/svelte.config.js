@@ -11,7 +11,9 @@ const config = {
     alias: {
       "@root": path.resolve("../../"),
       "@ui": "../../packages/ui/src/lib/components/ui",
-      "@ui-utils": "../../packages/ui/src/lib/utils.ts"
+      "@ui-utils": "../../packages/ui/src/lib/utils.ts",
+      "@ui-hooks": "../../packages/ui/src/lib/hooks",
+      "@ui-lib": "../../packages/ui/src/lib"
     }
   }
 };

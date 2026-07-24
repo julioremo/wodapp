@@ -5,7 +5,7 @@ import { cn } from "@ui-utils";
 let {
   value = $bindable(),
   colors,
-  columns = 2
+  columns = 2,
 } = $props<{
   value: string;
   colors: string[];
@@ -26,7 +26,8 @@ function selectColor(color: string) {
     <div
       class="w-6 h-6 rounded-full shadow-sm border border-border transition-transform hover:scale-105"
       style="background-color: {value};"
-      aria-label="Pick a color"></div>
+      aria-label="Pick a color">
+    </div>
   </Popover.Trigger>
 
   <Popover.Content class="w-auto p-0 border-none shadow-md" sideOffset={8}>
@@ -38,7 +39,7 @@ function selectColor(color: string) {
           type="button"
           class={cn(
             "w-8 h-8 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring inset-0 z-10",
-            value === color ? "opacity-100 scale-95" : ""
+            value === color ? "opacity-100 scale-95" : "",
           )}
           style="background-color: {color};"
           aria-label="Select color {color}"

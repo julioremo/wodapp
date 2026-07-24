@@ -22,7 +22,7 @@ let {
   emptyText = "No results found.",
   triggerClass = "w-[200px]",
   nullable = true,
-  itemSnippet
+  itemSnippet,
 } = $props<{
   value?: string;
   options: ComboboxOption[];
@@ -79,7 +79,11 @@ function closeAndFocusTrigger() {
                 value = ""; // Clear the value
                 closeAndFocusTrigger();
               }}>
-              <Check class={cn("mr-2 size-4", value ? "opacity-0" : "opacity-100")} />
+              <Check
+                class={cn(
+                  "mr-2 size-4",
+                  value ? "opacity-0" : "opacity-100",
+                )} />
               Unassigned
             </Command.Item>
             <Command.Separator />
@@ -91,10 +95,17 @@ function closeAndFocusTrigger() {
                 value = option.value;
                 closeAndFocusTrigger();
               }}>
-              <Check class={cn("me-2 size-4", value !== option.value && "text-transparent")} />
+              <Check
+                class={cn(
+                  "me-2 size-4",
+                  value !== option.value && "text-transparent",
+                )} />
 
               {#if itemSnippet}
-                {@render itemSnippet({ option, isSelected: value === option.value })}
+                {@render itemSnippet({
+                  option,
+                  isSelected: value === option.value,
+                })}
               {:else}
                 {option.label}
               {/if}

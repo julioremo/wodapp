@@ -2,7 +2,12 @@
 import { Eye, EyeOff } from "@lucide/svelte";
 import { cn } from "@ui-utils";
 import type { HTMLInputAttributes } from "svelte/elements";
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "../input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "../input-group";
 
 let {
   class: className,
@@ -21,7 +26,11 @@ function handleToggle(e: MouseEvent) {
 </script>
 
 <InputGroup>
-  <InputGroupInput {...props} type={show ? "text" : "password"} class={cn(className)} bind:value />
+  <InputGroupInput
+    {...props}
+    type={show ? "text" : "password"}
+    class={cn(className)}
+    bind:value />
 
   <InputGroupAddon align="inline-end">
     <InputGroupButton size="icon-xs" onclick={handleToggle} type="button">

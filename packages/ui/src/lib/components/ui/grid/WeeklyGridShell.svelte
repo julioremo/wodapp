@@ -9,7 +9,7 @@ let {
   leftSidebar,
   gridContent,
   sidebarWidthClass = "w-16",
-  minColWidthClass = "min-w-[140px]"
+  minColWidthClass = "min-w-[140px]",
 } = $props<{
   days: any[];
   corner?: Snippet;
@@ -21,14 +21,15 @@ let {
 }>();
 </script>
 
-<div class="border rounded-xl bg-background flex flex-col h-full overflow-hidden shadow-sm">
+<div
+  class="border rounded-xl bg-background flex flex-col h-full overflow-hidden shadow-sm">
   <div class="flex-1 overflow-auto relative bg-background">
     <div class="flex flex-col min-w-max min-h-full">
       <div class="flex border-b bg-muted/40 sticky top-0 z-30 shadow-sm">
         <div
           class={cn(
             "shrink-0 border-r bg-background sticky left-0 z-40 flex items-center justify-center",
-            sidebarWidthClass
+            sidebarWidthClass,
           )}>
           {#if corner}
             {@render corner()}
@@ -37,7 +38,8 @@ let {
 
         <div class="flex flex-1">
           {#each days as day, index}
-            <div class={cn("flex-1 border-r last:border-r-0", minColWidthClass)}>
+            <div
+              class={cn("flex-1 border-r last:border-r-0", minColWidthClass)}>
               {@render headerCell({ day, index })}
             </div>
           {/each}
@@ -45,7 +47,11 @@ let {
       </div>
 
       <div class="flex flex-1">
-        <div class={cn("shrink-0 bg-background border-r sticky left-0 z-20", sidebarWidthClass)}>
+        <div
+          class={cn(
+            "shrink-0 bg-background border-r sticky left-0 z-20",
+            sidebarWidthClass,
+          )}>
           {#if leftSidebar}
             {@render leftSidebar()}
           {/if}

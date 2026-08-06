@@ -6,3 +6,43 @@ allowBuilds:
   esbuild: set this to true or false
   supabase: true
   '@tailwindcss/oxide': true
+
+catalog:
+  # Framework + build
+  svelte: "^5.56.7"
+  "@sveltejs/kit": "^2.70.1"
+  "@sveltejs/adapter-auto": "^7.0.1"
+  "@sveltejs/vite-plugin-svelte": "^7.1.2"
+  typescript: "^6.0.3"
+  vite: "^8.0.11"
+
+  # Styling
+  clsx: "^2.1.1"
+  tailwind-merge: "^3.6.0"
+  tailwind-variants: "^3.3.1"
+  tailwindcss: "^4.3.3"
+  tw-animate-css: "^1.4.0"
+  "@tailwindcss/vite": "^4.3.0"
+  "@lucide/svelte": "^1.25.0"
+  svelte-sonner: "^1.1.1"
+  "@tanstack/table-core": "^8.21.3"
+  
+  # Forms
+  zod: "^4.4.3"
+  sveltekit-superforms: "^2.30.2"
+
+  # Backend
+  "@supabase/ssr": "^0.10.3"
+  "@supabase/supabase-js": "^2.105.4"
+
+  # Dataviz + dates
+  "@internationalized/date": "^3.12.2"
+  date-fns: "^4.1.0"
+  d3: "^7.9.0"
+  "@types/d3": "^7.4.3"
+
+  # Tooling
+  "@types/node": "^25.6.2"
+  globals: "^17.6.0"
+  svelte-check: "^4.4.8"
+  

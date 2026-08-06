@@ -15,16 +15,17 @@
     }
   },
   "dependencies": {
-    "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "^2.105.4",
+    "@supabase/ssr": "catalog:",
+    "@supabase/supabase-js": "catalog:",
     "@wodapp/types": "workspace:^",
-    "d3": "^7.9.0",
-    "date-fns": "^4.1.0"
+    "d3": "catalog:",
+    "date-fns": "catalog:",
+    "sveltekit-superforms": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@sveltejs/kit": "^2.59.1",
-    "@types/d3": "^7.4.3",
-    "svelte": "^5.55.5",
-    "zod": "^4.4.3"
+    "@sveltejs/kit": "catalog:",
+    "@types/d3": "catalog:",
+    "svelte": "catalog:"
   }
 }

@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.4"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       ar_internal_metadata: {
@@ -509,6 +484,7 @@ export type Database = {
           emoji: string | null
           first_name: string | null
           gender: string | null
+          height: number | null
           id: string
           last_location_id: string | null
           last_name: string | null
@@ -527,6 +503,7 @@ export type Database = {
           emoji?: string | null
           first_name?: string | null
           gender?: string | null
+          height?: number | null
           id: string
           last_location_id?: string | null
           last_name?: string | null
@@ -545,6 +522,7 @@ export type Database = {
           emoji?: string | null
           first_name?: string | null
           gender?: string | null
+          height?: number | null
           id?: string
           last_location_id?: string | null
           last_name?: string | null
@@ -959,9 +937,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       booking_status: ["confirmed", "waitlist", "cancelled"],

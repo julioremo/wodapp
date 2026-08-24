@@ -1,5 +1,5 @@
 import { error, fail } from "@sveltejs/kit";
-import type { Actions } from "./$types";
+import { calculateOpenTime, defaultSettings, enforcePenalty, type GymSettings } from "@wodapp/core";
 import {
   addSeconds,
   format,
@@ -13,11 +13,9 @@ import {
   subDays,
   subHours,
   subMinutes,
-  subWeeks,
+  subWeeks
 } from "date-fns";
-import { defaultSettings, type GymSettings } from "@wodapp/core";
-import { enforcePenalty } from "@wodapp/core";
-import { calculateOpenTime } from "@wodapp/core";
+import type { Actions } from "./$types";
 
 export const load = async ({ locals, url, parent }) => {
   const { user, activeLocation, memberships } = await parent();
@@ -25,7 +23,7 @@ export const load = async ({ locals, url, parent }) => {
   if (!activeLocation) {
     return {
       classes: [],
-      filterOptions: { allClassTypes: [], bounds: { min: 0, max: 0 } },
+      filterOptions: { allClassTypes: [], bounds: { min: 0, max: 0 } }
     };
   }
 
@@ -39,8 +37,7 @@ export const load = async ({ locals, url, parent }) => {
 
   // 2. Fetch settings and classes concurrently
   const [locationReq, classesReq] = await Promise.all([
-    locals.supabase.from("locations").select("settings").eq("id", locationId)
-      .single(),
+    locals.supabase.from("locations").select("settings").eq("id", locationId).single(),
     locals.supabase
       .from("classes")
       .select(`
@@ -53,7 +50,7 @@ export const load = async ({ locals, url, parent }) => {
       `)
       .eq("location_id", locationId)
       .gte("start_time", startOfDay(new Date()).toISOString())
-      .order("start_time", { ascending: true }),
+      .order("start_time", { ascending: true })
   ]);
 
   if (locationReq.error) throw error(500, "Failed to load location settings.");
@@ -65,21 +62,19 @@ export const load = async ({ locals, url, parent }) => {
     classes.reduce((acc: Record<string, boolean>, curr) => {
       if (curr.coach?.display_name) acc[curr.coach.display_name] = true;
       return acc;
-    }, {}),
+    }, {})
   ).sort();
 
   const classesByType = Object.groupBy(classes, (c) => c.class_type);
-  const showCoachFilter = Object.values(classesByType).some((g) =>
-    new Set(g.map((c) => c.coach?.display_name).filter(Boolean)).size > 1
+  const showCoachFilter = Object.values(classesByType).some(
+    (g) => new Set(g.map((c) => c.coach?.display_name).filter(Boolean)).size > 1
   );
 
   const dbSettings = locationReq.data.settings as Partial<GymSettings> | null;
   const settings: GymSettings = {
     ...defaultSettings,
-    ...dbSettings,
+    ...dbSettings
   };
-
-  console.log("settings", settings);
 
   const allClassTypes = settings.classTypes
     .filter((ct) => ct.isActive)
@@ -88,7 +83,7 @@ export const load = async ({ locals, url, parent }) => {
 
   const bounds = {
     min: settings.schedulePrefs.startHour * 60,
-    max: settings.schedulePrefs.endHour * 60,
+    max: settings.schedulePrefs.endHour * 60
   };
 
   const bookingOpens = settings.policies.booking_opens;
@@ -100,28 +95,26 @@ export const load = async ({ locals, url, parent }) => {
     const openTime = calculateOpenTime(
       c.start_time,
       bookingOpens,
-      membership.booking_delay_minutes,
+      membership.booking_delay_minutes
     );
 
     const userBooking = c.bookings.find(
-      (b: any) => b.profile_id === userId && b.status !== "cancelled",
+      (b: any) => b.profile_id === userId && b.status !== "cancelled"
     );
     const userStatus = userBooking?.status || null;
 
     // Filter and sort the waitlist by timestamp (FIFO)
     const waitlistBookings = c.bookings
       .filter((b: any) => b.status === "waitlist")
-      .sort((a: any, b: any) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      .sort(
+        (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       );
 
     const waitlistTotal = waitlistBookings.length;
     let waitlistPosition = null;
 
     if (userStatus === "waitlist") {
-      waitlistPosition = waitlistBookings.findIndex((b: any) =>
-        b.profile_id === userId
-      ) + 1;
+      waitlistPosition = waitlistBookings.findIndex((b: any) => b.profile_id === userId) + 1;
     }
 
     return {
@@ -132,7 +125,7 @@ export const load = async ({ locals, url, parent }) => {
       waitlistPosition,
       bookingOpensType: bookingOpens.type,
       cancellationWindowHours: settings.policies.cancellation.window_hours || 0,
-      waitlistPolicy: settings.policies.waitlist.mode,
+      waitlistPolicy: settings.policies.waitlist.mode
     };
   });
 
@@ -156,8 +149,8 @@ export const load = async ({ locals, url, parent }) => {
       allClassTypes,
       bounds,
       showCoachFilter,
-      allCoaches,
-    },
+      allCoaches
+    }
   };
 };
 
@@ -180,7 +173,7 @@ async function getBookingContext(supabase: any, classId: string) {
 
   return {
     targetClass,
-    settings: (location.settings || {}) as GymSettings,
+    settings: (location.settings || {}) as GymSettings
   };
 }
 
@@ -194,25 +187,19 @@ export const actions: Actions = {
     if (!classId) return fail(400, { message: "Class ID is required." });
 
     try {
-      const { targetClass, settings } = await getBookingContext(
-        supabase,
-        classId,
-      );
+      const { targetClass, settings } = await getBookingContext(supabase, classId);
       const classTime = new Date(targetClass.start_time);
       const now = new Date();
 
       // 1. Prevent booking past classes
       if (classTime < now) {
         return fail(400, {
-          message: "Cannot book a class that has already started.",
+          message: "Cannot book a class that has already started."
         });
       }
 
       // 2. Prevent booking before the window opens
-      const openTime = calculateOpenTime(
-        classTime,
-        settings.policies.booking_opens,
-      );
+      const openTime = calculateOpenTime(classTime, settings.policies.booking_opens);
       if (now < openTime) {
         return fail(400, { message: "Booking window is not open yet." });
       }
@@ -220,7 +207,7 @@ export const actions: Actions = {
       // 3. Hand off to the database for capacity and locking
       const { data, error } = await supabase.rpc("book_class", {
         p_profile_id: user.id,
-        p_class_id: classId,
+        p_class_id: classId
       });
 
       if (error) {
@@ -230,7 +217,7 @@ export const actions: Actions = {
 
       return {
         success: true,
-        status: data.status,
+        status: data.status
       };
     } catch (err: any) {
       console.error("Context error:", err);
@@ -247,17 +234,14 @@ export const actions: Actions = {
     if (!classId) return fail(400, { message: "Class ID is required." });
 
     try {
-      const { targetClass, settings } = await getBookingContext(
-        supabase,
-        classId,
-      );
+      const { targetClass, settings } = await getBookingContext(supabase, classId);
       const classTime = new Date(targetClass.start_time);
       const now = new Date();
 
       // Check if the class has already passed
       if (classTime < now) {
         return fail(400, {
-          message: "Cannot cancel a class that has already started.",
+          message: "Cannot cancel a class that has already started."
         });
       }
 
@@ -270,7 +254,7 @@ export const actions: Actions = {
 
       const { data, error } = await supabase.rpc("cancel_class", {
         p_profile_id: user.id,
-        p_class_id: classId,
+        p_class_id: classId
       });
 
       if (error) {
@@ -287,5 +271,5 @@ export const actions: Actions = {
       console.error("Context error:", err);
       return fail(500, { message: "Could not process cancellation request." });
     }
-  },
+  }
 };

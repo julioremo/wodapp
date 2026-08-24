@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ params, parent, locals: { supabase 
 
   const historyPromise = supabase
     .from("benchmarks")
-    .select("id, score, reps, estimated_1rm, notes, date")
+    .select("*")
     .eq("profile_id", user.id)
     .eq("movement_id", movement.id)
     .order("date", { ascending: true });

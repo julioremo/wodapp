@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.23"
     }
   }
 }
@@ -39,69 +39,77 @@ variable "webhook_secret" {
   type = string
   sensitive = true
 }
+# 1. Create a logical cluster to hold the service
+resource "aws_ecs_cluster" "wodapp_cluster" {
+  name = "wodapp-cluster"
+}
 
-# Create an IAM role that allows App Runner to pull images from ECR
-resource "aws_iam_role" "apprunner_service_role" {
-  name = "apprunner-service-role"
+# 2. Execution Role
+resource "aws_iam_role" "ecs_execution_role" {
+  name = "ecs-execution-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "build.apprunner.amazonaws.com"
-        }
-      }
-    ]
+    Statement = [{
+      Action = "sts:AssumeRole", Effect = "Allow", Principal = { Service = "ecs-tasks.amazonaws.com" }
+    }]
   })
 }
 
-# Attach the official AWS policy to the role
-resource "aws_iam_role_policy_attachment" "apprunner_ecr_access" {
-  role       = aws_iam_role.apprunner_service_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
+resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Define the App Runner Service
-resource "aws_apprunner_service" "wodapp_service" {
-  service_name = "wodapp-python-service"
+# 3. Infrastructure Role
+resource "aws_iam_role" "ecs_infrastructure_role" {
+  name = "ecs-infrastructure-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole", Effect = "Allow", Principal = { Service = "ecs.amazonaws.com" }
+    }]
+  })
+}
 
-  source_configuration {
-    auto_deployments_enabled = true
-    
-    authentication_configuration {
-      access_role_arn = aws_iam_role.apprunner_service_role.arn
+resource "aws_iam_role_policy_attachment" "ecs_infrastructure_policy" {
+  role       = aws_iam_role.ecs_infrastructure_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSInfrastructureRoleforExpressGatewayServices"
+}
+
+# 4. The Express Service
+resource "aws_ecs_express_gateway_service" "wodapp_service" {
+  service_name            = "wodapp-express-service"
+  cluster                 = aws_ecs_cluster.wodapp_cluster.name
+  execution_role_arn      = aws_iam_role.ecs_execution_role.arn
+  infrastructure_role_arn = aws_iam_role.ecs_infrastructure_role.arn
+  
+  cpu    = 1024
+  memory = 2048
+
+  primary_container {
+    image          = "${aws_ecr_repository.wodapp_repo.repository_url}:latest"
+    container_port = 8000
+
+    environment {
+      name  = "ANTHROPIC_API_KEY"
+      value = var.anthropic_api_key
     }
-    
-    image_repository {
-      image_identifier      = "${aws_ecr_repository.wodapp_repo.repository_url}:latest"
-      image_repository_type = "ECR"
-      
-      image_configuration {
-        port = "8000"
-        runtime_environment_variables = {
-          ANTHROPIC_API_KEY    = var.anthropic_api_key
-          PUBLIC_SUPABASE_URL  = var.public_supabase_url
-          SUPABASE_SERVICE_KEY = var.supabase_service_key
-          WEBHOOK_SECRET       = var.webhook_secret
-        }
-      }
+    environment {
+      name  = "PUBLIC_SUPABASE_URL"
+      value = var.public_supabase_url
+    }
+    environment {
+      name  = "SUPABASE_SERVICE_KEY"
+      value = var.supabase_service_key
+    }
+    environment {
+      name  = "WEBHOOK_SECRET"
+      value = var.webhook_secret
     }
   }
 
-  # Smallest available instance size (1 vCPU, 2GB RAM) is plenty for this backend
-  instance_configuration {
-    cpu    = "1024"
-    memory = "2048"
-  }
-
-  depends_on = [aws_iam_role_policy_attachment.apprunner_ecr_access]
-}
-
-
-# Output the live URL after deployment
-output "apprunner_url" {
-  value       = aws_apprunner_service.wodapp_service.service_url
-  description = "The live URL of the App Runner service"
+  depends_on = [
+    aws_iam_role_policy_attachment.ecs_execution_policy,
+    aws_iam_role_policy_attachment.ecs_infrastructure_policy
+  ]
 }

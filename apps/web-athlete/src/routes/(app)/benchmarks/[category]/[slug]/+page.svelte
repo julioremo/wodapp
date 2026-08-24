@@ -45,24 +45,13 @@ const stripModes = {
   reps: { label: "reps", Icon: Repeat },
 } as const;
 
-// Log score modal
+// log score drawer
 let isDrawerOpen = $state(false);
 
 function handleSuccess() {
   isDrawerOpen = false;
   invalidate("app:benchmarks");
 }
-
-// ── toggle styling ─────────────────────────────
-// function pillClass(active: boolean) {
-//   return [
-//     "font-mono text-[9px] uppercase tracking-[0.07em] px-2 py-1",
-//     "border-none cursor-pointer transition-colors duration-150",
-//     active
-//       ? "bg-[#1a1814] text-[#f5f2eb]"
-//       : "bg-transparent text-[#4a4640] hover:bg-[#ede9df]",
-//   ].join(" ");
-// }
 </script>
 
 <div class="flex flex-col h-full bg-background">
@@ -205,7 +194,6 @@ function handleSuccess() {
         </section>
       {/if}
     {:else}
-      <!-- TODO: rewrite logic and show blurred distribution chart when there's peer/standards data but no user data -->
       <section
         class="flex flex-col h-full w-full items-center justify-center text-muted-foreground">
         <h4>No data yet for this movement.</h4>

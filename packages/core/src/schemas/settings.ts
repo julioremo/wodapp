@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const activeGymSchema = z.object({
+  last_location_id: z.uuid("Please select a valid gym.")
+});
+
 export const classTypeSchema = z.object({
   name: z.string().min(1, "Name is required"),
   color: z.string(),

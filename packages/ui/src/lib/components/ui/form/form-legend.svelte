@@ -1,18 +1,16 @@
 <script lang="ts">
-import { cn, type WithoutChild } from "@ui-utils";
-import * as FormPrimitive from "formsnap";
+	import * as FormPrimitive from "formsnap";
+	import { cn, type WithoutChild } from "@ui-lib/utils.js";
 
-let {
-  ref = $bindable(null),
-  class: className,
-  ...restProps
-}: WithoutChild<FormPrimitive.LegendProps> = $props();
+	let {
+		ref = $bindable(null),
+		class: className,
+		...restProps
+	}: WithoutChild<FormPrimitive.LegendProps> = $props();
 </script>
 
 <FormPrimitive.Legend
-  bind:ref
-  class={cn(
-    "data-[fs-error]:text-destructive text-sm leading-none font-medium",
-    className,
-  )}
-  {...restProps} />
+	bind:ref
+	class={cn("text-sm leading-none font-medium data-[fs-error]:text-destructive", className)}
+	{...restProps}
+/>

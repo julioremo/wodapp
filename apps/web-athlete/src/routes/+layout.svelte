@@ -1,10 +1,13 @@
 <script lang="ts">
-	import "../app.css";
-	import favicon from '$lib/assets/favicon.svg';
+import "../app.css";
+import { Toaster } from "@ui/sonner";
+import favicon from "$lib/assets/favicon.svg";
 
-	let { children } = $props();
+let { children } = $props();
 </script>
 
 <div class="dark min-h-screen bg-background text-foreground">
-    {@render children()}
+  <Toaster position="top-center" />
+
+  {@render children()}
 </div>

@@ -1,4 +1,4 @@
-import { fail } from "@sveltejs/kit";
+import { fail, type RequestEvent } from "@sveltejs/kit";
 import { type UserPreferences, userPreferencesSchema } from "@wodapp/core";
 import { message, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -47,7 +47,7 @@ export function createPreferencesAction(
   category: keyof UserPreferences,
   successMessage = "Preferences saved!"
 ) {
-  return async ({ request, locals: { supabase, user } }: any) => {
+  return async ({ request, locals: { supabase, user } }: RequestEvent) => {
     if (!user) return fail(401, { message: "Unauthorized" });
 
     const form = await superValidate(request, zod4(schema));

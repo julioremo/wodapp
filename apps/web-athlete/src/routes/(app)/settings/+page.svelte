@@ -56,9 +56,9 @@ const profileRows: SettingsRow[] = [
     description: profile.email,
   },
   {
-    href: "/settings/account",
+    href: "/settings/personal-info",
     icon: CircleUserRound,
-    title: "Account",
+    title: "Personal Info",
     description: "Manage your account and basic info",
   },
   {

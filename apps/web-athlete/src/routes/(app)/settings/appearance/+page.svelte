@@ -36,7 +36,7 @@ const themeOptions: Array<{
 <div class="max-w-xl mx-auto p-2">
   <AppHeader title="Appearance">
     {#snippet left()}
-      <BackButton />
+      <BackButton backUrl="/settings" />
     {/snippet}
   </AppHeader>
 

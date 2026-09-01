@@ -16,7 +16,8 @@ import { onMount } from "svelte";
 import { superForm } from "sveltekit-superforms";
 import { zod4Client } from "sveltekit-superforms/adapters";
 import { browser } from "$app/environment";
-import SettingsHeader from "../SettingsHeader.svelte";
+import BackButton from "$lib/components/BackButton.svelte";
+import AppHeader from "$lib/components/layout/AppHeader.svelte";
 import SettingsSwitchField from "../SettingsSwitchField.svelte";
 import type { PageData } from "./$types";
 
@@ -94,7 +95,11 @@ async function requestBrowserPermission() {
 </script>
 
 <div class="max-w-xl mx-auto p-2">
-  <SettingsHeader title="Notifications" />
+  <AppHeader title="Notifications">
+    {#snippet left()}
+      <BackButton backUrl="/settings" />
+    {/snippet}
+  </AppHeader>
 
   <div class="px-3 pb-8">
     {#if permission === "denied"}

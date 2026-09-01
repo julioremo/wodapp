@@ -38,6 +38,7 @@
     "@wodapp/core": "workspace:^",
     "@wodapp/supabase-client": "workspace:*",
     "@wodapp/ui": "workspace:*",
+    "browser-image-compression": "^2.0.2",
     "clsx": "catalog:",
     "d3": "catalog:",
     "date-fns": "catalog:",

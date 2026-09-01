@@ -52,7 +52,7 @@ const privacyFields: PrivacyField[] = [
 <div class="max-w-xl mx-auto p-2">
   <AppHeader title="Privacy">
     {#snippet left()}
-      <BackButton />
+      <BackButton backUrl="/settings" />
     {/snippet}
   </AppHeader>
 

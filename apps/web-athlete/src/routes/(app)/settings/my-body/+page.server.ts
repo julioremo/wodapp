@@ -1,7 +1,7 @@
-import { fail } from "@sveltejs/kit";
 import { biometricsSchema } from "@wodapp/core";
-import { message, superValidate } from "sveltekit-superforms";
+import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
+import { createProfileUpdateAction } from "$lib/profile";
 
 export const load = async ({ parent }) => {
   const { profile } = await parent();
@@ -10,15 +10,5 @@ export const load = async ({ parent }) => {
 };
 
 export const actions = {
-  default: async ({ request, locals: { supabase, user } }) => {
-    if (!user) return fail(401, { message: "Unauthorized" });
-
-    const form = await superValidate(request, zod4(biometricsSchema));
-    if (!form.valid) return fail(400, { form });
-
-    const { error } = await supabase.from("profiles").update(form.data).eq("id", user.id);
-    if (error) return message(form, "Failed to update profile.", { status: 500 });
-
-    return message(form, "Biometrics updated successfully!");
-  }
+  default: createProfileUpdateAction(biometricsSchema, "Display name updated")
 };

@@ -24,5 +24,5 @@ let {
     <X class="size-5" />
   </Button>
 {:else}
-  <BackButton />
+  <BackButton {backUrl} />
 {/if}

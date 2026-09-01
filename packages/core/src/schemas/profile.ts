@@ -21,16 +21,17 @@ export const profileSchema = z.object({
   preferences: userPreferencesSchema.default({})
 });
 
-export const publicProfileSchema = profileSchema.pick({
-  display_name: true,
+export const displayNameSchema = profileSchema.pick({
+  display_name: true
+});
+
+export const avatarSchema = profileSchema.pick({
   avatar_url: true
-  // emoji: true
 });
 
 export const personalInfoSchema = profileSchema.pick({
   first_name: true,
   last_name: true,
-  // display_name: true,
   phone: true
   // emoji: true
 });
@@ -48,7 +49,8 @@ export const emergencyContactSchema = profileSchema.pick({
 });
 
 export type UserProfile = z.infer<typeof profileSchema>;
-export type PublicProfile = z.infer<typeof publicProfileSchema>;
+export type DisplayName = z.infer<typeof displayNameSchema>;
+export type Avatar = z.infer<typeof avatarSchema>;
 export type PersonalInfo = z.infer<typeof personalInfoSchema>;
 export type Biometrics = z.infer<typeof biometricsSchema>;
 export type EmergencyContact = z.infer<typeof emergencyContactSchema>;

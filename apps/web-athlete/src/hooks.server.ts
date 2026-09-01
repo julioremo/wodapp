@@ -2,16 +2,13 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Handle } from "@sveltejs/kit";
 import { setupSupabase } from "@wodapp/core";
 import type { Database } from "@wodapp/types";
-import {
-  PUBLIC_SUPABASE_ANON_KEY,
-  PUBLIC_SUPABASE_URL,
-} from "$env/static/public";
+import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from "$env/static/public";
 
 export const handle: Handle = async ({ event, resolve }) => {
   const { supabase, safeGetSession } = setupSupabase(
     event,
     PUBLIC_SUPABASE_URL,
-    PUBLIC_SUPABASE_ANON_KEY,
+    PUBLIC_SUPABASE_ANON_KEY
   );
 
   event.locals.supabase = supabase as SupabaseClient<Database>;
@@ -24,7 +21,13 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.location = null;
   event.locals.userRole = null;
 
+  const theme = event.cookies.get("theme") || "system";
+
   return resolve(event, {
-    filterSerializedResponseHeaders: (name) => name === "content-range",
+    transformPageChunk: ({ html }) => {
+      const themeClass = theme === "dark" ? "dark" : "";
+      return html.replace("%theme-class%", themeClass);
+    },
+    filterSerializedResponseHeaders: (name) => name === "content-range"
   });
 };

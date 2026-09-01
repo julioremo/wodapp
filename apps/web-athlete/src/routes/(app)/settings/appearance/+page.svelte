@@ -3,16 +3,22 @@ import * as Form from "@ui/form";
 import * as RadioGroup from "@ui/radio-group";
 import { toast } from "@ui/sonner";
 import type { UserPreferences } from "@wodapp/core";
-import { tick } from "svelte";
+import { getContext, tick } from "svelte";
 import { superForm } from "sveltekit-superforms";
 import BackButton from "$lib/components/BackButton.svelte";
 import AppHeader from "$lib/components/layout/AppHeader.svelte";
 
 let { data } = $props();
 
+const themeContext = getContext<{
+  current: UserPreferences["appearance"]["theme"];
+  set: (val: UserPreferences["appearance"]["theme"]) => void;
+}>("theme");
+
 const formObj = superForm(data.form, {
   dataType: "json",
   resetForm: false,
+  invalidateAll: "force",
   onUpdated({ form }) {
     if (form.message) {
       if (form.valid) toast.success(form.message);
@@ -56,10 +62,10 @@ const themeOptions: Array<{
                 {...props}
                 bind:value={$formData.preferences.appearance.theme}
                 class="flex flex-col gap-0 overflow-hidden"
-                onValueChange={async (
-                  newValue: UserPreferences["appearance"]["theme"],
-                ) => {
-                  $formData.preferences.appearance.theme = newValue;
+                onValueChange={async (newValue: string) => {
+                  const nextTheme =
+                    newValue as UserPreferences["appearance"]["theme"];
+                  themeContext.set(nextTheme);
                   await tick();
                   submit();
                 }}>

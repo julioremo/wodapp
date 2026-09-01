@@ -1,7 +1,8 @@
 import { error, redirect } from "@sveltejs/kit";
 
-export const load = async ({ locals, url }) => {
-  const { user, session, supabase } = locals;
+export const load = async ({ locals, url, parent }) => {
+  const { user } = await parent();
+  const { supabase } = locals;
 
   // Guard the entire (app) group
   if (!user) throw redirect(303, "/login");
@@ -55,8 +56,6 @@ export const load = async ({ locals, url }) => {
   return {
     activeLocation,
     memberships,
-    profile,
-    session,
-    user
+    profile
   };
 };

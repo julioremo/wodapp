@@ -2,7 +2,7 @@ import { z } from "zod";
 import { type GymSettings, gymSettingsSchema } from "./admin-settings";
 
 export const locationSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string(),
   slug: z.string(),
   logo_url: z.string().url().nullable().optional(),

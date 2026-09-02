@@ -48,7 +48,7 @@ export const load: PageServerLoad = async ({ params, parent, locals: { supabase 
         .select(`
             profile_id,
             profile:profiles (
-                id, display_name, birthdate, gender, avatar_url, emoji,
+                id, display_name, birthdate, gender, avatar_url, preferences,
                 benchmarks!inner (
                     id, score, reps, estimated_1rm, notes, date
                 )
@@ -57,7 +57,29 @@ export const load: PageServerLoad = async ({ params, parent, locals: { supabase 
         .eq("status", "active")
         .eq("location_id", activeLocation.id)
         .eq("profiles.benchmarks.movement_id", movement.id)
-    : Promise.resolve({ data: null, error: null }); // Safe fallback if no location
+        .then(({ data, error }) => {
+          if (error || !data) return { data, error };
+          // Mask identities on the server before the browser ever sees them
+          const sanitizedData = data.map((membership) => {
+            const profile = membership.profile;
+
+            // Default to true if the preference doesn't exist yet
+            const isPublic = profile?.preferences?.privacy?.show_on_leaderboard ?? true;
+
+            if (!isPublic && profile) {
+              profile.display_name = "Anonymous Athlete";
+              profile.avatar_url = null;
+              // You may also want to wipe demographic data so they can't be guessed
+              profile.gender = null;
+              // profile.birthdate = null;
+            }
+
+            return membership;
+          });
+
+          return { data: sanitizedData, error };
+        })
+    : Promise.resolve({ data: null, error: null });
 
   // Execute them all simultaneously
   const [

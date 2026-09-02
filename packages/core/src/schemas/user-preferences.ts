@@ -15,11 +15,13 @@ export const notificationsSchema = z
 
 export const privacySchema = z
   .object({
-    show_on_roster: z.boolean().default(true),
     show_on_leaderboard: z.boolean().default(true),
-    share_biometrics: z.boolean().default(false)
+    allow_data_usage_for_research: z.boolean().default(false)
   })
-  .default({ show_on_roster: true, show_on_leaderboard: true, share_biometrics: false });
+  .default({
+    show_on_leaderboard: true,
+    allow_data_usage_for_research: false
+  });
 
 export const userPreferencesSchema = z.object({
   appearance: appearanceSchema,

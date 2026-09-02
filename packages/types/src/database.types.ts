@@ -761,6 +761,36 @@ export type Database = {
         }
         Relationships: []
       }
+      location_leaderboards: {
+        Row: {
+          avatar_url: string | null
+          birthdate: string | null
+          date: string | null
+          display_name: string | null
+          estimated_1rm: number | null
+          gender: string | null
+          location_id: string | null
+          movement_id: string | null
+          reps: number | null
+          score: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benchmark_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memberships_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       book_class: {

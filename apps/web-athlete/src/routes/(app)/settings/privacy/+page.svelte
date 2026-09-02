@@ -32,19 +32,15 @@ type PrivacyField = {
 
 const privacyFields: PrivacyField[] = [
   {
-    key: "show_on_roster",
-    label: "Show on Class Rosters",
-    description: "Let others see when you book a class.",
-  },
-  {
     key: "show_on_leaderboard",
-    label: "Show on Leaderboards",
-    description: "Include your scores on the gym whiteboard.",
+    label: "Show on leaderboards",
+    description: "Your benchmarks will be visible to other users.",
   },
   {
-    key: "share_biometrics",
-    label: "Share Biometrics",
-    description: "Allow coaches to view your height and weight.",
+    key: "allow_data_usage_for_research",
+    label: "Share data for research",
+    description:
+      "Your benchmarks, gender, age and weight will be used by app developers as anonymized data to improve the app.",
   },
 ];
 </script>

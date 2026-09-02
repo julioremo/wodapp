@@ -3,7 +3,7 @@ import "../app.css";
 import { Toaster } from "@ui/sonner";
 import type { UserPreferences } from "@wodapp/core";
 import type { Snippet } from "svelte";
-import { setContext } from "svelte";
+import { setContext, untrack } from "svelte";
 import favicon from "$lib/assets/favicon.svg";
 import type { LayoutData } from "./$types";
 

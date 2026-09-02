@@ -1,66 +1,105 @@
-<!-- src/routes/settings/gym/+page.svelte -->
 <script lang="ts">
-import { Button } from "@ui/button";
-import { Label } from "@ui/label";
-import { enhance } from "$app/forms";
+import * as Avatar from "@ui/avatar";
+import * as Form from "@ui/form";
+import * as RadioGroup from "@ui/radio-group";
+import { toast } from "@ui/sonner";
+import { tick } from "svelte";
+import { superForm } from "sveltekit-superforms";
+import BackButton from "$lib/components/BackButton.svelte";
+import AppHeader from "$lib/components/layout/AppHeader.svelte";
 
-export let data;
-export let form; // Contains Zod errors or success messages from the action
+let { data } = $props();
 
-let loading = false;
+const formObj = superForm(data.form, {
+  resetForm: false,
+  invalidateAll: "force",
+  onUpdated({ form }) {
+    if (form.message) {
+      if (form.valid) toast.success(form.message);
+      else toast.error(form.message);
+    }
+  },
+});
+
+const { form: formData, enhance, submit } = formObj;
 </script>
 
-<div class="space-y-6">
-  <div>
-    <h3 class="text-lg font-medium">Active Gym</h3>
-    <p class="text-sm text-muted-foreground">
-      Select the gym you want to view schedules, bookings, and leaderboards for.
+<div class="max-w-xl mx-auto p-2">
+  <AppHeader title="Active Gym">
+    {#snippet left()}
+      <BackButton backUrl="/settings" />
+    {/snippet}
+  </AppHeader>
+
+  <div class="pb-24 px-4">
+    <p class="text-sm text-muted-foreground mb-12">
+      Choose your current home gym. This determines the class schedule,
+      announcements and leaderboards you see by default.
     </p>
-  </div>
 
-  <hr />
-
-  <form
-    method="POST"
-    action="?/updateActiveGym"
-    class="space-y-6 max-w-sm"
-    use:enhance={() => {
-      loading = true;
-      return async ({ update }) => {
-        loading = false;
-        update();
-      };
-    }}>
-    <div class="space-y-3">
-      <Label for="last_location_id">Select Gym</Label>
-
-      <select
-        id="last_location_id"
+    <form method="POST" use:enhance class="space-y-6">
+      <input
+        type="hidden"
         name="last_location_id"
-        class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-        value={data.currentLocationId}>
-        {#each data.activeMemberships as membership}
-          <option value={membership.location.id}>
-            {membership.location.name}
-          </option>
-        {/each}
-      </select>
+        value={$formData.last_location_id} />
 
-      {#if form?.errors?.last_location_id}
-        <p class="text-sm text-destructive">
-          {form.errors.last_location_id[0]}
-        </p>
-      {/if}
-    </div>
+      <Form.Field form={formObj} name="last_location_id">
+        <Form.Control>
+          {#snippet children({ props })}
+            <div class="space-y-2">
+              <RadioGroup.Root
+                {...props}
+                bind:value={$formData.last_location_id}
+                class="flex flex-col gap-0 overflow-hidden"
+                onValueChange={async () => {
+                  await tick();
+                  submit();
+                }}>
+                {#each data.activeMemberships as membership}
+                  <RadioGroup.Row
+                    value={membership.location.id}
+                    class="text-lg">
+                    {#snippet label()}
+                      {@const isVector =
+                        membership.location.logo_url?.endsWith(".svg")}
+                      <div class="flex items-center gap-3">
+                        {#if membership.location.logo_url && isVector}
+                          <!-- Unmasked vector logo -->
+                          <div class="size-8 flex items-center justify-center">
+                            <img
+                              src={membership.location.logo_url}
+                              alt={membership.location.name}
+                              class="w-full h-full object-contain" />
+                          </div>
+                        {:else}
+                          <!-- Masked raster logo (or fallback) -->
+                          <Avatar.Root class="size-8 border">
+                            {#if membership.location.logo_url}
+                              <Avatar.Image
+                                src={membership.location.logo_url}
+                                alt={membership.location.name}
+                                class="object-cover" />
+                            {/if}
+                            <Avatar.Fallback
+                              class="bg-secondary text-secondary-foreground text-xs font-medium">
+                              {membership.location.name.charAt(0)}
+                            </Avatar.Fallback>
+                          </Avatar.Root>
+                        {/if}
 
-    <Button type="submit" disabled={loading}>
-      {loading ? "Saving..." : "Save Preferences"}
-    </Button>
+                        <span class="text-base"
+                          >{membership.location.name}</span>
+                      </div>
+                    {/snippet}
+                  </RadioGroup.Row>
+                {/each}
+              </RadioGroup.Root>
+            </div>
 
-    {#if form?.success}
-      <p class="text-sm text-green-600 dark:text-green-400">
-        Gym updated successfully!
-      </p>
-    {/if}
-  </form>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Control>
+      </Form.Field>
+    </form>
+  </div>
 </div>

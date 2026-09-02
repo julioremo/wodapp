@@ -19,9 +19,15 @@ import type { PageData } from "./$types";
 let { data }: { data: PageData } = $props();
 // Fallbacks to prevent null errors
 let profile = data.profile || {};
-let memberships = data.memberships || [];
 
-// Determine if data is missing for the warning badges
+const activeMemberships = $derived(
+  data.memberships?.filter((m) => m.status === "active") || [],
+);
+
+const hasMultipleGyms = $derived(activeMemberships.length > 1);
+const activeGymName = $derived(data.activeLocation?.name || "No gym selected");
+
+// warning badges
 let isMissingBiometrics =
   !profile.birthdate || !profile.gender || !profile.weight;
 let isMissingEmergency =
@@ -43,6 +49,8 @@ type SettingsRow = {
   title: string;
   description?: string;
   badge?: { condition: boolean; text: string; variant?: "destructive" } | null;
+  disabled?: boolean;
+  actionText?: string;
 };
 
 const profileRows: SettingsRow[] = [
@@ -56,34 +64,36 @@ const profileRows: SettingsRow[] = [
     description: profile.email,
   },
   {
-    href: "/settings/personal-info",
+    href: "/settings/basic-info",
     icon: CircleUserRound,
-    title: "Personal Info",
-    description: "Manage your account and basic info",
+    title: "Basic Info",
+    // description: "Manage your account and basic info",
   },
   {
     href: "/settings/my-body",
     icon: PersonStanding,
     title: "My body",
-    description: biometricsPreview,
+    // description: biometricsPreview,
     badge: { condition: isMissingBiometrics, text: "Incomplete" },
   },
   {
     href: "/settings/emergency-contact",
     icon: Ambulance,
     title: "Emergency contact",
-    description:
-      profile.emergency_contact_name || "Who to call in an emergency",
+    // description:
+    //   profile.emergency_contact_name || "Who to call in an emergency",
     badge: { condition: isMissingEmergency, text: "Missing" },
   },
 ];
 
 const membershipRows: SettingsRow[] = [
   {
-    href: memberships.length > 1 ? "/settings/active-gym" : undefined,
+    href: hasMultipleGyms ? "/settings/gym" : "/#",
     icon: House,
-    title: "Active Gym",
-    description: data.activeLocation?.name || "Select your location",
+    title: "Current gym",
+    description: activeGymName,
+    disabled: !hasMultipleGyms,
+    actionText: "Change",
   },
   // {
   //   href: "/settings/subscription",
@@ -98,19 +108,19 @@ const preferenceRows: SettingsRow[] = [
     href: "/settings/appearance",
     icon: Monitor,
     title: "Appearance",
-    description: "Light, Dark, or System",
+    // description: "Light, Dark, or System",
   },
   {
     href: "/settings/notifications",
     icon: Bell,
     title: "Notifications",
-    description: "Configure alerts and emails",
+    // description: "Configure alerts and emails",
   },
   {
     href: "/settings/privacy",
     icon: EyeOff,
     title: "Privacy",
-    description: "Manage data sharing and visibility",
+    // description: "Manage data sharing and visibility",
   },
 ];
 </script>
@@ -118,12 +128,13 @@ const preferenceRows: SettingsRow[] = [
 {#snippet navItem(item: SettingsRow)}
   <Item.Root class="rounded-lg {item.avatar ? '-mt-4' : ''}">
     {#snippet child({ props })}
+      {@const isActiveLink = item.href && !item.disabled}
       <svelte:element
-        this={item.href ? "a" : "div"}
-        href={item.href}
-        class="block {item.href
+        this={isActiveLink ? "a" : "div"}
+        href={isActiveLink ? item.href : undefined}
+        class="block {isActiveLink
           ? 'transition-colors cursor-pointer'
-          : 'cursor-default'}"
+          : 'cursor-default'} {item.disabled ? 'opacity-50' : ''}"
         {...props}>
         <Item.Media>
           {#if item.avatar}
@@ -137,19 +148,28 @@ const preferenceRows: SettingsRow[] = [
             <Icon />
           {/if}
         </Item.Media>
+
         <Item.Content class="gap-0">
           <Item.Title class="text-lg font-medium">{item.title}</Item.Title>
-          {#if item.avatar}
+          {#if item.description}
             <Item.Description>{item.description}</Item.Description>
           {/if}
         </Item.Content>
+
         <Item.Actions class="flex items-center gap-2">
           {#if item.badge?.condition}
             <Badge variant={item.badge.variant} class="h-5 text-[10px]"
               >{item.badge.text}</Badge>
           {/if}
-          {#if item.href}
-            <ChevronRight class="size-5 text-muted-foreground" />
+          {#if isActiveLink}
+            {#if item.actionText}
+              <span
+                class="text-xs font-medium border border-2 text-muted-foreground px-2 py-1 rounded-lg">
+                {item.actionText}
+              </span>
+            {:else}
+              <ChevronRight class="size-5 text-muted-foreground" />
+            {/if}
           {/if}
         </Item.Actions>
       </svelte:element>

@@ -17,7 +17,7 @@ export const load = async ({ locals, url, parent }) => {
         location_id,
         created_at,
         booking_delay_minutes,
-        location:locations ( id, name, slug )
+        location:locations ( id, name, slug, logo_url )
       `)
       .eq("profile_id", user.id)
   ]);

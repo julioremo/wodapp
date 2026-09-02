@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Penalty } from "./schemas/settings";
+import type { Penalty } from "./schemas/admin-settings";
 
 export async function enforcePenalty(
   supabase: SupabaseClient,

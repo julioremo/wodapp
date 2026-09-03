@@ -7,11 +7,10 @@ import { format } from "date-fns";
 import type { Snippet } from "svelte";
 import { backOut } from "svelte/easing";
 import { fade, scale } from "svelte/transition";
-import type { HairlineArgs } from "./distribution.types";
 
 interface Props {
   history: Benchmark[];
-  background?: Snippet<[ScaleLinear<number, number>, Snippet<[HairlineArgs]>]>;
+  background?: Snippet<[ScaleLinear<number, number>]>;
 }
 let { history, background }: Props = $props();
 
@@ -19,9 +18,10 @@ const canvas = new ChartCanvas();
 setChartCanvas(canvas);
 
 let height = 200;
+const labelMinGap = 35;
 
 const config = {
-  domainPaddingRatio: 0.15,
+  yDomainPaddingRatio: 0.15,
   animation: {
     fadeDuration: 400,
     scaleDuration: 400,
@@ -62,7 +62,7 @@ let yScale = $derived.by(() => {
   // Calculate padding based on the spread of the data
   const amplitude = max - min;
   const padding =
-    amplitude === 0 ? min * 0.05 : amplitude * config.domainPaddingRatio;
+    amplitude === 0 ? min * 0.05 : amplitude * config.yDomainPaddingRatio;
 
   return d3
     .scaleLinear()
@@ -143,8 +143,8 @@ let processedHistory = $derived.by(() => {
     // Remember: smaller cy is HIGHER on screen.
     const isPeak = prevCy >= cy && nextCy >= cy;
     const isValley = prevCy <= cy && nextCy <= cy;
-    const isIncreasing = prevCy > cy && cy > nextCy; // Line shoots up and right ( / )
-    const isDecreasing = prevCy < cy && cy < nextCy; // Line shoots down and right ( \ )
+    const isIncreasing = prevCy > cy && cy > nextCy;
+    const isDecreasing = prevCy < cy && cy < nextCy;
 
     let labelDy = -14;
     let labelDx = 0;
@@ -193,14 +193,15 @@ let processedHistory = $derived.by(() => {
 
   // PASS 2: Right-to-left to determine visibility, prioritizing Newest + Start of Year
   const reversed = [...basePoints].reverse();
-  const results: typeof basePoints & {
+
+  type ProcessedPoint = (typeof basePoints)[number] & {
     showLabel?: boolean;
     showYear?: boolean;
-  } = [];
+  };
+  const results: ProcessedPoint[] = [];
 
   let lastLabelX = Infinity;
   let lastLabelIndex = -1; // Track index to retroactively hide labels if needed
-  const minGap = 35;
 
   for (let i = 0; i < reversed.length; i++) {
     const p = reversed[i];
@@ -208,7 +209,7 @@ let processedHistory = $derived.by(() => {
     let showYear = false;
 
     // Condition 1: It's the absolute newest point, or there is enough visual space
-    if (i === 0 || lastLabelX - p.cx > minGap) {
+    if (i === 0 || lastLabelX - p.cx > labelMinGap) {
       showLabel = true;
     }
 
@@ -220,7 +221,7 @@ let processedHistory = $derived.by(() => {
       // If forcing this year label causes a collision with the label to its right...
       if (lastLabelIndex > 0) {
         const prevP = results[lastLabelIndex];
-        if (prevP.cx - p.cx <= minGap) {
+        if (prevP.cx - p.cx <= labelMinGap) {
           // Hide the label to the right (Notice: we protect index 0 from being hidden!)
           prevP.showLabel = false;
           prevP.showYear = false;
@@ -241,38 +242,6 @@ let processedHistory = $derived.by(() => {
 });
 </script>
 
-{#snippet hairline({
-  y,
-  label = "",
-  color = "black",
-  labelPos = "right",
-  lineClass,
-  textClass,
-}: HairlineArgs)}
-  <line
-    x1={canvas.left - 8}
-    x2={canvas.right + 8}
-    y1={y}
-    y2={y}
-    stroke={color}
-    stroke-width="0.5"
-    class={lineClass} />
-  {#if label}
-    <text
-      x={labelPos === "right" ? canvas.right - 8 : canvas.left + 8}
-      y={y - canvas.fontSize}
-      dominant-baseline="middle"
-      text-anchor={labelPos === "right" ? "end" : "start"}
-      font-family="CMU Typewriter Text, monospace"
-      font-size={canvas.fontSize}
-      fill={color}
-      letter-spacing="0.08em"
-      class={textClass}>
-      {label}
-    </text>
-  {/if}
-{/snippet}
-
 <div
   class="w-full relative"
   style="height: {height}px;"
@@ -284,10 +253,17 @@ let processedHistory = $derived.by(() => {
         role="figure"
         width={canvas.width}
         height={canvas.height}
-        class="overflow-hidden absolute top-0 left-0">
+        class="overflow-visible absolute top-0 left-0">
         {#if background}
-          {@render background(yScale, hairline)}
+          <svg
+            role="figure"
+            width={canvas.width}
+            height={canvas.height}
+            class="overflow-hidden">
+            {@render background(yScale)}
+          </svg>
         {/if}
+
         <path
           bind:this={pathEl}
           d={lineGenerator(history)}
@@ -318,12 +294,11 @@ let processedHistory = $derived.by(() => {
                   font-family="CMU Typewriter Text, monospace"
                   font-size={config.style.fontSizeXs}
                   class="fill-muted-foreground">
-                  <tspan x={item.cx} dy="0"
-                    >{format(item.dateObj, "d MMM")}</tspan>
-
+                  <tspan x={item.cx} dy="0">
+                    {format(item.dateObj, "d MMM")}
+                  </tspan>
                   {#if item.showYear}
-                    <!-- Drop the year slightly lower and make it slightly dimmer -->
-                    <tspan x={item.cx} dy="1.2em" opacity="0.7">
+                    <tspan x={item.cx} dy="1.2em">
                       {format(item.dateObj, "yyyy")}
                     </tspan>
                   {/if}
@@ -331,12 +306,12 @@ let processedHistory = $derived.by(() => {
               </g>
             {/if}
 
-            <!-- Always draw the data point and score, regardless of axis labels -->
+            <!-- data point and score are always drawn regardless of X labels -->
             <circle
               cx={item.cx}
               cy={item.cy}
               r={config.style.dotRadius}
-              fill="#ffffff"
+              fill="var(--background)"
               stroke="currentColor"
               stroke-width={config.style.strokeWidth}
               in:scale={{
@@ -354,11 +329,11 @@ let processedHistory = $derived.by(() => {
               font-size={config.style.fontSizeSm}
               font-weight={config.style.fontWeightBold}
               paint-order="stroke"
-              stroke="#ffffff"
+              stroke="var(--background)"
               stroke-width="3"
               stroke-linecap="butt"
               stroke-linejoin="miter"
-              class={item.isMax ? "fill-red-500" : "fill-foreground"}>
+              class={item.isMax ? "fill-tomato-500" : "fill-foreground"}>
               {Math.round(item.val)}
             </text>
           {/if}

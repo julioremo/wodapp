@@ -13,14 +13,14 @@ import * as Tabs from "@ui/tabs";
 import * as ToggleGroup from "@ui/toggle-group";
 import { invalidate } from "$app/navigation";
 import LogScoreForm from "../../LogScoreForm.svelte";
-import DistributionChart from "./DistributionChart.svelte";
-import ProgressionChart from "./ProgressionChart.svelte";
+import DistributionChart from "./_charts/DistributionChart.svelte";
+import ProgressionChart from "./_charts/ProgressionChart.svelte";
+import StreghtLevelsBg from "./_charts/StreghtLevelsBg.svelte";
 import RecordsTable from "./RecordsTable.svelte";
-import StreghtLevelsBg from "./StreghtLevelsBg.svelte";
 import WeightCalcStrip from "./WeightStrip.svelte";
 
 let { data } = $props();
-let { movement, standardsSelection, history, peers, profile, user, userAge } =
+let { movement, standardsSelection, history, peers, user, userAge } =
   $derived(data);
 
 let oneRepMax = $derived.by(() => {
@@ -102,7 +102,8 @@ function handleSuccess() {
         <section class="mt-16 first:mt-4">
           <header class="flex items-end justify-between mb-3 ml-3">
             <h3 class="text-lg font-medium text-foreground">
-              {stripMode === "reps" ? "Reps" : "Percentage"} calculator
+              {stripMode === "reps" ? "Reps" : "Percentage"}
+              calculator
             </h3>
             <ToggleGroup.Root
               type="single"
@@ -148,11 +149,11 @@ function handleSuccess() {
 
           <Tabs.Content value="chart" class="mt-0">
             <!-- <div
-              class="w-full rounded-xl overflow-hidden border-1 border-stone-300"> -->
-            <div class="w-full overflow-hidden">
+              class="w-full rounded-xl border-1 border-stone-300"> -->
+            <div class="w-full">
               <ProgressionChart {history}>
-                {#snippet background(yScale, hairline)}
-                  <StreghtLevelsBg {standardsSet} {yScale} {hairline} />
+                {#snippet background(yScale)}
+                  <StreghtLevelsBg {standardsSet} {yScale} />
                 {/snippet}
               </ProgressionChart>
             </div>
@@ -187,8 +188,8 @@ function handleSuccess() {
             {/if}
           </div>
           <div
-            // class="overflow-hidden bg-white rounded-xl border-1 border-stone-300"
-            class="overflow-hidden bg-white">
+            // class="overflow-hidden rounded-xl border-1 border-border"
+            class="overflow-hidden">
             <DistributionChart {peers} {standardsSet} userId={user.id} />
           </div>
         </section>
@@ -200,7 +201,9 @@ function handleSuccess() {
         <button
           type="button"
           class="text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
-          onclick={() => (isDrawerOpen = true)}>Log your first score</button>
+          onclick={() => (isDrawerOpen = true)}>
+          Log your first score
+        </button>
       </section>
     {/if}
   </div>

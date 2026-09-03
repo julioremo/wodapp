@@ -16,7 +16,7 @@ export class ChartCanvas {
   // Config
   fontSize = $state(9);
   unit = $state("kg");
-  margin: Margin = $state({ top: 25, right: 25, bottom: 40, left: 25 });
+  margin: Margin = $state({ top: 24, bottom: 40, left: 16, right: 16 });
 
   // Computed layout
   top = $derived(this.margin.top);

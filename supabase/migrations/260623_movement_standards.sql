@@ -5,8 +5,8 @@ create table public.movement_standards (
   gender text not null,
   min_age integer not null,
   max_age integer not null,
-  min_bodyweight_kg numeric not null,
-  max_bodyweight_kg numeric,
+  min_weight numeric not null,
+  max_weight numeric,
   level_untrained_kg numeric,
   level_novice_kg numeric,
   level_intermediate_kg numeric,
@@ -15,7 +15,7 @@ create table public.movement_standards (
   level_world_record_kg numeric,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  unique(movement_id, gender, min_age, min_bodyweight_kg)
+  unique(movement_id, gender, min_age, min_weight)
 );
 
 alter table public.movement_standards enable row level security;

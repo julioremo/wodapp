@@ -1,9 +1,9 @@
 <script lang="ts">
 import { ChartCanvas, setChartCanvas } from "@wodapp/core";
 import * as d3 from "d3";
+import type { Peer, StandardsSet } from "../distribution.types";
+import { LEVEL_KEYS } from "../distribution.types";
 import Beeswarm from "./Beeswarm.svelte";
-import type { HairlineArgs, Peer, StandardsSet } from "./distribution.types";
-import { LEVEL_KEYS } from "./distribution.types";
 import StreghtLevelsBg from "./StreghtLevelsBg.svelte";
 
 interface Props {
@@ -80,45 +80,13 @@ let yScale = $derived.by(() => {
   const topDomain = Math.max(maxWr, maxPeer + paddingFloor);
 
   const tailVisualHeight = 60;
-  // Piecewise scale: regular from floor to Elite, squished from Elite to WR/MaxPeer
+  // Piecewise scale with 3 values: regular from floor to Elite, squished from Elite to WR/MaxPeer
   return d3
     .scaleLinear()
     .domain([floor, maxElite, topDomain])
     .range([canvas.height, canvas.top + tailVisualHeight, canvas.top]);
 });
 </script>
-
-{#snippet hairline({
-  y,
-  label = "",
-  color = "black",
-  labelPos = "right",
-  lineClass,
-  textClass,
-}: HairlineArgs)}
-  <line
-    x1={canvas.left - 8}
-    x2={canvas.right + 8}
-    y1={y}
-    y2={y}
-    stroke={color}
-    stroke-width="0.5"
-    class={lineClass} />
-  {#if label}
-    <text
-      x={labelPos === "right" ? canvas.right - 8 : canvas.left + 8}
-      y={y - canvas.fontSize}
-      dominant-baseline="middle"
-      text-anchor={labelPos === "right" ? "end" : "start"}
-      font-family="CMU Typewriter Text, monospace"
-      font-size={canvas.fontSize}
-      fill={color}
-      letter-spacing="0.08em"
-      class={textClass}>
-      {label}
-    </text>
-  {/if}
-{/snippet}
 
 <div
   class="w-full relative rounded-none"
@@ -132,8 +100,8 @@ let yScale = $derived.by(() => {
       height={canvas.height}
       class="absolute inset-0 overflow-visible">
       // Context drills down outer dimension props
-      <StreghtLevelsBg {standardsSet} {yScale} {hairline} />
-      <Beeswarm data={processedPeers} {yScale} {hairline} />
+      <StreghtLevelsBg {standardsSet} {yScale} />
+      <Beeswarm data={processedPeers} {yScale} />
     </svg>
   {/if}
 </div>

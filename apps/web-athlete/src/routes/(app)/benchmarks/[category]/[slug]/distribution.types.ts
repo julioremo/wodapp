@@ -1,17 +1,5 @@
 // ── Supabase row ──────────────────────────────────────
 import type { MovementStandard } from "@wodapp/types";
-import type { Snippet } from "svelte";
-
-export interface HairlineArgs {
-  y: number;
-  label?: string;
-  color?: string;
-  labelPos?: string;
-  lineClass?: string;
-  textClass?: string;
-}
-
-export type HairlineSnippet = Snippet<[HairlineArgs]>;
 
 export interface StandardsSet {
   myGender: MovementStandard | null;
@@ -42,21 +30,22 @@ export interface Peer {
   display_name?: string;
   emoji?: string;
   benchmarks: BenchmarkEntry[];
-  gender: string;
-  age: number;
-  bodyweight_kg: number;
+  gender?: string;
+  age?: number;
+  weight?: number;
 }
 
 export interface ProcessedPeer {
   id: string;
   display_name?: string;
   emoji?: string;
+  avatar_url?: string;
   val: number;
   date?: string;
   isUser: boolean;
-  gender: string;
-  age: number;
-  bodyweight_kg: number;
+  gender?: string;
+  age?: number;
+  weight?: number;
 }
 
 export interface SimulatedNode extends ProcessedPeer {
@@ -69,5 +58,5 @@ export interface SimulatedNode extends ProcessedPeer {
 export interface UserProfile {
   gender: string; // matches movement_standards.gender
   age: number;
-  bodyweight_kg: number;
+  weight: number;
 }

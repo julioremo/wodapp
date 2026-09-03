@@ -28,8 +28,8 @@ export const load: PageServerLoad = async ({ params, parent, locals: { supabase 
   const openMaxAge = 39;
 
   // 2. Fetch movement standards (non-critical data)
-  const userFilter = `and(min_age.lte.${userAge},max_age.gte.${userAge},min_weight.lte.${userWeight},or(max_weight.gte.${userWeight},max_weight.is.null))`;
-  const generalFilter = `and(min_age.eq.${openMinAge},max_age.eq.${openMaxAge},min_weight.lte.${userWeight},or(max_weight.gte.${userWeight},max_weight.is.null))`;
+  const userFilter = `and(min_age.lte.${userAge},max_age.gte.${userAge},min_bodyweight_kg.lte.${userWeight},or(max_bodyweight_kg.gte.${userWeight},max_bodyweight_kg.is.null))`;
+  const generalFilter = `and(min_age.eq.${openMinAge},max_age.eq.${openMaxAge},min_bodyweight_kg.lte.${userWeight},or(max_bodyweight_kg.gte.${userWeight},max_bodyweight_kg.is.null))`;
 
   const standardsPromise = supabase
     .from("movement_standards")

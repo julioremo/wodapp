@@ -1,17 +1,12 @@
 <script lang="ts">
-import {
-  ChartSpline,
-  ChevronLeft,
-  Percent,
-  Plus,
-  Repeat,
-  Table,
-} from "@lucide/svelte";
-import { Button, buttonVariants } from "@ui/button";
+import { ChartSpline, Percent, Plus, Repeat, Table } from "@lucide/svelte";
+import { buttonVariants } from "@ui/button";
 import * as Drawer from "@ui/drawer";
 import * as Tabs from "@ui/tabs";
 import * as ToggleGroup from "@ui/toggle-group";
 import { invalidate } from "$app/navigation";
+import BackButton from "$lib/components/BackButton.svelte";
+import AppHeader from "$lib/components/layout/AppHeader.svelte";
 import LogScoreForm from "../../LogScoreForm.svelte";
 import DistributionChart from "./_charts/DistributionChart.svelte";
 import ProgressionChart from "./_charts/ProgressionChart.svelte";
@@ -55,40 +50,34 @@ function handleSuccess() {
 </script>
 
 <div class="flex flex-col h-full bg-background">
-  <header
-    class="sticky top-0 z-10 bg-background/95 backdrop-blur border-b pb-3 pt-4 px-2 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        href="/benchmarks/{movement.category}"
-        class="rounded-full -ml-2">
-        <ChevronLeft class="w-6 h-6" />
-      </Button>
-      <h1 class="text-2xl font-bold tracking-tight">{movement.name}</h1>
-    </div>
+  <AppHeader title={movement.name}>
+    {#snippet left()}
+      <BackButton backUrl="/benchmarks/{movement.category}" />
+    {/snippet}
 
-    <Drawer.Root bind:open={isDrawerOpen}>
-      <Drawer.Trigger
-        class={buttonVariants({
-          variant: "default",
-          class: "rounded-full whitespace-nowrap",
-        })}>
-        <Plus class="w-4 h-4 mr-1" />
-        Log Score</Drawer.Trigger>
-      <Drawer.Content>
-        <div class="px-4 pb-8 pt-4 space-y-4 mx-auto max-w-md">
-          <Drawer.Header class="p-0 text-left">
-            <Drawer.Title class="text-lg"
-              >Log in your score for {data.movement.name}</Drawer.Title>
-          </Drawer.Header>
-          <LogScoreForm
-            movementId={data.movement.id}
-            onSuccess={handleSuccess} />
-        </div>
-      </Drawer.Content>
-    </Drawer.Root>
-  </header>
+    {#snippet right()}
+      <Drawer.Root bind:open={isDrawerOpen}>
+        <Drawer.Trigger
+          class={buttonVariants({
+            variant: "default",
+            class: "rounded-full whitespace-nowrap",
+          })}>
+          <Plus class="w-4 h-4 mr-1" />
+          Log Score</Drawer.Trigger>
+        <Drawer.Content>
+          <div class="px-4 pb-8 pt-4 space-y-4 mx-auto max-w-md">
+            <Drawer.Header class="p-0 text-left">
+              <Drawer.Title class="text-lg"
+                >Log in your score for {data.movement.name}</Drawer.Title>
+            </Drawer.Header>
+            <LogScoreForm
+              movementId={data.movement.id}
+              onSuccess={handleSuccess} />
+          </div>
+        </Drawer.Content>
+      </Drawer.Root>
+    {/snippet}
+  </AppHeader>
 
   <div class="flex-1 overflow-y-auto p-4 space-y-4">
     {#if history.length > 0}
@@ -100,7 +89,7 @@ function handleSuccess() {
 
       {#if movement.measurement_type === "weight" && oneRepMax}
         <section class="mt-16 first:mt-4">
-          <header class="flex items-end justify-between mb-3 ml-3">
+          <header class="flex items-end justify-between mb-3 ml-8">
             <h3 class="text-lg font-medium text-foreground">
               {stripMode === "reps" ? "Reps" : "Percentage"}
               calculator
@@ -127,7 +116,7 @@ function handleSuccess() {
 
       <section class="mt-16">
         <Tabs.Root value="chart" class="w-full gap-0">
-          <div class="flex items-end justify-between mb-3 ml-3">
+          <header class="flex items-end justify-between mb-3 ml-8">
             <h3 class="text-lg font-medium text-foreground">My progress</h3>
 
             <Tabs.List class="flex bg-transparent p-0 border rounded-none">
@@ -145,7 +134,7 @@ function handleSuccess() {
                 <Table class="h-4 w-4" />
               </Tabs.Trigger>
             </Tabs.List>
-          </div>
+          </header>
 
           <Tabs.Content value="chart" class="mt-0">
             <!-- <div
@@ -170,7 +159,7 @@ function handleSuccess() {
       </section>
       {#if standardsSelection.general.myGender || peers.length > 2}
         <section class="mt-16">
-          <div class="flex items-end justify-between mb-3 ml-3">
+          <header class="flex items-end justify-between mb-3 ml-8">
             <h3 class="text-lg font-medium text-foreground">
               How do I compare?
             </h3>
@@ -186,7 +175,7 @@ function handleSuccess() {
                 {/each}
               </ToggleGroup.Root>
             {/if}
-          </div>
+          </header>
           <div
             // class="overflow-hidden rounded-xl border-1 border-border"
             class="overflow-hidden">

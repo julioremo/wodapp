@@ -1,7 +1,8 @@
 <script lang="ts">
 import { Activity, ChevronLeft, ChevronRight } from "@lucide/svelte";
 import { Badge } from "@ui/badge";
-import { Button } from "@ui/button";
+import BackButton from "$lib/components/BackButton.svelte";
+import AppHeader from "$lib/components/layout/AppHeader.svelte";
 import type { PageData } from "./$types";
 
 let { data }: { data: PageData } = $props();
@@ -12,21 +13,13 @@ let displayCategory = $derived(
 </script>
 
 <div class="flex flex-col h-full bg-background">
-  <header
-    class="sticky top-0 z-10 bg-background/95 backdrop-blur border-b pb-3 pt-4 px-2">
-    <div class="flex items-center">
-      <Button
-        variant="ghost"
-        size="icon"
-        href="/benchmarks"
-        class="mr-2 rounded-full">
-        <ChevronLeft class="w-6 h-6" />
-      </Button>
-      <h1 class="text-2xl font-bold tracking-tight">{displayCategory}</h1>
-    </div>
-  </header>
+  <AppHeader title={displayCategory}>
+    {#snippet left()}
+      <BackButton backUrl="/benchmarks" />
+    {/snippet}
+  </AppHeader>
 
-  <div class="flex-1 overflow-y-auto">
+  <div class="flex-1 overflow-y-auto pb-12">
     {#if data.movements.length === 0}
       <div
         class="flex flex-col items-center justify-center h-[40vh] text-center text-muted-foreground">
@@ -39,8 +32,8 @@ let displayCategory = $derived(
         {#each data.movements as movement}
           <a
             href="/benchmarks/{data.category}/{movement.slug}"
-            class="group flex items-center justify-between pl-4 pr-3 py-2 border-b last:border-b-0 hover:bg-muted/50 active:bg-muted transition-colors focus:outline-none focus:bg-muted align-baseline">
-            <span class="text-xl font-medium truncate pr-4"
+            class="group flex items-center justify-between py-2.5 pl-12 pr-3 hover:bg-muted/50 active:bg-muted transition-colors focus:outline-none focus:bg-muted align-baseline border-b-1 last:border-b-0">
+            <span class="text-lg font-medium truncate pr-4"
               >{movement.name}</span>
 
             <div class="flex items-center gap-3 shrink-0 align-baseline">

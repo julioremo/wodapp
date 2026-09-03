@@ -42,6 +42,7 @@
     "clsx": "catalog:",
     "d3": "catalog:",
     "date-fns": "catalog:",
+    "mode-watcher": "catalog:",
     "sveltekit-superforms": "catalog:",
     "tailwind-merge": "catalog:",
     "tailwind-variants": "catalog:",

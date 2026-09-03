@@ -21,13 +21,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.location = null;
   event.locals.userRole = null;
 
-  const theme = event.cookies.get("theme") || "system";
-
   return resolve(event, {
-    transformPageChunk: ({ html }) => {
-      const themeClass = theme === "dark" ? "dark" : "";
-      return html.replace("%theme-class%", themeClass);
-    },
     filterSerializedResponseHeaders: (name) => name === "content-range"
   });
 };

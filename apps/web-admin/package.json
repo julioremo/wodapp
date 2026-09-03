@@ -40,8 +40,9 @@
     "@wodapp/ui": "workspace:*",
     "clsx": "catalog:",
     "date-fns": "catalog:",
-    "sveltekit-superforms": "catalog:",
+    "mode-watcher": "catalog:",
     "svelte-sonner": "catalog:",
+    "sveltekit-superforms": "catalog:",
     "tailwind-merge": "catalog:",
     "tailwind-variants": "catalog:",
     "zod": "catalog:"

@@ -15,7 +15,7 @@
     "sync": "svelte-kit sync"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "catalog:",
+    "@sveltejs/adapter-vercel": "catalog:",
     "@sveltejs/kit": "catalog:",
     "@sveltejs/vite-plugin-svelte": "catalog:",
     "@tailwindcss/vite": "catalog:",

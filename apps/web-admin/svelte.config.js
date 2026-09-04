@@ -1,15 +1,19 @@
 import path from "node:path";
-import adapter from "@sveltejs/adapter-auto";
+import adapter from "@sveltejs/adapter-vercel";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
+/** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess(),
+
   kit: {
     adapter: adapter(),
     alias: {
       "@root": path.resolve("../../"),
       "@ui": "../../packages/ui/src/lib/components/ui",
-      "@ui-utils": "../../packages/ui/src/lib/utils.ts"
+      "@ui-utils": "../../packages/ui/src/lib/utils.ts",
+      "@ui-hooks": "../../packages/ui/src/lib/hooks",
+      "@ui-lib": "../../packages/ui/src/lib"
     }
   }
 };

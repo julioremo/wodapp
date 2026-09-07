@@ -12,8 +12,8 @@ export default defineConfig({
       srcDir: "src",
       filename: "service-worker.ts",
       manifest: {
-        name: "WodApp",
-        short_name: "Wodapp",
+        name: "WodApp pwa-inject",
+        short_name: "Wodapp pwa-inject",
         start_url: "/",
         display: "standalone",
         theme_color: "#000000",

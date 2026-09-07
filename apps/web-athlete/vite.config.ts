@@ -8,8 +8,9 @@ export default defineConfig({
     tailwindcss(),
     sveltekit(),
     SvelteKitPWA({
-      registerType: "autoUpdate",
-      strategies: "generateSW",
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "service-worker.ts",
       manifest: {
         name: "WodApp",
         short_name: "Wodapp",
@@ -30,23 +31,9 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ["client/**/*.{js,css,ico,png,svg,webp,woff,woff2}"],
-        navigateFallback: null,
-        runtimeCaching: [
-          {
-            urlPattern: ({ request }) => request.mode === "navigate",
-            handler: "NetworkOnly"
-          },
-          {
-            urlPattern: ({ url }) => url.pathname.includes("__data.json"),
-            handler: "NetworkOnly"
-          },
-          {
-            urlPattern: ({ url }) => url.hostname.includes("supabase.co"),
-            handler: "NetworkOnly"
-          }
-        ]
+        additionalManifestEntries: [{ url: "/offline.html", revision: "1" }]
       }
     })
   ]

@@ -8,6 +8,12 @@ const config = {
 
   kit: {
     adapter: adapter(),
+    serviceWorker: {
+      register: false
+    },
+    files: {
+      serviceWorker: "src/prompt-sw.ts"
+    },
     alias: {
       "@root": path.resolve("../../"),
       "@ui": "../../packages/ui/src/lib/components/ui",

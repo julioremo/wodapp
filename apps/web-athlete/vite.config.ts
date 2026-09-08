@@ -9,8 +9,6 @@ export default defineConfig({
     sveltekit(),
     SvelteKitPWA({
       strategies: "injectManifest",
-      srcDir: "src",
-      filename: "service-worker.ts",
       manifest: {
         name: "WodApp pwa-inject",
         short_name: "Wodapp pwa-inject",
@@ -32,8 +30,20 @@ export default defineConfig({
         ]
       },
       injectManifest: {
-        globPatterns: ["client/**/*.{js,css,ico,png,svg,webp,woff,woff2}"],
-        additionalManifestEntries: [{ url: "/offline.html", revision: "1" }]
+        globPatterns: [
+          "client/**/*.{js,css,ico,png,svg,webp,html,woff,woff2}",
+          "prerendered/**/*.{html,json}"
+        ]
+      },
+      workbox: {
+        globPatterns: ["client/**/*.{js,css,ico,png,svg,webp,html,woff,woff2}"]
+      },
+      devOptions: {
+        enabled: false,
+        type: "module"
+      },
+      kit: {
+        includeVersionFile: true
       }
     })
   ]

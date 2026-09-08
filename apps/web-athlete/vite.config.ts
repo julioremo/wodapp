@@ -39,12 +39,13 @@ export default defineConfig({
       },
       injectManifest: {
         globPatterns: [
-          "client/**/*.{js,css,ico,png,svg,webp,html,woff,woff2}",
+          "client/**/*.{js,css,ico,png,svg,webp,woff,woff2,ttf}",
           "prerendered/**/*.{html,json}"
-        ]
+        ],
+        additionalManifestEntries: [{ url: "/offline.html", revision: Date.now().toString() }]
       },
       workbox: {
-        globPatterns: ["client/**/*.{js,css,ico,png,svg,webp,html,woff,woff2}"]
+        globPatterns: ["client/**/*.{js,css,ico,png,svg,webp,woff,woff2,ttf}"]
       },
       devOptions: {
         enabled: true,

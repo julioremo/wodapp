@@ -26,7 +26,6 @@ setCatchHandler(async ({ request }) => {
     console.log("[SW] 🟡 Attempting to serve offline.html fallback...");
 
     try {
-      // Try with and without the leading slash to be safe
       const fallback =
         (await matchPrecache("/offline.html")) || (await matchPrecache("offline.html"));
 

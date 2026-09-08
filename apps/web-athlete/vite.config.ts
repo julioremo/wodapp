@@ -39,7 +39,7 @@ export default defineConfig({
         globPatterns: ["client/**/*.{js,css,ico,png,svg,webp,html,woff,woff2}"]
       },
       devOptions: {
-        enabled: false,
+        enabled: true,
         type: "module"
       },
       kit: {

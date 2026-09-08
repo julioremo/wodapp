@@ -2,27 +2,24 @@
 /// <reference types="vite/client" />
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext" />
-import {
-  cleanupOutdatedCaches,
-  createHandlerBoundToURL,
-  precacheAndRoute
-} from "workbox-precaching";
-import { NavigationRoute, registerRoute } from "workbox-routing";
+import { clientsClaim } from "workbox-core";
+import { cleanupOutdatedCaches, matchPrecache, precacheAndRoute } from "workbox-precaching";
+import { setCatchHandler, setDefaultHandler } from "workbox-routing";
+import { NetworkOnly } from "workbox-strategies";
 
 declare let self: ServiceWorkerGlobalScope;
 
-self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
-});
-
-// self.__WB_MANIFEST is default injection point
-precacheAndRoute(self.__WB_MANIFEST);
-
-// clean old assets
+self.skipWaiting();
+clientsClaim();
 cleanupOutdatedCaches();
 
-let allowlist: undefined | RegExp[];
-if (import.meta.env.DEV) allowlist = [/^\/$/];
+precacheAndRoute(self.__WB_MANIFEST);
 
-// to allow work offline
-registerRoute(new NavigationRoute(createHandlerBoundToURL("/"), { allowlist }));
+setDefaultHandler(new NetworkOnly());
+setCatchHandler(async ({ request }) => {
+  if (request.destination === "document" || request.url.includes("__data.json")) {
+    const fallback = await matchPrecache("/offline.html");
+    return fallback || new Response("You are offline.", { status: 503 });
+  }
+  return Response.error();
+});

@@ -12,9 +12,19 @@ let { data, children } = $props();
 
 onMount(async () => {
   if (pwaInfo) {
+    console.log('[App] PWA Info found, attempting registration...');
     const { registerSW } = await import("virtual:pwa-register");
-    registerSW({ immediate: true });
-  }
+    
+    registerSW({ 
+      immediate: true,
+      onRegisteredSW(swScriptUrl, registration) {
+        console.log('[App] SW successfully registered!', swScriptUrl);
+      },
+      onRegisterError(error) {
+        console.error('[App] SW registration failed!', error);
+      }
+    });
+ }
 });
 </script>
 

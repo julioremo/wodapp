@@ -1,8 +1,20 @@
 <script lang="ts">
-import { Calendar as CalIcon, ChevronLeft, ChevronRight, Settings2 } from "@lucide/svelte";
+import {
+  Calendar as CalIcon,
+  ChevronLeft,
+  ChevronRight,
+  Settings2,
+} from "@lucide/svelte";
 import { Button } from "@ui/button";
 import { getAvailability } from "@wodapp/core";
-import { addDays, addWeeks, format, isSameDay, startOfWeek, subWeeks } from "date-fns";
+import {
+  addDays,
+  addWeeks,
+  format,
+  isSameDay,
+  startOfWeek,
+  subWeeks,
+} from "date-fns";
 import { goto } from "$app/navigation";
 import ClassCard from "$lib/components/schedule/ClassCard.svelte";
 import FilterBar from "$lib/components/schedule/FilterBar.svelte";
@@ -19,7 +31,7 @@ let currentWeekStart = $state(startOfWeek(selectedDate, { weekStartsOn: 1 }));
 let activeFilters = $state({
   selectedTypes: [] as string[],
   selectedCoaches: [] as string[],
-  timeRange: [data.filterOptions.bounds.min, data.filterOptions.bounds.max]
+  timeRange: [data.filterOptions.bounds.min, data.filterOptions.bounds.max],
 });
 
 // Helper for the time slider
@@ -34,25 +46,29 @@ let dailyClasses = $derived(
     if (!isSameDay(classTime, selectedDate)) return false;
     // Class Type filter (empty array means all enabled)
     if (
-      activeFilters.selectedTypes.length > 0
-      && !activeFilters.selectedTypes.includes(c.class_type)
+      activeFilters.selectedTypes.length > 0 &&
+      !activeFilters.selectedTypes.includes(c.class_type)
     ) {
       return false;
     }
     // Coach filter (empty array means all enabled)
     if (
-      activeFilters.selectedCoaches.length > 0
-      && (!c.coach?.display_name || !activeFilters.selectedCoaches.includes(c.coach.display_name))
+      activeFilters.selectedCoaches.length > 0 &&
+      (!c.coach?.display_name ||
+        !activeFilters.selectedCoaches.includes(c.coach.display_name))
     ) {
       return false;
     }
     // Time range
     const mins = getMinutesFromMidnight(classTime);
-    if (mins < activeFilters.timeRange[0] || mins > activeFilters.timeRange[1]) {
+    if (
+      mins < activeFilters.timeRange[0] ||
+      mins > activeFilters.timeRange[1]
+    ) {
       return false;
     }
     return true;
-  })
+  }),
 );
 
 let firstClass = $derived(dailyClasses[0]);
@@ -60,11 +76,12 @@ let viewState = $derived.by(() => {
   if (dailyClasses.length === 0) return "empty";
 
   if (
-    firstClass?.bookingOpensType === "fixed_day"
-    && globalClock.now < new Date(firstClass.openTime)
+    firstClass?.bookingOpensType === "fixed_day" &&
+    globalClock.now < new Date(firstClass.openTime)
   ) {
     const isIncomingWeek =
-      new Date(firstClass.openTime).getTime() - globalClock.now.getTime() < 7 * 24 * 60 * 60 * 1000;
+      new Date(firstClass.openTime).getTime() - globalClock.now.getTime() <
+      7 * 24 * 60 * 60 * 1000;
     return isIncomingWeek ? "locked_incoming" : "locked_future";
   }
 
@@ -73,13 +90,14 @@ let viewState = $derived.by(() => {
 
 let availability = $derived(
   firstClass && viewState === "locked_incoming"
-    // ? getAvailability(firstClass.openTime, globalClock.now)
-    ? null
-    : null
+    ? // ? getAvailability(firstClass.openTime, globalClock.now)
+      null
+    : null,
 );
 
 function changeWeek(dir: -1 | 1) {
-  const newStart = dir === 1 ? addWeeks(currentWeekStart, 1) : subWeeks(currentWeekStart, 1);
+  const newStart =
+    dir === 1 ? addWeeks(currentWeekStart, 1) : subWeeks(currentWeekStart, 1);
   goto(`?date=${format(newStart, "yyyy-MM-dd")}`, { replaceState: true });
   currentWeekStart = newStart;
   selectedDate = newStart;
@@ -87,16 +105,21 @@ function changeWeek(dir: -1 | 1) {
 </script>
 
 <div class="flex flex-col h-full bg-background">
-  <header class="sticky top-0 z-10 bg-background/95 backdrop-blur border-b pb-2">
+  <header
+    class="sticky top-0 z-10 bg-background/95 backdrop-blur border-b pb-2">
     <div class="flex items-center px-4 mt-2 mb-1 text-sm">
       <Button variant="ghost" class="p-2 rounded-full -ml-2">
         <CalIcon class="w-4 h-4 mr-2" />
-        <span>{format(selectedDate, 'MMMM yyyy')}</span>
+        <span>{format(selectedDate, "MMMM yyyy")}</span>
       </Button>
     </div>
 
     <div class="flex items-center justify-between px-2 py-2">
-      <Button type="button" variant="ghost" size="icon" onclick={() => changeWeek(-1)}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onclick={() => changeWeek(-1)}>
         <ChevronLeft class="w-5 h-5" />
       </Button>
 
@@ -109,66 +132,75 @@ function changeWeek(dir: -1 | 1) {
           <Button
             type="button"
             variant={isSelected ? "default" : "ghost"}
-            class="flex flex-col items-center w-10 h-auto py-1.5 px-1 {isToday && !isSelected ? 'text-primary font-bold' : ''}"
-            onclick={() => selectedDate = day}>
-            <span class="text-[10px] uppercase opacity-70">{format(day, 'EEE')}</span>
-            <span class="text-sm font-semibold">{format(day, 'd')}</span>
+            class="flex flex-col items-center gap-1 w-10 h-auto grow p-1 rounded-none {isToday &&
+            !isSelected
+              ? 'text-primary font-bold'
+              : ''}"
+            onclick={() => (selectedDate = day)}>
+            <span class="text-[10px] uppercase">{format(day, "EEE")}</span>
+            <span class="text-sm font-semibold">{format(day, "d")}</span>
           </Button>
         {/each}
       </div>
 
-      <Button type="button" variant="ghost" size="icon" onclick={() => changeWeek(1)}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onclick={() => changeWeek(1)}>
         <ChevronRight class="w-5 h-5" />
       </Button>
     </div>
 
     <div class="px-3 border-t mt-1 pt-1">
-      <FilterBar filterOptions={data.filterOptions} onFilterChange={(f) => activeFilters = f} />
+      <FilterBar
+        filterOptions={data.filterOptions}
+        onFilterChange={(f) => (activeFilters = f)} />
     </div>
   </header>
 
   <div class="flex-1 overflow-y-auto p-4 space-y-3">
     {#if !data.activeLocation}
-      <div class="flex flex-col items-center justify-center h-[60vh] text-center p-8 space-y-4">
-        <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center text-2xl">
+      <div
+        class="flex flex-col items-center justify-center h-[60vh] text-center p-8 space-y-4">
+        <div
+          class="w-16 h-16 bg-muted rounded-full flex items-center justify-center text-2xl">
           📍
         </div>
         <h2 class="text-xl font-bold">Find your box</h2>
         <p class="text-muted-foreground text-sm">
-          You aren't a member of any gym yet. Here you'll see classes available at your active
-          location.
+          You aren't a member of any gym yet. Here you'll see classes available
+          at your active location.
         </p>
         <Button href="/search">Find a Gym</Button>
       </div>
-    {:else}
-      {#if viewState === 'empty' || viewState === 'locked_future'}
-        <div class="text-center p-8 border rounded-lg">
-          <p>Rest day 😴</p>
-          <p>No classes scheduled (yet)</p>
-        </div>
-      {:else if viewState === 'locked_incoming' && availability}
-        <div class="text-center p-8 border rounded-lg">
-          <p class="text-xl">
-            {#if availability.type === 'now'}
-              Available now
-            {:else if availability.type === 'countdown'}
-              Booking opens in {availability.minutes}m {availability.seconds}s
-            {:else if availability.type === 'today'}
-              Booking opens today at {availability.timeStr}
-            {:else if availability.type === 'tomorrow'}
-              Booking opens tomorrow at {availability.timeStr}
-            {:else if availability.type === 'future'}
-              Booking opens {availability.dayStr} at {availability.timeStr}
-            {/if}
-          </p>
-        </div>
-      {:else if viewState === 'visible'}
-        <div class="grid gap-4">
-          {#each dailyClasses as workout (workout.id)}
-            <ClassCard classData={workout} />
-          {/each}
-        </div>
-      {/if}
+    {:else if viewState === "empty" || viewState === "locked_future"}
+      <div class="text-center p-8 rounded-lg">
+        <p>Rest day 😴</p>
+        <p>No classes scheduled (yet)</p>
+      </div>
+    {:else if viewState === "locked_incoming" && availability}
+      <div class="text-center p-8 rounded-lg">
+        <p class="text-xl">
+          {#if availability.type === "now"}
+            Available now
+          {:else if availability.type === "countdown"}
+            Booking opens in {availability.minutes}m {availability.seconds}s
+          {:else if availability.type === "today"}
+            Booking opens today at {availability.timeStr}
+          {:else if availability.type === "tomorrow"}
+            Booking opens tomorrow at {availability.timeStr}
+          {:else if availability.type === "future"}
+            Booking opens {availability.dayStr} at {availability.timeStr}
+          {/if}
+        </p>
+      </div>
+    {:else if viewState === "visible"}
+      <div class="grid gap-4">
+        {#each dailyClasses as workout (workout.id)}
+          <ClassCard classData={workout} />
+        {/each}
+      </div>
     {/if}
   </div>
 </div>

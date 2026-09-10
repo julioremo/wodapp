@@ -62,12 +62,14 @@
   --color-tomato-200: oklch(0.86 0.083 47.74);
   --color-tomato-300: oklch(0.787 0.131 44.58);
   --color-tomato-400: oklch(0.717 0.184 41.88);
-  --color-tomato-500: oklch(0.647 0.198 34.26);
+  --color-tomato-500: oklch(0.647 0.204 35.64);
   --color-tomato-600: oklch(0.541 0.156 44.32);
   --color-tomato-700: oklch(0.441 0.112 52.6);
   --color-tomato-800: oklch(0.342 0.081 59.23);
   --color-tomato-900: oklch(0.234 0.052 66.25);
   --color-tomato-950: oklch(0.188 0.04 72.97);
+  --color-signal: var(--color-tomato-500);
+
   --color-azure-50: #f3f3f3;
   --color-azure-100: #ebebeb;
   --color-azure-200: oklch(0.869 0.025 206.12);
@@ -79,6 +81,7 @@
   --color-azure-800: oklch(0.353 0.011 205.73);
   --color-azure-900: #222222;
   --color-azure-950: #131313;
+
   --color-grey-50: oklch(0.965 0.013 101.94);
   --color-grey-100: oklch(0.941 0.003 67.83);
   --color-grey-200: oklch(0.871 0.006 31.28);
@@ -90,6 +93,30 @@
   --color-grey-800: oklch(0.353 0.004 196.81);
   --color-grey-900: oklch(0.249 0.003 164.62);
   --color-grey-950: oklch(0.188 0.005 145.3);
+
+  --color-paper-50: hsl(50 37.5% 96.9%);
+  --color-paper-100: hsl(37.5 26.7% 94.1%);
+  --color-paper-200: oklch(0.888 0.031 100.89);
+  --color-paper-300: oklch(0.817 0.03 115.4);
+  --color-paper-400: oklch(0.738 0.034 130.67);
+  --color-paper-500: oklch(0.668 0.037 142.5);
+  --color-paper-600: oklch(0.593 0.027 154.7);
+  --color-paper-700: oklch(0.524 0.02 164.04);
+  --color-paper-800: oklch(0.455 0.013 182.32);
+  --color-paper-900: oklch(0.379 0.011 187.57);
+  --color-paper-950: oklch(0.342 0.01 207.01);
+
+  --color-ink-50: #dfdfdf;
+  --color-ink-100: oklch(0.861 0.001 287.17);
+  --color-ink-200: oklch(0.777 0.004 286.53);
+  --color-ink-300: oklch(0.691 0.009 278.65);
+  --color-ink-400: oklch(0.604 0.015 272.59);
+  --color-ink-500: oklch(0.517 0.015 266.61);
+  --color-ink-600: oklch(0.431 0.011 264.47);
+  --color-ink-700: oklch(0.344 0.01 260.73);
+  --color-ink-800: oklch(0.254 0.007 248.1);
+  --color-ink-900: oklch(0.199 0.005 248.07);
+  --color-ink-950: oklch(0.149 0.005 264.49);
 
   /* -- Animations (Vital for Shadcn Components) -- */
   --animate-accordion-down: accordion-down 0.2s ease-out;
@@ -130,23 +157,19 @@
 /* -------------------------------------------------------------------------- */
 @layer base {
   :root {
-    --background: hsl(0 0% 100%);
+    /* --background: hsl(0 0% 100%);
     --foreground: hsl(240 10% 3.9%);
     --card: hsl(0 0% 100%);
-    --card-foreground: hsl(240 10% 3.9%);
+    --card-foreground: hsl(240 10% 3.9%); */
     --popover: hsl(0 0% 100%);
     --popover-foreground: hsl(240 10% 3.9%);
-    --primary: hsl(240 5.9% 10%);
-    --primary-foreground: hsl(0 0% 98%);
-    --secondary: hsl(240 4.8% 95.9%);
-    --secondary-foreground: hsl(240 5.9% 10%);
-    --muted: hsl(240 4.8% 95.9%);
-    --muted-foreground: hsl(240 3.8% 46.1%);
+    /* --primary: hsl(240 5.9% 10%);
+    --primary-foreground: hsl(0 0% 98%); */
+    /* --muted: hsl(240 4.8% 95.9%);
+    --muted-foreground: hsl(240 3.8% 46.1%); */
     --accent: hsl(240 4.8% 95.9%);
     --accent-foreground: hsl(240 5.9% 10%);
-    --destructive: hsl(0 84.2% 60.2%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(240 5.9% 90%);
+    /* --border: hsl(240 5.9% 90%); */
     --input: hsl(240 5.9% 90%);
     --ring: hsl(240 5.9% 10%);
     --radius: hsl(0.5rem);
@@ -156,35 +179,66 @@
     --level-intermediate: 70 120 160;
     --level-advanced: 90 60 160;
     --level-elite: 139 26 26;
+
+    --background: var(--color-paper-50);
+    --foreground: var(--color-ink-800);
+    --card: var(--color-paper-100);
+    --card-foreground: var(--color-ink-900);
+    --border: var(--color-ink-300);
+    --muted: var(--color-ink-100);
+    --muted-foreground: var(--color-ink-500);
+    --destructive: var(--color-signal);
+    --destructive-foreground: hsl(0 0% 100%);
+
+    /* --primary: var(--color-ink-900);
+    --primary-foreground: var(--color-paper-100); */
+
+    --primary: var(--color-signal);
+    --primary-foreground: hsl(0 0% 100%);
+
+    --secondary: var(--color-paper-800);
+    --secondary-foreground: var(--color-paper-100);
   }
 
   .dark {
-    /* Dark Mode: Blueprint Aesthetic */
-    --background: hsl(215 28% 10%);
-    --foreground: hsl(40 33% 98%);
+    /* --background: black;
+    --foreground: var(--color-neutral-100);
     --card: hsl(215 28% 13%);
-    --card-foreground: hsl(40 33% 98%);
+    --card-foreground: hsl(40 33% 98%); */
     --popover: hsl(215 28% 13%);
     --popover-foreground: hsl(40 33% 98%);
-    --primary: hsl(40 33% 98%);
+    /* --primary: hsl(40 33% 98%);
     --primary-foreground: hsl(215 28% 17%);
-    --secondary: hsl(191 94% 43%);
-    --secondary-foreground: hsl(215 28% 17%);
-    --accent: hsl(137 27% 50%);
-    --accent-foreground: hsl(215 28% 17%);
-    --destructive: hsl(11 52% 60%);
-    --destructive-foreground: hsl(0 0% 100%);
-    --muted: hsl(215 20% 25%);
-    --muted-foreground: hsl(215 20% 65%);
-    --border: hsl(215 20% 30%);
+    --muted: var(--color-neutral-500);
+    --muted-foreground: var(--color-neutral-400);
+    --border: hsl(215 20% 30%); */
     --input: hsl(215 20% 30%);
     --ring: hsl(215 20% 50%);
+
     /* Chart bg colors */
     --level-untrained: 210 170 170;
     --level-novice: 170 210 170;
     --level-intermediate: 140 190 230;
     --level-advanced: 160 130 230;
     --level-elite: 220 90 90;
+
+    --background: var(--color-black);
+    --foreground: var(--color-paper-100);
+    --card: var(--color-ink-800);
+    --card-foreground: var(--color-paper-100);
+    --border: var(--color-ink-900);
+    --muted: var(--color-ink-700);
+    --muted-foreground: var(--color-ink-300);
+    --destructive: var(--color-signal);
+    --destructive-foreground: hsl(0 0% 0%);
+
+    --primary: var(--color-signal);
+    --primary-foreground: hsl(0 0% 0%);
+
+    --secondary: var(--color-ink-200);
+    --secondary-foreground: var(--color-ink-800);
+    --accent: var(--color-paper-300);
+    --accent-foreground: var(--color-ink-800);
   }
 }
 

@@ -333,7 +333,7 @@ let processedHistory = $derived.by(() => {
               stroke-width="3"
               stroke-linecap="butt"
               stroke-linejoin="miter"
-              class={item.isMax ? "fill-tomato-500" : "fill-foreground"}>
+              class={item.isMax ? "fill-tomato-400" : "fill-foreground"}>
               {Math.round(item.val)}
             </text>
           {/if}

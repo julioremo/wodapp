@@ -69,7 +69,7 @@
   },
   "overrides": [
     {
-      "includes": ["*.svelte"]
+      "includes": ["*.svelte", "**/*.svelte"]
     }
   ],
   "vcs": {

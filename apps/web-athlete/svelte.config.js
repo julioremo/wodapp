@@ -1,7 +1,6 @@
 import path from "node:path";
 import adapter from "@sveltejs/adapter-vercel";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
-import { generateSW } from "./pwa.mjs";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -10,10 +9,7 @@ const config = {
   kit: {
     adapter: adapter(),
     serviceWorker: {
-      register: false
-    },
-    files: {
-      serviceWorker: generateSW ? undefined : "src/prompt-sw.ts"
+      register: true
     },
     alias: {
       "@root": path.resolve("../../"),

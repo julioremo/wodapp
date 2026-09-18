@@ -6,7 +6,7 @@ let { children } = $props();
 const isActive = (path: string) => page.url.pathname.startsWith(path);
 </script>
 
-<div class="flex flex-col h-screen max-w-md mx-auto bg-background">
+<div class="flex flex-col h-screen max-w-md mx-auto bg-background pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)]">
   <main class="flex-1 overflow-y-auto pb-16">
     {@render children()}
   </main>

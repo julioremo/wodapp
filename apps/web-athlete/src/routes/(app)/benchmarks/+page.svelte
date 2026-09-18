@@ -10,7 +10,6 @@ import {
 import { Card, CardContent } from "@ui/card";
 import * as InputGroup from "@ui/input";
 import AppHeader from "$lib/components/layout/AppHeader.svelte";
-import Insights from "./Insights.svelte";
 
 // import { Input } from "@ui/input";
 
@@ -47,12 +46,6 @@ const recentPRs = [
 
 <div class="flex flex-col">
   <main class="flex flex-col gap-12 pb-12">
-    <!-- Insights section -->
-    <!-- <section id="section-insights" class="flex flex-col space-y-2">
-      <h2 class="text-md font-medium text-ink-400 ml-12">Insights</h2>
-      <Insights />
-    </section> -->
-
     <!-- Category Menu -->
     <section id="section-categories" class="flex flex-col space-y-2">
       <h2 class="text-md font-medium text-muted-foreground pl-6.5">

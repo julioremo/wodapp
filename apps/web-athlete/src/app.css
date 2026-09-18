@@ -209,7 +209,7 @@
     --muted-foreground: var(--color-neutral-400);
     --border: hsl(215 20% 30%); */
     --input: var(--color-ink-600);
-    --ring: var(--color-ink-800);
+    --ring: var(--color-ink-600);
 
     /* Chart bg colors */
     --level-untrained: 210 170 170;
@@ -220,19 +220,19 @@
 
     --background: var(--color-black);
     --foreground: var(--color-paper-100);
-    --card: var(--color-ink-700);
+    --card: var(--color-ink-950);
     --card-foreground: var(--color-paper-100);
-    --border: var(--color-ink-900);
-    --muted: var(--color-ink-900);
+    --border: var(--color-ink-700);
+    --muted: var(--color-ink-800);
     --muted-foreground: var(--color-ink-400);
     --destructive: var(--color-signal);
     --destructive-foreground: hsl(0 0% 0%);
 
-    --primary: var(--color-signal);
+    --primary: var(--color-ink-100);
     --primary-foreground: hsl(0 0% 0%);
 
     --secondary: var(--color-ink-200);
-    --secondary-foreground: var(--color-ink-800);
+    --secondary-foreground: var(--color-ink-700);
     --accent: var(--color-paper-300);
     --accent-foreground: var(--color-ink-800);
   }

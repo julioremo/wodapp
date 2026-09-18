@@ -346,9 +346,9 @@ function getTriggerText(label: string, selected: string[]) {
 </div>
 
 <style>
-@reference "../../../app.css";
+/* @reference "../../../app.css";
 
 .filter-toggle {
   @apply h-9 px-3 shrink-0 rounded-[7px] text-nowrap;
-}
+} */
 </style>

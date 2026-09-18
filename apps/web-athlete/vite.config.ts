@@ -38,10 +38,7 @@ export default defineConfig({
         ]
       },
       injectManifest: {
-        globPatterns: [
-          "client/**/*.{js,css,ico,png,svg,webp,woff,woff2,ttf}",
-          "prerendered/**/*.{html,json}"
-        ],
+        globPatterns: ["client/**/*.{js,css,ico,png,svg,webp,woff,woff2,ttf}"],
         additionalManifestEntries: [{ url: "/offline.html", revision: Date.now().toString() }]
       },
       workbox: {

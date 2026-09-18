@@ -1,14 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap"); */
+/* @import url("https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"); */
 
 @import "tailwindcss";
 @import "tw-animate-css";
 @source "../../../packages/ui/src";
-
-@font-face {
-  font-family: "ComputerMono";
-  src: url("/fonts/cmunss.ttf") format("truetype");
-  font-style: normal;
-}
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -18,9 +14,9 @@
 @theme {
   /* -- Fonts -- */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, ui-sans-serif, system-ui, sans-serif, "DM Sans",
-    "ComputerMono";
-  --font-mono: "DM Mono", SFMono-Regular, ui-monospace, monospace;
+    -apple-system, BlinkMacSystemFont, ui-sans-serif, system-ui, sans-serif, "Helvetica Neue",
+    "DM Sans";
+  --font-mono: "SF mono", SFMono-Regular, ui-monospace, monospace;
   --font-marker: "Permanent Marker", cursive;
 
   --border-width-3: 3px;
@@ -170,8 +166,8 @@
     --accent: hsl(240 4.8% 95.9%);
     --accent-foreground: hsl(240 5.9% 10%);
     /* --border: hsl(240 5.9% 90%); */
-    --input: hsl(240 5.9% 90%);
-    --ring: hsl(240 5.9% 10%);
+    --input: white;
+    --ring: var(--color-ink-400);
     --radius: hsl(0.5rem);
     /* Chart bg colors */
     --level-untrained: 140 100 100;
@@ -193,7 +189,7 @@
     /* --primary: var(--color-ink-900);
     --primary-foreground: var(--color-paper-100); */
 
-    --primary: var(--color-signal);
+    --primary: var(--color-ink-700);
     --primary-foreground: hsl(0 0% 100%);
 
     --secondary: var(--color-paper-800);
@@ -212,8 +208,8 @@
     --muted: var(--color-neutral-500);
     --muted-foreground: var(--color-neutral-400);
     --border: hsl(215 20% 30%); */
-    --input: hsl(215 20% 30%);
-    --ring: hsl(215 20% 50%);
+    --input: var(--color-ink-600);
+    --ring: var(--color-ink-800);
 
     /* Chart bg colors */
     --level-untrained: 210 170 170;
@@ -224,11 +220,11 @@
 
     --background: var(--color-black);
     --foreground: var(--color-paper-100);
-    --card: var(--color-ink-800);
+    --card: var(--color-ink-700);
     --card-foreground: var(--color-paper-100);
     --border: var(--color-ink-900);
-    --muted: var(--color-ink-700);
-    --muted-foreground: var(--color-ink-300);
+    --muted: var(--color-ink-900);
+    --muted-foreground: var(--color-ink-400);
     --destructive: var(--color-signal);
     --destructive-foreground: hsl(0 0% 0%);
 

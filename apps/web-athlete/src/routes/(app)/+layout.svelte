@@ -12,7 +12,7 @@ const isActive = (path: string) => page.url.pathname.startsWith(path);
   </main>
 
   <nav
-    class="fixed bottom-0 w-full max-w-md bg-muted/95 backdrop-blur supports-[backdrop-filter]:bg-muted/50 pb-[max(1rem,env(safe-area-inset-bottom))]">
+    class="fixed bottom-0 w-full max-w-md bg-background border-t pb-[max(1rem,env(safe-area-inset-bottom))]">
     <div class="grid grid-cols-3 h-16">
       <a
         href="/schedule"

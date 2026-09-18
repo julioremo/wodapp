@@ -14,6 +14,7 @@ import {
 import * as Avatar from "@ui/avatar";
 import { Badge } from "@ui/badge";
 import * as Item from "@ui/item";
+import AppHeader from "$lib/components/layout/AppHeader.svelte";
 import type { PageData } from "./$types";
 
 let { data }: { data: PageData } = $props();
@@ -192,10 +193,8 @@ const preferenceRows: SettingsRow[] = [
   </section>
 {/snippet}
 
-<div class="max-w-xl mx-auto p-2">
-  <div class="p-12">
-    <h1 class="text-lg font-medium">Settings</h1>
-  </div>
+<div class="max-w-xl mx-auto px-4">
+  <AppHeader title="Settings"></AppHeader>
   <div class="space-y-8 pb-12">
     {@render settingsSection(profileRows)}
     {@render settingsSection(membershipRows, "Membership")}

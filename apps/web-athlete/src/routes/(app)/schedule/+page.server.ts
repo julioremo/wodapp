@@ -1,55 +1,70 @@
-import { error, fail } from "@sveltejs/kit";
-import { calculateOpenTime, defaultSettings, enforcePenalty, type GymSettings } from "@wodapp/core";
-import {
-  addSeconds,
-  format,
-  isAfter,
-  isBefore,
-  parseISO,
-  set,
-  setDay,
-  startOfDay,
-  startOfWeek,
-  subDays,
-  subHours,
-  subMinutes,
-  subWeeks
-} from "date-fns";
-import type { Actions } from "./$types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { error, fail, redirect } from "@sveltejs/kit";
+import { calculateOpenTime, defaultSettings, type GymSettings } from "@wodapp/core";
+import { isBefore, startOfDay, startOfWeek } from "date-fns";
+import type { Actions, PageServerLoad } from "./$types";
+import type {
+  BookClassResult,
+  BookingStatus,
+  BookingWithProfile,
+  CancelClassResult,
+  ClassAttendee,
+  Database,
+  ScheduledClass,
+  ScheduleFilterOptions
+} from "./types";
 
-export const load = async ({ locals, url, parent }) => {
+export const load: PageServerLoad = async ({ locals, url, parent }) => {
   const { user, activeLocation, memberships } = await parent();
+
+  if (!user) {
+    throw redirect(303, "/login");
+  }
 
   if (!activeLocation) {
     return {
-      classes: [],
-      filterOptions: { allClassTypes: [], bounds: { min: 0, max: 0 } }
+      activeLocation: null,
+      schedule: [] as ScheduledClass[],
+      filterOptions: {
+        allClassTypes: [] as string[],
+        bounds: { min: 360, max: 1320 },
+        showCoachFilter: false,
+        allCoaches: [] as string[]
+      } as ScheduleFilterOptions
     };
   }
 
   const userId = user.id;
   const locationId = activeLocation.id;
-  const membership = memberships.find((m: any) => m.location_id === locationId);
+  const membership = memberships?.find((m) => m.location_id === locationId);
 
   if (!membership) {
     throw error(403, "No active membership found for this location.");
   }
 
-  // 2. Fetch settings and classes concurrently
+  // Parse target date from URL or fallback to today
+  const dateParam = url.searchParams.get("date");
+  const targetDate = dateParam ? new Date(dateParam) : new Date();
+  const currentWeekStart = startOfWeek(targetDate, { weekStartsOn: 1 });
+  // Query starting from the beginning of the currently viewed week or this week, whichever is earlier
+  const thisWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const queryStartDate = isBefore(currentWeekStart, thisWeekStart) ? currentWeekStart : thisWeekStart;
+
+  // 1. Fetch settings and classes concurrently
   const [locationReq, classesReq] = await Promise.all([
     locals.supabase.from("locations").select("settings").eq("id", locationId).single(),
     locals.supabase
       .from("classes")
       .select(`
-        id, class_type, start_time, capacity, confirmed_bookings_count,
+        id, class_type, start_time, end_time, capacity, confirmed_bookings_count,
         coach:profiles!classes_coach_id_fkey ( display_name, avatar_url ),
         bookings ( 
           id, status, profile_id, created_at,
-          profile:profiles!bookings_user_id_fkey ( avatar_url ) 
+          profile:profiles!bookings_user_id_fkey ( display_name, avatar_url ) 
         )
       `)
       .eq("location_id", locationId)
-      .gte("start_time", startOfDay(new Date()).toISOString())
+      .gte("start_time", startOfDay(queryStartDate).toISOString())
       .order("start_time", { ascending: true })
   ]);
 
@@ -58,92 +73,143 @@ export const load = async ({ locals, url, parent }) => {
 
   const classes = classesReq.data || [];
 
-  const allCoaches = Object.keys(
-    classes.reduce((acc: Record<string, boolean>, curr) => {
-      if (curr.coach?.display_name) acc[curr.coach.display_name] = true;
-      return acc;
-    }, {})
+  const allCoaches = Array.from(
+    new Set(classes.map((c) => c.coach?.display_name).filter((name): name is string => Boolean(name)))
   ).sort();
 
-  const classesByType = Object.groupBy(classes, (c) => c.class_type);
-  const showCoachFilter = Object.values(classesByType).some(
-    (g) => new Set(g.map((c) => c.coach?.display_name).filter(Boolean)).size > 1
-  );
+  const showCoachFilter = allCoaches.length > 1;
 
   const dbSettings = locationReq.data.settings as Partial<GymSettings> | null;
   const settings: GymSettings = {
     ...defaultSettings,
-    ...dbSettings
+    ...dbSettings,
+    policies: {
+      ...defaultSettings.policies,
+      ...dbSettings?.policies
+    },
+    schedulePrefs: {
+      ...defaultSettings.schedulePrefs,
+      ...dbSettings?.schedulePrefs
+    }
   };
 
-  const allClassTypes = settings.classTypes
+  const allClassTypes = (settings.classTypes || [])
     .filter((ct) => ct.isActive)
     .map((ct) => ct.name)
     .sort();
 
   const bounds = {
-    min: settings.schedulePrefs.startHour * 60,
-    max: settings.schedulePrefs.endHour * 60
+    min: (settings.schedulePrefs?.startHour ?? 6) * 60,
+    max: (settings.schedulePrefs?.endHour ?? 22) * 60
   };
 
-  const bookingOpens = settings.policies.booking_opens;
-  // const schedulePrefs = settings.schedulePrefs;
-  // const now = new Date();
+  const bookingOpens = settings.policies?.booking_opens ?? defaultSettings.policies.booking_opens;
 
-  // 3. Evaluate the temporal states and capacities
-  const rawSchedule = classes.map((c) => {
-    const openTime = calculateOpenTime(
-      c.start_time,
-      bookingOpens,
-      membership.booking_delay_minutes
-    );
+  // 2. Evaluate temporal states, capacities, and attendee avatars
+  const rawSchedule: ScheduledClass[] = classes.map((c) => {
+    const openTime = calculateOpenTime(c.start_time, bookingOpens, membership.booking_delay_minutes ?? 0);
 
-    const userBooking = c.bookings.find(
-      (b: any) => b.profile_id === userId && b.status !== "cancelled"
-    );
-    const userStatus = userBooking?.status || null;
+    const userBooking = c.bookings.find((b) => b.profile_id === userId && b.status !== "cancelled");
+    const userStatus = (userBooking?.status as BookingStatus) || null;
+
+    const confirmedBookings = c.bookings.filter((b) => b.status === "confirmed");
+    const realAttendees: ClassAttendee[] = confirmedBookings.map((b) => ({
+      id: b.id,
+      avatarUrl: b.profile?.avatar_url ?? null,
+      name: b.profile?.display_name ?? null
+    }));
+
+    // Mock attendees: random number minding class capacity
+    const effectiveCapacity = c.capacity ?? 20;
+    const mockCount = Math.floor(Math.random() * (effectiveCapacity + 1));
+    const mockNames = [
+      "Noa",
+      "Kevin",
+      "Sara",
+      "Iker",
+      "Lucía",
+      "Diego",
+      "Elena",
+      "Marco",
+      "Paula",
+      "Hugo",
+      "Nerea",
+      "Adrián",
+      "Carla",
+      "Álex",
+      "Irene",
+      "Pol",
+      "Rubén",
+      "Clara",
+      "Bruno",
+      "Ona"
+    ];
+    const mockAttendees: ClassAttendee[] = Array.from({ length: mockCount }, (_, i) => ({
+      id: `mock-${c.id}-${i + 1}`,
+      avatarUrl: `https://i.pravatar.cc/150?u=athlete-${c.id}-${i + 1}`,
+      name: mockNames[i % mockNames.length]
+    }));
+
+    const attendees = realAttendees.length > 0 ? realAttendees : mockAttendees;
+    const confirmedBookingsCount = realAttendees.length > 0 ? c.confirmed_bookings_count : mockCount;
 
     // Filter and sort the waitlist by timestamp (FIFO)
     const waitlistBookings = c.bookings
-      .filter((b: any) => b.status === "waitlist")
-      .sort(
-        (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      );
+      .filter((b) => b.status === "waitlist")
+      .sort((a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime());
 
     const waitlistTotal = waitlistBookings.length;
-    let waitlistPosition = null;
+    let waitlistPosition: number | null = null;
 
     if (userStatus === "waitlist") {
-      waitlistPosition = waitlistBookings.findIndex((b: any) => b.profile_id === userId) + 1;
+      const idx = waitlistBookings.findIndex((b) => b.profile_id === userId);
+      waitlistPosition = idx !== -1 ? idx + 1 : null;
+    }
+
+    const classTypeConfig = settings.classTypes?.find((ct) => ct.name === c.class_type);
+    const classColor = classTypeConfig?.color ?? (settings as any)?.defaultClassColor ?? null;
+
+    let duration = classTypeConfig?.defaultDuration ?? 60;
+    if (c.end_time && c.start_time) {
+      const diffMinutes = Math.round((new Date(c.end_time).getTime() - new Date(c.start_time).getTime()) / (1000 * 60));
+      if (diffMinutes > 0) {
+        duration = diffMinutes;
+      }
     }
 
     return {
-      ...c,
+      id: c.id,
+      class_type: c.class_type,
+      start_time: c.start_time,
+      duration,
+      capacity: c.capacity,
+      confirmed_bookings_count: confirmedBookingsCount,
+      coach: c.coach,
+      bookings: c.bookings as BookingWithProfile[],
+      attendees,
       openTime,
       userStatus,
       waitlistTotal,
       waitlistPosition,
       bookingOpensType: bookingOpens.type,
-      cancellationWindowHours: settings.policies.cancellation.window_hours || 0,
-      waitlistPolicy: settings.policies.waitlist.mode
+      cancellationWindowHours: settings.policies?.cancellation?.window_hours || 0,
+      waitlistPolicy: settings.policies?.waitlist?.mode || "broadcast",
+      color: classColor
     };
   });
 
-  // 4. Filter the array based on rules before returning
+  // 3. Filter classes before athlete joined gym (compare day of joining)
   const schedule = rawSchedule.filter((c) => {
-    // Drop classes before they joined the gym
-    if (isBefore(new Date(c.start_time), new Date(membership.created_at!))) {
+    if (membership.created_at && isBefore(new Date(c.start_time), startOfDay(new Date(membership.created_at)))) {
       return false;
     }
-    // Drop future classes if the manager disabled visibility
-    // if (c.uiState === "outside_window" && !schedulePrefs.show_schedule_outside_window) {
-    //   return false;
-    // }
-
     return true;
   });
 
   return {
+    activeLocation,
+    location: activeLocation ? { ...activeLocation, settings } : null,
+    settings,
     schedule,
     filterOptions: {
       allClassTypes,
@@ -154,7 +220,7 @@ export const load = async ({ locals, url, parent }) => {
   };
 };
 
-async function getBookingContext(supabase: any, classId: string) {
+async function getBookingContext(supabase: SupabaseClient<Database>, classId: string) {
   const { data: targetClass, error: classError } = await supabase
     .from("classes")
     .select("start_time, location_id")
@@ -171,9 +237,17 @@ async function getBookingContext(supabase: any, classId: string) {
 
   if (locError || !location) throw new Error("Location not found.");
 
+  const dbSettings = location.settings as Partial<GymSettings> | null;
   return {
     targetClass,
-    settings: (location.settings || {}) as GymSettings
+    settings: {
+      ...defaultSettings,
+      ...dbSettings,
+      policies: {
+        ...defaultSettings.policies,
+        ...dbSettings?.policies
+      }
+    } as GymSettings
   };
 }
 
@@ -210,16 +284,17 @@ export const actions: Actions = {
         p_class_id: classId
       });
 
-      if (error) {
+      if (error || !data) {
         console.error("Booking RPC error:", error);
         return fail(500, { message: "Could not secure your spot." });
       }
 
+      const result = data as unknown as BookClassResult;
       return {
         success: true,
-        status: data.status
+        status: result.status
       };
-    } catch (err: any) {
+    } catch (err) {
       console.error("Context error:", err);
       return fail(500, { message: "Could not process booking request." });
     }
@@ -234,7 +309,7 @@ export const actions: Actions = {
     if (!classId) return fail(400, { message: "Class ID is required." });
 
     try {
-      const { targetClass, settings } = await getBookingContext(supabase, classId);
+      const { targetClass } = await getBookingContext(supabase, classId);
       const classTime = new Date(targetClass.start_time);
       const now = new Date();
 
@@ -245,29 +320,23 @@ export const actions: Actions = {
         });
       }
 
-      // Optional: Check late cancellation window based on your JSON settings
-      // const cancelWindowHours = settings.policies.cancellation_window_hours || 0;
-      // const cutoffTime = new Date(classTime.getTime() - cancelWindowHours * 60 * 60 * 1000);
-      // if (now > cutoffTime) {
-      //   // Handle late cancellation logic here (e.g., apply a penalty or block the action)
-      // }
-
       const { data, error } = await supabase.rpc("cancel_class", {
         p_profile_id: user.id,
         p_class_id: classId
       });
 
-      if (error) {
+      if (error || !data) {
         console.error("Cancellation RPC error:", error);
         return fail(500, { message: "Failed to cancel booking." });
       }
 
-      if (!data.success) {
-        return fail(400, { message: data.message });
+      const result = data as unknown as CancelClassResult;
+      if (!result.success) {
+        return fail(400, { message: result.message || "Failed to cancel booking." });
       }
 
       return { success: true };
-    } catch (err: any) {
+    } catch (err) {
       console.error("Context error:", err);
       return fail(500, { message: "Could not process cancellation request." });
     }

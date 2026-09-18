@@ -9,8 +9,6 @@ let { data, children } = $props();
 
 </script>
 
-<svelte:head>{@html webManifest}</svelte:head>
-
 <Toaster position="top-center" />
 <ModeWatcher defaultMode={data.theme} />
 {@render children()}

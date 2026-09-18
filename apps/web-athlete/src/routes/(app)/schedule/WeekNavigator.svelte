@@ -51,7 +51,7 @@ const [send, receive] = crossfade({
         type="button"
         disabled={isHidden}
         variant="ghost"
-        class="group flex flex-col items-center gap-0 h-auto grow p-0 hover:bg-transparent {isHidden
+        class="group flex flex-col items-center gap-2 h-auto grow p-0 hover:bg-transparent {isHidden
           ? 'opacity-30 pointer-events-none cursor-not-allowed'
           : ''}"
         onclick={() => !isHidden && onSelectDate(day)}>
@@ -82,7 +82,7 @@ const [send, receive] = crossfade({
 
           <!-- date number above the sliding background -->
           <span
-            class="relative z-10 text-sm font-semibold transition-colors duration-300 {isSelected
+            class="relative z-10 text-md font-semibold transition-colors duration-300 {isSelected
               ? 'text-primary-foreground'
               : 'text-foreground'}">
             {format(day, "d")}

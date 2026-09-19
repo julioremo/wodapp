@@ -22,8 +22,6 @@ let targetTop = $derived(
 );
 </script>
 
-<div class="sticky top-0 z-50 w-full bg-background h-[env(safe-area-inset-top)]"></div>
-
 <header
   bind:clientHeight={totalHeight}
   class="sticky z-40 flex flex-col bg-background transition-[top] duration-300 ease-in-out border-b shadow-md"

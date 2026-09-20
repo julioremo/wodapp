@@ -48,7 +48,9 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
   const currentWeekStart = startOfWeek(targetDate, { weekStartsOn: 1 });
   // Query starting from the beginning of the currently viewed week or this week, whichever is earlier
   const thisWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
-  const queryStartDate = isBefore(currentWeekStart, thisWeekStart) ? currentWeekStart : thisWeekStart;
+  const queryStartDate = isBefore(currentWeekStart, thisWeekStart)
+    ? currentWeekStart
+    : thisWeekStart;
 
   // 1. Fetch settings and classes concurrently
   const [locationReq, classesReq] = await Promise.all([
@@ -74,10 +76,10 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
   const classes = classesReq.data || [];
 
   const allCoaches = Array.from(
-    new Set(classes.map((c) => c.coach?.display_name).filter((name): name is string => Boolean(name)))
+    new Set(
+      classes.map((c) => c.coach?.display_name).filter((name): name is string => Boolean(name))
+    )
   ).sort();
-
-  const showCoachFilter = allCoaches.length > 1;
 
   const dbSettings = locationReq.data.settings as Partial<GymSettings> | null;
   const settings: GymSettings = {
@@ -93,6 +95,15 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
     }
   };
 
+  const prefs = settings.schedulePrefs as Record<string, unknown> | undefined;
+  const showCoach =
+    (prefs?.showCoach as boolean | undefined)
+    ?? (prefs?.show_coach as boolean | undefined)
+    ?? ((settings as Record<string, unknown>)?.showCoach as boolean | undefined)
+    ?? true;
+
+  const showCoachFilter = showCoach && allCoaches.length > 1;
+
   const allClassTypes = (settings.classTypes || [])
     .filter((ct) => ct.isActive)
     .map((ct) => ct.name)
@@ -107,7 +118,11 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
 
   // 2. Evaluate temporal states, capacities, and attendee avatars
   const rawSchedule: ScheduledClass[] = classes.map((c) => {
-    const openTime = calculateOpenTime(c.start_time, bookingOpens, membership.booking_delay_minutes ?? 0);
+    const openTime = calculateOpenTime(
+      c.start_time,
+      bookingOpens,
+      membership.booking_delay_minutes ?? 0
+    );
 
     const userBooking = c.bookings.find((b) => b.profile_id === userId && b.status !== "cancelled");
     const userStatus = (userBooking?.status as BookingStatus) || null;
@@ -151,12 +166,15 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
     }));
 
     const attendees = realAttendees.length > 0 ? realAttendees : mockAttendees;
-    const confirmedBookingsCount = realAttendees.length > 0 ? c.confirmed_bookings_count : mockCount;
+    const confirmedBookingsCount =
+      realAttendees.length > 0 ? c.confirmed_bookings_count : mockCount;
 
     // Filter and sort the waitlist by timestamp (FIFO)
     const waitlistBookings = c.bookings
       .filter((b) => b.status === "waitlist")
-      .sort((a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime());
+      .sort(
+        (a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
+      );
 
     const waitlistTotal = waitlistBookings.length;
     let waitlistPosition: number | null = null;
@@ -171,7 +189,9 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
 
     let duration = classTypeConfig?.defaultDuration ?? 60;
     if (c.end_time && c.start_time) {
-      const diffMinutes = Math.round((new Date(c.end_time).getTime() - new Date(c.start_time).getTime()) / (1000 * 60));
+      const diffMinutes = Math.round(
+        (new Date(c.end_time).getTime() - new Date(c.start_time).getTime()) / (1000 * 60)
+      );
       if (diffMinutes > 0) {
         duration = diffMinutes;
       }
@@ -185,6 +205,7 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
       capacity: c.capacity,
       confirmed_bookings_count: confirmedBookingsCount,
       coach: c.coach,
+      showCoach,
       bookings: c.bookings as BookingWithProfile[],
       attendees,
       openTime,
@@ -200,7 +221,10 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
 
   // 3. Filter classes before athlete joined gym (compare day of joining)
   const schedule = rawSchedule.filter((c) => {
-    if (membership.created_at && isBefore(new Date(c.start_time), startOfDay(new Date(membership.created_at)))) {
+    if (
+      membership.created_at
+      && isBefore(new Date(c.start_time), startOfDay(new Date(membership.created_at)))
+    ) {
       return false;
     }
     return true;

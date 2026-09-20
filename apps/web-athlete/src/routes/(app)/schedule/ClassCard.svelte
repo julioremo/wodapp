@@ -22,6 +22,7 @@ let {
   confirmedBookingsCount,
   coachDisplayName = null,
   coachAvatarUrl = null,
+  showCoach = true,
   attendees = [],
   userStatus = null,
   openTime,
@@ -30,7 +31,7 @@ let {
   bookingOpensType = "immediately",
   cancellationWindowHours = 0,
   waitlistPolicy = "broadcast",
-  color = null,
+  color = null
 }: ClassCardProps = $props();
 
 let cardColor = $derived(color || "#4E79A7");
@@ -52,9 +53,7 @@ let isLateWindow = $derived(globalClock.now > cutoffTime);
 let isPast = $derived(classTime < globalClock.now);
 let isOpen = $derived(globalClock.now >= openTimeDate);
 let isFull = $derived(capacity !== null && confirmedBookingsCount >= capacity);
-let spotsLeft = $derived(
-  capacity !== null ? capacity - confirmedBookingsCount : null,
-);
+let spotsLeft = $derived(capacity !== null ? capacity - confirmedBookingsCount : null);
 let isBooked = $derived(userStatus === "confirmed");
 
 let uiState = $derived.by(() => {
@@ -91,12 +90,8 @@ let buttonText = $derived.by(() => {
   }
 });
 
-let formAction = $derived(
-  uiState === "booked" || uiState === "waitlisted" ? "?/cancel" : "?/book",
-);
-let isDisabled = $derived(
-  isSubmitting || uiState === "past" || uiState === "outside_window",
-);
+let formAction = $derived(uiState === "booked" || uiState === "waitlisted" ? "?/cancel" : "?/book");
+let isDisabled = $derived(isSubmitting || uiState === "past" || uiState === "outside_window");
 
 function handleAction(e: SubmitEvent) {
   if (bypassWarning || !isLateWindow) return;
@@ -147,8 +142,7 @@ function confirmDesktopAction() {
       <div class="bg-[var(--card-color)] h-full w-1"></div>
     </div>
 
-    <div
-      class="class-time col-start-1 row-start-1 self-baseline justify-self-start space-y-2">
+    <div class="class-time col-start-1 row-start-1 self-baseline justify-self-start space-y-2">
       <span class="text-md font-regular font-sans leading-none block">
         {format(classTime, "HH:mm")}
       </span>
@@ -161,14 +155,16 @@ function confirmDesktopAction() {
         {classType || "Workout"}
       </h3>
 
-      <div class="coach gap-1.5 text-xs text-muted-foreground">
-        <!-- <Avatar.Root class="h-4 w-4">
-              <Avatar.Image src={coachAvatarUrl ?? undefined} alt="Coach" />
-              <Avatar.Fallback class="text-[8px]">C</Avatar.Fallback>
-            </Avatar.Root> -->
-        <!-- <div class="bg-[var(--card-color)] h-2 w-2 rounded-full"></div> -->
-        <span>{coachDisplayName || "Coach"}</span>
-      </div>
+      {#if showCoach}
+        <div class="coach gap-1.5 text-xs text-muted-foreground">
+          <!-- <Avatar.Root class="h-4 w-4">
+                <Avatar.Image src={coachAvatarUrl ?? undefined} alt="Coach" />
+                <Avatar.Fallback class="text-[8px]">C</Avatar.Fallback>
+              </Avatar.Root> -->
+          <!-- <div class="bg-[var(--card-color)] h-2 w-2 rounded-full"></div> -->
+          <span>{coachDisplayName || "Coach"}</span>
+        </div>
+      {/if}
     </div>
 
     <div
@@ -189,10 +185,7 @@ function confirmDesktopAction() {
           };
         }}>
         <input type="hidden" name="classId" value={id} />
-        <input
-          type="hidden"
-          name="actionType"
-          value={isBooked ? "cancel" : "book"} />
+        <input type="hidden" name="actionType" value={isBooked ? "cancel" : "book"} />
 
         <Button
           type="submit"
@@ -218,14 +211,8 @@ function confirmDesktopAction() {
       min
     </div> -->
 
-    <div
-      id="attendance"
-      class="col-start-2 col-span-2 row-start-2 self-baseline transition-all">
-      <ParticipantsList
-        {attendees}
-        {confirmedBookingsCount}
-        {capacity}
-        {spotsLeft} />
+    <div id="attendance" class="col-start-2 col-span-2 row-start-2 self-baseline transition-all">
+      <ParticipantsList {attendees} {confirmedBookingsCount} {capacity} {spotsLeft} />
     </div>
 
     {#if uiState === "bookable" && spotsLeft !== null && spotsLeft <= 3 && spotsLeft > 0}
@@ -254,26 +241,14 @@ function confirmDesktopAction() {
 }
 
 :global(.class-card:hover) {
-  background-color: color-mix(
-    in srgb,
-    var(--card-color) 10%,
-    transparent
-  ) !important;
+  background-color: color-mix(in srgb, var(--card-color) 10%, transparent) !important;
 }
 
 :global(.class-card[data-booked="true"]) {
-  background-color: color-mix(
-    in srgb,
-    var(--card-color) 12%,
-    transparent
-  ) !important;
+  background-color: color-mix(in srgb, var(--card-color) 12%, transparent) !important;
 }
 
 :global(.class-card[data-booked="true"]:hover) {
-  background-color: color-mix(
-    in srgb,
-    var(--card-color) 16%,
-    transparent
-  ) !important;
+  background-color: color-mix(in srgb, var(--card-color) 16%, transparent) !important;
 }
 </style>

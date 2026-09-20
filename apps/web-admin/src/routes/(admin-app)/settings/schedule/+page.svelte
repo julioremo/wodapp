@@ -120,6 +120,16 @@ function toggleHiddenDay(dayValue: number) {
             {/each}
           </div>
         </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <div class="space-y-0.5">
+            <Label for="show-coach-switch" class="text-sm font-medium leading-none cursor-pointer">Show Coach</Label>
+            <p class="text-sm text-muted-foreground">
+              Display the coach name on class cards in the schedule.
+            </p>
+          </div>
+          <Switch id="show-coach-switch" bind:checked={$form.schedulePrefs.showCoach} />
+        </div>
       </div>
     </Card.Content>
     <Card.Footer class="bg-muted/10 border-t px-6 py-4 flex justify-end">

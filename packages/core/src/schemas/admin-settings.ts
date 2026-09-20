@@ -24,7 +24,8 @@ export const schedulePreferencesSchema = z.object({
       hiddenDays: z.array(z.number()),
       startHour: z.number().int().min(0).max(23).default(6),
       endHour: z.number().int().min(1).max(24).default(22),
-      show_schedule_outside_window: z.boolean().default(true)
+      show_schedule_outside_window: z.boolean().default(true),
+      showCoach: z.boolean().default(true)
     })
     .refine((data) => data.endHour > data.startHour, {
       message: "End hour must be later than start hour",
@@ -135,7 +136,8 @@ export const defaultSettings: GymSettings = {
     hiddenDays: [0],
     startHour: 6,
     endHour: 22,
-    show_schedule_outside_window: true
+    show_schedule_outside_window: true,
+    showCoach: true
   },
   classTypes: [
     {

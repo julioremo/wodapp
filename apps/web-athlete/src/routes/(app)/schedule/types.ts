@@ -1,4 +1,11 @@
-import type { Booking, BookingStatus, ClassSession, Database, Membership, Profile } from "@wodapp/types";
+import type {
+  Booking,
+  BookingStatus,
+  ClassSession,
+  Database,
+  Membership,
+  Profile
+} from "@wodapp/types";
 
 export type { Booking, BookingStatus, ClassSession, Database, Membership, Profile };
 
@@ -20,6 +27,7 @@ export type ScheduledClass = Pick<
 > & {
   duration?: number;
   coach: CoachProfile | null;
+  showCoach?: boolean;
   bookings: BookingWithProfile[];
   attendees: ClassAttendee[];
   openTime: Date | string;
@@ -54,6 +62,7 @@ export interface ClassCardProps {
   confirmedBookingsCount: number;
   coachDisplayName?: string | null;
   coachAvatarUrl?: string | null;
+  showCoach?: boolean;
   attendees?: ClassAttendee[];
   userStatus: BookingStatus | null;
   openTime: string | Date;

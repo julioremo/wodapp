@@ -30,11 +30,12 @@ const [send, receive] = crossfade({
 });
 </script>
 
-<div class="flex items-center justify-between px-2">
+<div class="flex items-end justify-between px-2">
   <Button
     type="button"
     variant="ghost"
-    size="icon"
+    size="icon-sm"
+    class="size-7 rounded-full"
     onclick={() => onChangeWeek(-1)}
     aria-label="Previous week">
     <ChevronLeft class="w-5 h-5" />
@@ -51,7 +52,7 @@ const [send, receive] = crossfade({
         type="button"
         disabled={isHidden}
         variant="ghost"
-        class="group flex flex-col items-center gap-2 h-auto grow p-0 hover:bg-transparent {isHidden
+        class="group hover:bg-transparent dark:hover:bg-transparent flex flex-col items-center gap-2 h-auto grow p-0 {isHidden
           ? 'opacity-30 pointer-events-none cursor-not-allowed'
           : ''}"
         onclick={() => !isHidden && onSelectDate(day)}>
@@ -59,13 +60,7 @@ const [send, receive] = crossfade({
           class="text-[9px] uppercase {isToday
             ? 'text-tomato-500 font-bold'
             : ''}">{format(day, "EEE")}</span>
-        <!-- <span
-          class="flex items-center justify-center w-7 h-7 rounded-full text-sm font-semibold transition-all duration-300 ease-out {isSelected
-            ? 'bg-primary text-primary-foreground scale-110 shadow-sm'
-            : 'scale-100 group-hover:bg-muted'}">
-          {format(day, "d")}
-        </span> -->
-        <div class="relative flex items-center justify-center w-7 h-7">
+        <div class="relative flex items-center justify-center size-7">
           {#if isSelected}
             <!-- sliding background -->
             <div
@@ -95,9 +90,10 @@ const [send, receive] = crossfade({
   <Button
     type="button"
     variant="ghost"
-    size="icon"
+    size="icon-sm"
+    class="rounded-full dark:hover:bg-muted"
     onclick={() => onChangeWeek(1)}
     aria-label="Next week">
-    <ChevronRight class="w-5 h-5" />
+    <ChevronRight class="w-5 h-5 text-[9px]" />
   </Button>
 </div>

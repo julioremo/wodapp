@@ -161,7 +161,7 @@ function confirmDesktopAction() {
         {classType || "Workout"}
       </h3>
 
-      <div class="coach gap-1.5 text-xs">
+      <div class="coach gap-1.5 text-xs text-muted-foreground">
         <!-- <Avatar.Root class="h-4 w-4">
               <Avatar.Image src={coachAvatarUrl ?? undefined} alt="Coach" />
               <Avatar.Fallback class="text-[8px]">C</Avatar.Fallback>

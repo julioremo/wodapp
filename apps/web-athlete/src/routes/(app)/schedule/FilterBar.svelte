@@ -297,8 +297,8 @@ function getTriggerText(label: string, selected: string[]) {
 {/snippet}
 
 <div
-  class="w-full flex overflow-x-auto flex-nowrap gap-1 px-2 py-1 scrollbar-none items-center">
-  <div class="py-1"><SlidersVertical class="size-3.5" /></div>
+  class="w-full flex overflow-x-auto flex-nowrap gap-1 pr-3 py-1 scrollbar-none items-baseline">
+  <!-- <span class="py-1 px-3 text-nowrap text-sm">Reset filters</span> -->
 
   {@render FilterBlock({
     contentTitle: "Time Window",

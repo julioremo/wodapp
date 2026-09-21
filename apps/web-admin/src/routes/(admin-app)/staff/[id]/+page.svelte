@@ -6,7 +6,7 @@ import {
   CircleAlert,
   Mail,
   Phone,
-  Save
+  Save,
 } from "@lucide/svelte";
 import * as Avatar from "@ui/avatar";
 import { Badge } from "@ui/badge";
@@ -15,10 +15,10 @@ import Calendar from "@ui/calendar/calendar.svelte";
 import CalendarDay from "@ui/calendar/calendar-day.svelte";
 import { Label } from "@ui/label";
 import * as Select from "@ui/select";
+import { PALETTE } from "@wodapp/core";
 import { MediaQuery } from "svelte/reactivity";
 import { toast } from "svelte-sonner";
 import { enhance } from "$app/forms";
-import { PALETTE } from "$lib/config/colors";
 
 let { data } = $props();
 const m = data.membership;
@@ -36,7 +36,9 @@ const fullName = `${p.first_name || ""} ${p.last_name || ""}`.trim();
 let role = $state(m.role);
 let status = $state(m.status);
 // Derived state to check if the form is dirty
-let hasChanges = $derived(role !== data.membership.role || status !== data.membership.status);
+let hasChanges = $derived(
+  role !== data.membership.role || status !== data.membership.status,
+);
 // Sync state if the server data updates after a successful form submission
 $effect(() => {
   role = data.membership.role;
@@ -80,13 +82,17 @@ const joinedDate = new Date(m.created_at);
 const joinedStr = joinedDate.toLocaleDateString("en-US", {
   month: "short",
   day: "numeric",
-  year: "numeric"
+  year: "numeric",
 });
 </script>
 
 <div class="mx-auto p-6 space-y-6">
   <div>
-    <Button variant="ghost" size="sm" href="/members" class="text-muted-foreground -ml-3">
+    <Button
+      variant="ghost"
+      size="sm"
+      href="/members"
+      class="text-muted-foreground -ml-3">
       <ArrowLeft class="h-4 w-4 mr-2" />
       Directory
     </Button>
@@ -97,15 +103,23 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
     <div class="p-6 border-b flex flex-row justify-between">
       <div class="flex flex-row gap-6">
         <Avatar.Root class="h-28 w-28 border shrink-0">
-          <Avatar.Image src={p.avatar_url || ''} alt={p.display_name} />
-          <Avatar.Fallback class="text-lg font-mono">{initials}</Avatar.Fallback>
+          <Avatar.Image src={p.avatar_url || ""} alt={p.display_name} />
+          <Avatar.Fallback class="text-lg font-mono"
+            >{initials}</Avatar.Fallback>
         </Avatar.Root>
 
-        <div class="flex flex-col items-start gap-1.5 text-sm text-muted-foreground">
+        <div
+          class="flex flex-col items-start gap-1.5 text-sm text-muted-foreground">
           <div class="flex items-center gap-4">
-            <h1 class="text-2xl font-bold tracking-tight text-primary">{p.display_name}</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-primary">
+              {p.display_name}
+            </h1>
             <Badge
-              variant={m.status === 'active' ? 'default' : m.status === 'pending' ? 'secondary' : 'destructive'}>
+              variant={m.status === "active"
+                ? "default"
+                : m.status === "pending"
+                  ? "secondary"
+                  : "destructive"}>
               {m.status}
             </Badge>
           </div>
@@ -114,10 +128,12 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
             <span class="text-muted-foreground text-sm">{fullName}</span>
           {/if}
           <span class="flex items-center gap-2">
-            <Mail class="h-3.5 w-3.5" /> {p.email || 'No email provided'}
+            <Mail class="h-3.5 w-3.5" />
+            {p.email || "No email provided"}
           </span>
           <span class="flex items-center gap-2">
-            <Phone class="h-3.5 w-3.5" /> {p.phone || 'No phone provided'}
+            <Phone class="h-3.5 w-3.5" />
+            {p.phone || "No phone provided"}
           </span>
           <span class="flex items-center gap-2">
             <CalendarIcon class="h-3.5 w-3.5" />
@@ -135,11 +151,17 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
         </span>
         {#if p.emergency_contact_name || p.emergency_contact_phone}
           <div class="text-sm space-y-1">
-            <p class="font-medium">{p.emergency_contact_name || 'Name not provided'}</p>
-            <p class="text-muted-foreground">{p.emergency_contact_phone || 'Phone not provided'}</p>
+            <p class="font-medium">
+              {p.emergency_contact_name || "Name not provided"}
+            </p>
+            <p class="text-muted-foreground">
+              {p.emergency_contact_phone || "Phone not provided"}
+            </p>
           </div>
         {:else}
-          <p class="text-sm text-muted-foreground italic">No emergency information on file.</p>
+          <p class="text-sm text-muted-foreground italic">
+            No emergency information on file.
+          </p>
         {/if}
       </div>
     </div>
@@ -150,17 +172,18 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
         method="POST"
         action="?/updateAdministration"
         use:enhance={() => {
-                return async ({ result, update }) => {
-                  if (result.type === 'success') toast.success(result.data?.message || "Updated successfully");
-                  else toast.error("Failed to update membership");
-                  await update({ reset: false });
-                };
-              }}
+          return async ({ result, update }) => {
+            if (result.type === "success")
+              toast.success(result.data?.message || "Updated successfully");
+            else toast.error("Failed to update membership");
+            await update({ reset: false });
+          };
+        }}
         class="flex flex-col gap-3">
         <div class="space-y-1">
           <Label class="text-xs text-muted-foreground">Role</Label>
           <Select.Root type="single" name="role" bind:value={role}>
-            <Select.Trigger class="h-9 bg-background"> {role} </Select.Trigger>
+            <Select.Trigger class="h-9 bg-background">{role}</Select.Trigger>
             <Select.Content>
               <Select.Item value="athlete">Athlete</Select.Item>
               <Select.Item value="coach">Coach</Select.Item>
@@ -172,7 +195,7 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
         <div class="space-y-1">
           <Label class="text-xs text-muted-foreground">Status</Label>
           <Select.Root type="single" name="status" bind:value={status}>
-            <Select.Trigger class="h-9 bg-background"> {status} </Select.Trigger>
+            <Select.Trigger class="h-9 bg-background">{status}</Select.Trigger>
             <Select.Content>
               <Select.Item value="active">Active</Select.Item>
               <Select.Item value="pending">Pending</Select.Item>
@@ -181,7 +204,11 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
           </Select.Root>
         </div>
 
-        <Button type="submit" size="sm" class="h-9 mt-1 w-fit" disabled={!hasChanges}>
+        <Button
+          type="submit"
+          size="sm"
+          class="h-9 mt-1 w-fit"
+          disabled={!hasChanges}>
           <Save class="w-4 h-4 mr-2" />
           Save Changes
         </Button>
@@ -207,18 +234,27 @@ const joinedStr = joinedDate.toLocaleDateString("en-US", {
           maxValue={currentDate}
           class="rounded-lg border shadow-sm w-fit">
           {#snippet day({ day, outsideMonth })}
-            {@const dayAttendances = attendances.filter(a => a.year === day.year && a.month === day.month && a.day === day.day)}
+            {@const dayAttendances = attendances.filter(
+              (a) =>
+                a.year === day.year &&
+                a.month === day.month &&
+                a.day === day.day,
+            )}
 
             <CalendarDay
               class="flex flex-col items-center justify-start py-1 relative h-full w-full data-[outside-month=true]:opacity-30">
               <span class="text-xs">{day.day}</span>
               {#if !outsideMonth && dayAttendances.length > 0}
-                <div class="flex gap-0.5 mt-auto pb-1 flex-wrap justify-center w-full px-1">
+                <div
+                  class="flex gap-0.5 mt-auto pb-1 flex-wrap justify-center w-full px-1">
                   {#each dayAttendances as attendance}
                     <div
                       class="h-1.5 w-1.5 rounded-full"
-                      style="background-color: {getColorForString(attendance.type)};"
-                      title={attendance.type}></div>
+                      style="background-color: {getColorForString(
+                        attendance.type,
+                      )};"
+                      title={attendance.type}>
+                    </div>
                   {/each}
                 </div>
               {/if}

@@ -1,6 +1,7 @@
 export { fetchUserContext, setupSupabase } from "./auth.ts";
 export * from "./booking.ts";
 export * from "./charts.svelte.ts";
+export * from "./colors.ts";
 export { enforcePenalty } from "./penalties.ts";
 export * from "./schemas/admin-settings.ts";
 export * from "./schemas/benchmark.ts";

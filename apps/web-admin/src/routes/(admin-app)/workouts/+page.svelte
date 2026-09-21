@@ -5,8 +5,8 @@ import { Button } from "@ui/button";
 import * as Card from "@ui/card";
 import { Input } from "@ui/input";
 import * as Sheet from "@ui/sheet";
+import { PALETTE } from "@wodapp/core";
 import WorkoutEditor from "$lib/components/workouts/WorkoutEditor.svelte";
-import { PALETTE } from "$lib/config/colors";
 
 let { data } = $props();
 
@@ -26,7 +26,7 @@ function handleCreateNew() {
     description: "",
     duration: 15,
     workout_type: "WOD",
-    class_type: data.activeClassTypes?.[0] || ""
+    class_type: data.activeClassTypes?.[0] || "",
   };
   sheetOpen = true;
 }
@@ -48,7 +48,7 @@ let filteredWorkouts = $derived(
   data.workouts.filter((w) => {
     const searchTarget = `${w.slug || ""} ${w.description || ""}`.toLowerCase();
     return searchTarget.includes(searchQuery.toLowerCase());
-  })
+  }),
 );
 </script>
 
@@ -57,7 +57,8 @@ let filteredWorkouts = $derived(
     <div>
       <h1 class="text-3xl font-bold tracking-tight">Workout Library</h1>
       <p class="text-muted-foreground mt-2">
-        Manage your repository of workouts, strength cycles, and structured data.
+        Manage your repository of workouts, strength cycles, and structured
+        data.
       </p>
     </div>
     <Button onclick={handleCreateNew}>Create Workout</Button>
@@ -66,7 +67,8 @@ let filteredWorkouts = $derived(
   <div class="flex items-center gap-2 justify-between">
     <div class="flex items-center gap-2 flex-1 max-w-md">
       <div class="relative flex-1">
-        <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Search
+          class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search by slug or description..."
@@ -82,14 +84,14 @@ let filteredWorkouts = $derived(
         variant={viewMode === "grid" ? "secondary" : "ghost"}
         size="sm"
         class="h-7 px-2"
-        onclick={() => viewMode = "grid"}>
+        onclick={() => (viewMode = "grid")}>
         <LayoutGrid class="h-4 w-4" />
       </Button>
       <Button
         variant={viewMode === "list" ? "secondary" : "ghost"}
         size="sm"
         class="h-7 px-2"
-        onclick={() => viewMode = "list"}>
+        onclick={() => (viewMode = "list")}>
         <List class="h-4 w-4" />
       </Button>
     </div>
@@ -98,7 +100,9 @@ let filteredWorkouts = $derived(
   {#if filteredWorkouts.length === 0}
     <div
       class="flex flex-col items-center justify-center p-12 border border-dashed rounded-lg bg-muted/20">
-      <p class="text-muted-foreground">No workouts found matching your search.</p>
+      <p class="text-muted-foreground">
+        No workouts found matching your search.
+      </p>
     </div>
   {:else if viewMode === "grid"}
     <div class="flex flex-wrap gap-6 items-start">
@@ -112,7 +116,9 @@ let filteredWorkouts = $derived(
                 <Badge
                   variant="secondary"
                   class="rounded-none border border-foreground/10 uppercase text-[10px]"
-                  style="background-color: {getColorForString(workout.class_type)}20; color: {getColorForString(workout.class_type)};">
+                  style="background-color: {getColorForString(
+                    workout.class_type,
+                  )}20; color: {getColorForString(workout.class_type)};">
                   {workout.class_type}
                 </Badge>
               {/if}
@@ -154,7 +160,8 @@ let filteredWorkouts = $derived(
           role="button"
           tabindex="0"
           onclick={() => openEditor(workout)}>
-          <div class="text-sm font-bold lowercase text-foreground w-50 shrink-0 truncate">
+          <div
+            class="text-sm font-bold lowercase text-foreground w-50 shrink-0 truncate">
             {workout.slug || "untitled-slug"}
           </div>
 
@@ -168,7 +175,9 @@ let filteredWorkouts = $derived(
               <Badge
                 variant="secondary"
                 class="uppercase text-[10px]"
-                style="background-color: {getColorForString(workout.class_type)}20; color: {getColorForString(workout.class_type)};">
+                style="background-color: {getColorForString(
+                  workout.class_type,
+                )}20; color: {getColorForString(workout.class_type)};">
                 {workout.class_type}
               </Badge>
             {/if}
@@ -194,14 +203,16 @@ let filteredWorkouts = $derived(
 </div>
 
 <Sheet.Root bind:open={sheetOpen}>
-  <Sheet.Content side="right" class="w-full sm:max-w-xl p-0 border-none shadow-2xl">
+  <Sheet.Content
+    side="right"
+    class="w-full sm:max-w-xl p-0 border-none shadow-2xl">
     {#if selectedWorkout}
       <WorkoutEditor
         workout={selectedWorkout}
         activeClassTypes={data.activeClassTypes}
         formData={data.form}
         onSaved={() => {
-          // Optional: You could invalidateAll() here to refresh the grid, 
+          // Optional: You could invalidateAll() here to refresh the grid,
           // but the SvelteKit form action will actually do it automatically!
         }}
         onDeleted={() => {

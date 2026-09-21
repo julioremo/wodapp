@@ -1,5 +1,10 @@
 <script lang="ts">
-import { TriangleAlert as AlertTriangle, Info, Plus, Trash2 } from "@lucide/svelte";
+import {
+  TriangleAlert as AlertTriangle,
+  Info,
+  Plus,
+  Trash2,
+} from "@lucide/svelte";
 import * as AlertDialog from "@ui/alert-dialog";
 import { Button } from "@ui/button";
 import * as Card from "@ui/card";
@@ -9,13 +14,11 @@ import * as InputGroup from "@ui/input-group/index.js";
 import { Label } from "@ui/label";
 import * as Select from "@ui/select/index.js";
 import SwatchPicker from "@ui/swatch-picker/SwatchPicker.svelte";
-import { Switch } from "@ui/switch";
 import * as Tooltip from "@ui/tooltip";
-import { classTypesFormSchema } from "@wodapp/core";
+import { classTypesFormSchema, PALETTE } from "@wodapp/core";
 import { toast } from "svelte-sonner";
 import { superForm } from "sveltekit-superforms";
 import { zod4Client as zodClient } from "sveltekit-superforms/adapters";
-import { PALETTE } from "$lib/config/colors";
 
 let { data } = $props();
 
@@ -27,7 +30,7 @@ const { form, errors, enhance, tainted, submitting } = superForm(data.form, {
   onUpdated({ form }) {
     if (form.valid) toast.success("Class types updated");
     else toast.error("Failed to save class types");
-  }
+  },
 });
 
 let archiveModalOpen = $state(false);
@@ -41,7 +44,7 @@ function addClassType() {
     isActive: true,
     defaultCoachId: null,
     defaultDuration: 60,
-    defaultCapacity: 15
+    defaultCapacity: 15,
   });
 }
 
@@ -92,7 +95,8 @@ function confirmArchive() {
               </Tooltip.Trigger>
               <Tooltip.Content side="top" align="center">
                 <p class="max-w-[200px] text-xs">
-                  Check this if you want to be able to write programs for this class type.
+                  Check this if you want to be able to write programs for this
+                  class type.
                 </p>
               </Tooltip.Content>
             </Tooltip.Root>
@@ -106,7 +110,8 @@ function confirmArchive() {
           {#if ct.isActive}
             <div
               class="flex flex-col gap-4 md:grid md:grid-cols-[auto_1fr_6rem_5rem_10rem_7rem_auto] md:gap-3 p-4 md:p-3 border rounded-md transition-colors items-center"
-              style="background-color: {$form.classTypes[i].color}1A; border-color: {$form.classTypes[i].color}40;">
+              style="background-color: {$form.classTypes[i]
+                .color}1A; border-color: {$form.classTypes[i].color}40;">
               <div class="flex items-center gap-3 md:contents">
                 <div class="w-8 flex justify-center shrink-0">
                   <SwatchPicker
@@ -118,7 +123,10 @@ function confirmArchive() {
                 <Input
                   type="text"
                   bind:value={$form.classTypes[i].name}
-                  class="flex-1 md:w-full bg-background h-8 text-sm font-semibold {$errors.classTypes?.[i]?.name ? 'border-destructive' : ''}"
+                  class="flex-1 md:w-full bg-background h-8 text-sm font-semibold {$errors
+                    .classTypes?.[i]?.name
+                    ? 'border-destructive'
+                    : ''}"
                   placeholder="Class Type Name" />
 
                 <Button
@@ -135,8 +143,7 @@ function confirmArchive() {
                 <div class="space-y-1.5 md:space-y-0 md:contents">
                   <Label
                     class="text-[10px] uppercase tracking-wider text-muted-foreground md:hidden"
-                    >Duration</Label
-                  >
+                    >Duration</Label>
                   <InputGroup.Root class="h-8 bg-background">
                     <InputGroup.Input
                       type="number"
@@ -152,8 +159,7 @@ function confirmArchive() {
                 <div class="space-y-1.5 md:space-y-0 md:contents">
                   <Label
                     class="text-[10px] uppercase tracking-wider text-muted-foreground md:hidden"
-                    >Capacity</Label
-                  >
+                    >Capacity</Label>
                   <Input
                     type="number"
                     bind:value={$form.classTypes[i].defaultCapacity}
@@ -161,19 +167,23 @@ function confirmArchive() {
                 </div>
               </div>
 
-              <div class="grid grid-cols-[1fr_auto] gap-4 items-end md:contents">
+              <div
+                class="grid grid-cols-[1fr_auto] gap-4 items-end md:contents">
                 <div class="space-y-1.5 md:space-y-0 md:contents">
                   <Label
                     class="text-[10px] uppercase tracking-wider text-muted-foreground md:hidden"
-                    >Default Coach</Label
-                  >
+                    >Default Coach</Label>
                   <Select.Root
                     type="single"
                     name="defaultCoach"
                     value={$form.classTypes[i].defaultCoachId ?? "none"}
-                    onValueChange={(val) => $form.classTypes[i].defaultCoachId = val === "none" ? null : val}>
+                    onValueChange={(val) =>
+                      ($form.classTypes[i].defaultCoachId =
+                        val === "none" ? null : val)}>
                     <Select.Trigger class="h-8 w-full text-sm bg-background">
-                      {data.coaches.find(c => c.id === $form.classTypes[i].defaultCoachId)?.display_name || "No default coach"}
+                      {data.coaches.find(
+                        (c) => c.id === $form.classTypes[i].defaultCoachId,
+                      )?.display_name || "No default coach"}
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Group>
@@ -191,8 +201,7 @@ function confirmArchive() {
                 <div class="flex items-center gap-3 md:contents">
                   <Label
                     class="text-[10px] uppercase tracking-wider text-muted-foreground md:hidden"
-                    >Programmable</Label
-                  >
+                    >Programmable</Label>
                   <div class="flex h-8 items-center md:justify-center w-full">
                     <Checkbox
                       bind:checked={$form.classTypes[i].isProgrammable}
@@ -220,7 +229,8 @@ function confirmArchive() {
     </Card.Content>
 
     <Card.Footer class="bg-muted/10 border-t px-6 py-4 flex justify-end">
-      <Button type="submit" size="sm" disabled={!$tainted}>Save Class Types</Button>
+      <Button type="submit" size="sm" disabled={!$tainted}
+        >Save Class Types</Button>
     </Card.Footer>
   </Card.Root>
 </form>
@@ -233,12 +243,14 @@ function confirmArchive() {
         Archive Class Type
       </AlertDialog.Title>
       <AlertDialog.Description>
-        This will remove the class from all scheduling and programming dropdowns. Past classes will
-        remain on the calendar. You can restore this later.
+        This will remove the class from all scheduling and programming
+        dropdowns. Past classes will remain on the calendar. You can restore
+        this later.
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>
-      <AlertDialog.Cancel onclick={() => classToArchiveIndex = null}>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Cancel onclick={() => (classToArchiveIndex = null)}
+        >Cancel</AlertDialog.Cancel>
       <AlertDialog.Action
         class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
         onclick={confirmArchive}>

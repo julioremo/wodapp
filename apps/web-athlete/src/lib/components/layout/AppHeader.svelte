@@ -34,19 +34,16 @@ let displayTitle = $derived(
 
 <div
   class={cn(
-    "bg-background/80 backdrop-blur-md py-10 pl-6.5 pr-3 flex items-baseline justify-between content-center relative",
+    "bg-background py-10 pl-6.5 pr-3 flex flex-row items-baseline justify-between",
     className,
   )}>
-  <div class="absolute left-3 -mt-0.5">
+  <div class="flex flex-row gap-3 items-baseline">
     {#if left}
       {@render left()}
     {/if}
-  </div>
-
-  <div class="grid grid-cols-1 grid-rows-1 overflow-hidden">
     {#key displayTitle}
       <h1
-        class="col-start-1 row-start-1 text-lg font-medium whitespace-nowrap"
+        class="text-lg font-medium whitespace-nowrap"
         in:fly={{ y: "100%", duration: mounted ? 500 : 0, easing: expoIn }}
         out:fly={{ y: "-100%", duration: mounted ? 350 : 0, easing: expoIn }}>
         {displayTitle}

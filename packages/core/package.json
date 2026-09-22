@@ -12,7 +12,8 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts",
       "svelte": "./src/index.ts"
-    }
+    },
+    "./color-theme.css": "./src/color-theme.css"
   },
   "dependencies": {
     "@supabase/ssr": "catalog:",

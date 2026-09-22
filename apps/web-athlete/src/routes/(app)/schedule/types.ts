@@ -1,13 +1,6 @@
-import type {
-  Booking,
-  BookingStatus,
-  ClassSession,
-  Database,
-  Membership,
-  Profile
-} from "@wodapp/types";
+import type { Booking, BookingStatus, Database, Lesson, Membership, Profile } from "@wodapp/types";
 
-export type { Booking, BookingStatus, ClassSession, Database, Membership, Profile };
+export type { Booking, BookingStatus, Database, Lesson, Membership, Profile };
 
 export type CoachProfile = Pick<Profile, "display_name" | "avatar_url">;
 
@@ -15,21 +8,21 @@ export type BookingWithProfile = Pick<Booking, "id" | "status" | "profile_id" | 
   profile: Pick<Profile, "avatar_url" | "display_name"> | null;
 };
 
-export interface ClassAttendee {
+export interface LessonAttendee {
   id: string;
   avatarUrl: string | null;
   name?: string | null;
 }
 
-export type ScheduledClass = Pick<
-  ClassSession,
+export type ScheduledLesson = Pick<
+  Lesson,
   "id" | "class_type" | "start_time" | "capacity" | "confirmed_bookings_count"
 > & {
   duration?: number;
   coach: CoachProfile | null;
   showCoach?: boolean;
   bookings: BookingWithProfile[];
-  attendees: ClassAttendee[];
+  attendees: LessonAttendee[];
   openTime: Date | string;
   userStatus: BookingStatus | null;
   waitlistTotal: number;
@@ -41,7 +34,7 @@ export type ScheduledClass = Pick<
 };
 
 export interface ScheduleFilterOptions {
-  allClassTypes: string[];
+  allLessonTypes: string[];
   bounds: { min: number; max: number };
   showCoachFilter: boolean;
   allCoaches: string[];
@@ -52,10 +45,11 @@ export interface ActiveScheduleFilters {
   selectedCoaches: string[];
   timeRange: [number, number];
 }
+export type LessonHue = "red" | "blue" | "purple" | "camel" | "yellow" | "green" | "paper";
 
-export interface ClassCardProps {
+export interface LessonCardProps {
   id: string;
-  classType: string;
+  lessonType: string;
   startTime: string;
   duration?: number | null;
   capacity: number | null;
@@ -63,7 +57,7 @@ export interface ClassCardProps {
   coachDisplayName?: string | null;
   coachAvatarUrl?: string | null;
   showCoach?: boolean;
-  attendees?: ClassAttendee[];
+  attendees?: LessonAttendee[];
   userStatus: BookingStatus | null;
   openTime: string | Date;
   waitlistTotal: number;
@@ -71,15 +65,15 @@ export interface ClassCardProps {
   bookingOpensType: "rolling_days" | "fixed_day" | "immediately";
   cancellationWindowHours: number;
   waitlistPolicy: "broadcast" | "auto_enroll";
-  color?: string | null;
+  lessonHue?: LessonHue;
 }
 
-export interface BookClassResult {
+export interface BookLessonResult {
   success: boolean;
   status: BookingStatus;
 }
 
-export interface CancelClassResult {
+export interface CancelLessonResult {
   success: boolean;
   message?: string;
 }

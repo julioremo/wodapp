@@ -20,6 +20,11 @@ export const buttonVariants = tv({
       destructive:
         "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
       link: "text-primary underline-offset-4 hover:underline",
+      tint:
+        "bg-transparent dark:bg-transparent hover:bg-card group-hover:bg-[var(--card-tint)] dark:group-hover:bg-secondary dark:hover:bg-primary" +
+        "border-red-300 dark:border-red-800" +
+        "text-red-500 hover:text-red-500 group-hover:text-red-500 dark:text-red-400 dark:hover:text-red-400 group-hover:dark:text-red-400",
+      subtle: "border-border bg-transparent shadow-none text-muted-foreground",
     },
     size: {
       default:

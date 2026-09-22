@@ -4,6 +4,7 @@
 
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@wodapp/core/color-theme.css";
 @source "../../../packages/ui/src";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -53,31 +54,6 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
-  --color-tomato-50: oklch(0.966 0.02 58.09);
-  --color-tomato-100: oklch(0.925 0.044 52.65);
-  --color-tomato-200: oklch(0.86 0.083 47.74);
-  --color-tomato-300: oklch(0.787 0.131 44.58);
-  --color-tomato-400: oklch(0.717 0.184 41.88);
-  --color-tomato-500: oklch(0.647 0.204 35.64);
-  --color-tomato-600: oklch(0.541 0.156 44.32);
-  --color-tomato-700: oklch(0.441 0.112 52.6);
-  --color-tomato-800: oklch(0.342 0.081 59.23);
-  --color-tomato-900: oklch(0.234 0.052 66.25);
-  --color-tomato-950: oklch(0.188 0.04 72.97);
-  --color-signal: var(--color-tomato-500);
-
-  --color-azure-50: #f3f3f3;
-  --color-azure-100: #ebebeb;
-  --color-azure-200: oklch(0.869 0.025 206.12);
-  --color-azure-300: oklch(0.805 0.055 214.1);
-  --color-azure-400: oklch(0.744 0.081 221.08);
-  --color-azure-500: oklch(0.675 0.126 227.44);
-  --color-azure-600: oklch(0.573 0.062 220.56);
-  --color-azure-700: oklch(0.464 0.031 214.09);
-  --color-azure-800: oklch(0.353 0.011 205.73);
-  --color-azure-900: #222222;
-  --color-azure-950: #131313;
-
   --color-grey-50: oklch(0.965 0.013 101.94);
   --color-grey-100: oklch(0.941 0.003 67.83);
   --color-grey-200: oklch(0.871 0.006 31.28);
@@ -89,30 +65,6 @@
   --color-grey-800: oklch(0.353 0.004 196.81);
   --color-grey-900: oklch(0.249 0.003 164.62);
   --color-grey-950: oklch(0.188 0.005 145.3);
-
-  --color-paper-50: hsl(50 37.5% 96.9%);
-  --color-paper-100: hsl(37.5 26.7% 94.1%);
-  --color-paper-200: oklch(0.888 0.031 100.89);
-  --color-paper-300: oklch(0.817 0.03 115.4);
-  --color-paper-400: oklch(0.738 0.034 130.67);
-  --color-paper-500: oklch(0.668 0.037 142.5);
-  --color-paper-600: oklch(0.593 0.027 154.7);
-  --color-paper-700: oklch(0.524 0.02 164.04);
-  --color-paper-800: oklch(0.455 0.013 182.32);
-  --color-paper-900: oklch(0.379 0.011 187.57);
-  --color-paper-950: oklch(0.342 0.01 207.01);
-
-  --color-ink-50: #dfdfdf;
-  --color-ink-100: oklch(0.861 0.001 287.17);
-  --color-ink-200: oklch(0.777 0.004 286.53);
-  --color-ink-300: oklch(0.691 0.009 278.65);
-  --color-ink-400: oklch(0.604 0.015 272.59);
-  --color-ink-500: oklch(0.517 0.015 266.61);
-  --color-ink-600: oklch(0.431 0.011 264.47);
-  --color-ink-700: oklch(0.344 0.01 260.73);
-  --color-ink-800: oklch(0.254 0.007 248.1);
-  --color-ink-900: oklch(0.199 0.005 248.07);
-  --color-ink-950: oklch(0.149 0.005 264.49);
 
   /* -- Animations (Vital for Shadcn Components) -- */
   --animate-accordion-down: accordion-down 0.2s ease-out;
@@ -153,19 +105,8 @@
 /* -------------------------------------------------------------------------- */
 @layer base {
   :root {
-    /* --background: hsl(0 0% 100%);
-    --foreground: hsl(240 10% 3.9%);
-    --card: hsl(0 0% 100%);
-    --card-foreground: hsl(240 10% 3.9%); */
     --popover: hsl(0 0% 100%);
     --popover-foreground: hsl(240 10% 3.9%);
-    /* --primary: hsl(240 5.9% 10%);
-    --primary-foreground: hsl(0 0% 98%); */
-    /* --muted: hsl(240 4.8% 95.9%);
-    --muted-foreground: hsl(240 3.8% 46.1%); */
-    --accent: hsl(240 4.8% 95.9%);
-    --accent-foreground: hsl(240 5.9% 10%);
-    /* --border: hsl(240 5.9% 90%); */
     --input: white;
     --ring: var(--color-ink-400);
     --radius: hsl(0.5rem);
@@ -178,36 +119,25 @@
 
     --background: var(--color-paper-50);
     --foreground: var(--color-ink-800);
+    --muted: var(--color-ink-50);
+    --muted-foreground: var(--color-ink-500);
     --card: var(--color-paper-100);
     --card-foreground: var(--color-ink-900);
+    --accent: var(--color-paper-200);
+    --accent-foreground: var(--color-ink-900);
     --border: var(--color-ink-300);
-    --muted: var(--color-ink-100);
-    --muted-foreground: var(--color-ink-500);
-    --destructive: var(--color-signal);
-    --destructive-foreground: hsl(0 0% 100%);
-
-    /* --primary: var(--color-ink-900);
-    --primary-foreground: var(--color-paper-100); */
 
     --primary: var(--color-ink-700);
     --primary-foreground: hsl(0 0% 100%);
-
-    --secondary: var(--color-paper-800);
+    --secondary: var(--color-paper-600);
     --secondary-foreground: var(--color-paper-100);
+    --destructive: var(--color-signal);
+    --destructive-foreground: hsl(0 0% 100%);
   }
 
   .dark {
-    /* --background: black;
-    --foreground: var(--color-neutral-100);
-    --card: hsl(215 28% 13%);
-    --card-foreground: hsl(40 33% 98%); */
     --popover: hsl(215 28% 13%);
     --popover-foreground: hsl(40 33% 98%);
-    /* --primary: hsl(40 33% 98%);
-    --primary-foreground: hsl(215 28% 17%);
-    --muted: var(--color-neutral-500);
-    --muted-foreground: var(--color-neutral-400);
-    --border: hsl(215 20% 30%); */
     --input: var(--color-ink-600);
     --ring: var(--color-ink-600);
 
@@ -220,21 +150,21 @@
 
     --background: var(--color-black);
     --foreground: var(--color-paper-100);
-    --card: var(--color-ink-950);
-    --card-foreground: var(--color-paper-100);
-    --border: var(--color-ink-700);
-    --muted: var(--color-ink-800);
+    --muted: var(--color-ink-950);
     --muted-foreground: var(--color-ink-400);
+    --card: var(--color-ink-900);
+    --card-foreground: var(--color-paper-100);
+    --accent: var(--color-ink-800);
+    --accent-foreground: var(--color-paper-100);
+    --border: var(--color-ink-700);
+
     --destructive: var(--color-signal);
     --destructive-foreground: hsl(0 0% 0%);
 
-    --primary: var(--color-ink-100);
-    --primary-foreground: hsl(0 0% 0%);
-
-    --secondary: var(--color-ink-200);
-    --secondary-foreground: var(--color-ink-700);
-    --accent: var(--color-paper-300);
-    --accent-foreground: var(--color-ink-800);
+    --primary: var(--color-paper-100);
+    --primary-foreground: var(--color-ink-950);
+    --secondary: var(--color-paper-300);
+    --secondary-foreground: var(--color-ink-950);
   }
 }
 

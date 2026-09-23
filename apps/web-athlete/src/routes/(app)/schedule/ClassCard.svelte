@@ -26,7 +26,7 @@ import {
   stateToCardClasses,
 } from "./card-theme";
 import LateActionDialog from "./LateActionDialog.svelte";
-import ParticipantsList from "./ParticipantsList.svelte";
+import ParticipantList from "./ParticipantList.svelte";
 import type { LessonCardProps } from "./types";
 
 const DEFAULT_CARD_COLOR = "paper";
@@ -213,7 +213,7 @@ function confirmDesktopAction() {
     <div
       id="attendance"
       class="col-start-2 col-span-2 row-start-2 self-baseline transition-all">
-      <ParticipantsList
+      <ParticipantList
         {attendees}
         {confirmedBookingsCount}
         {capacity}

@@ -4,13 +4,13 @@ import { calculateOpenTime, defaultSettings, type GymSettings } from "@wodapp/co
 import { isBefore, startOfDay, startOfWeek } from "date-fns";
 import type { Actions, PageServerLoad } from "./$types";
 import type {
-  BookClassResult,
+  BookLessonResult,
   BookingStatus,
   BookingWithProfile,
-  CancelClassResult,
-  ClassAttendee,
+  CancelLessonResult,
+  LessonParticipant,
   Database,
-  ScheduledClass,
+  ScheduledLesson,
   ScheduleFilterOptions
 } from "./types";
 
@@ -24,9 +24,9 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
   if (!activeLocation) {
     return {
       activeLocation: null,
-      schedule: [] as ScheduledClass[],
+      schedule: [] as ScheduledLesson[],
       filterOptions: {
-        allClassTypes: [] as string[],
+        allLessonTypes: [] as string[],
         bounds: { min: 360, max: 1320 },
         showCoachFilter: false,
         allCoaches: [] as string[]
@@ -117,7 +117,7 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
   const bookingOpens = settings.policies?.booking_opens ?? defaultSettings.policies.booking_opens;
 
   // 2. Evaluate temporal states, capacities, and attendee avatars
-  const rawSchedule: ScheduledClass[] = classes.map((c) => {
+  const rawSchedule: ScheduledLesson[] = classes.map((c) => {
     const openTime = calculateOpenTime(
       c.start_time,
       bookingOpens,
@@ -128,7 +128,7 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
     const userStatus = (userBooking?.status as BookingStatus) || null;
 
     const confirmedBookings = c.bookings.filter((b) => b.status === "confirmed");
-    const realAttendees: ClassAttendee[] = confirmedBookings.map((b) => ({
+    const realAttendees: LessonParticipant[] = confirmedBookings.map((b) => ({
       id: b.id,
       avatarUrl: b.profile?.avatar_url ?? null,
       name: b.profile?.display_name ?? null
@@ -159,7 +159,7 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
       "Bruno",
       "Ona"
     ];
-    const mockAttendees: ClassAttendee[] = Array.from({ length: mockCount }, (_, i) => ({
+    const mockAttendees: LessonParticipant[] = Array.from({ length: mockCount }, (_, i) => ({
       id: `mock-${c.id}-${i + 1}`,
       avatarUrl: `https://i.pravatar.cc/150?u=athlete-${c.id}-${i + 1}`,
       name: mockNames[i % mockNames.length]
@@ -313,7 +313,7 @@ export const actions: Actions = {
         return fail(500, { message: "Could not secure your spot." });
       }
 
-      const result = data as unknown as BookClassResult;
+      const result = data as unknown as BookLessonResult;
       return {
         success: true,
         status: result.status
@@ -354,7 +354,7 @@ export const actions: Actions = {
         return fail(500, { message: "Failed to cancel booking." });
       }
 
-      const result = data as unknown as CancelClassResult;
+      const result = data as unknown as CancelLessonResult;
       if (!result.success) {
         return fail(400, { message: result.message || "Failed to cancel booking." });
       }

@@ -8,7 +8,7 @@ export type BookingWithProfile = Pick<Booking, "id" | "status" | "profile_id" | 
   profile: Pick<Profile, "avatar_url" | "display_name"> | null;
 };
 
-export interface LessonAttendee {
+export interface LessonParticipant {
   id: string;
   avatarUrl: string | null;
   name?: string | null;
@@ -22,7 +22,7 @@ export type ScheduledLesson = Pick<
   coach: CoachProfile | null;
   showCoach?: boolean;
   bookings: BookingWithProfile[];
-  attendees: LessonAttendee[];
+  attendees: LessonParticipant[];
   openTime: Date | string;
   userStatus: BookingStatus | null;
   waitlistTotal: number;
@@ -57,7 +57,7 @@ export interface LessonCardProps {
   coachDisplayName?: string | null;
   coachAvatarUrl?: string | null;
   showCoach?: boolean;
-  attendees?: LessonAttendee[];
+  attendees?: LessonParticipant[];
   userStatus: BookingStatus | null;
   openTime: string | Date;
   waitlistTotal: number;

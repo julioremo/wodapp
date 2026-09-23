@@ -12,8 +12,8 @@ interface StateTreatmentConfig {
 const STATE_CONFIG: Record<CardStateName, StateTreatmentConfig> = {
   bookable: { treatment: "neutral", buttonVariant: "default" },
   waitlist_available: { treatment: "neutral", buttonVariant: "secondary" },
-  confirmed: { treatment: "tinted", buttonVariant: "tint" },
-  waitlisted: { treatment: "tinted", buttonVariant: "tint" },
+  confirmed: { treatment: "tinted", buttonVariant: "danger" },
+  waitlisted: { treatment: "tinted", buttonVariant: "danger" },
   past: { treatment: "muted", buttonVariant: "subtle" },
   outside_window: { treatment: "muted", buttonVariant: "subtle" },
   past_booked: { treatment: "muted-tinted", buttonVariant: "subtle" }

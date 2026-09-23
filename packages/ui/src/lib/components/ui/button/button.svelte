@@ -10,21 +10,24 @@ export const buttonVariants = tv({
   base: "rounded-full border border-transparent bg-clip-padding text-sm font-medium focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   variants: {
     variant: {
-      default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+      default:
+        "bg-primary text-primary-foreground [a]:hover:bg-primary/80 shadow-sm",
       outline:
         "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
       secondary:
-        "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground shadow-sm",
       ghost:
         "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
       destructive:
         "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
       link: "text-primary underline-offset-4 hover:underline",
-      tint:
-        "bg-transparent dark:bg-transparent hover:bg-card group-hover:bg-[var(--card-tint)] dark:group-hover:bg-secondary dark:hover:bg-primary" +
-        "border-red-300 dark:border-red-800" +
-        "text-red-500 hover:text-red-500 group-hover:text-red-500 dark:text-red-400 dark:hover:text-red-400 group-hover:dark:text-red-400",
-      subtle: "border-border bg-transparent shadow-none text-muted-foreground",
+      danger:
+        "group-hover:shadow-sm hover:shadow-sm " +
+        "group-hover:bg-accent hover:bg-card dark:group-hover:bg-secondary dark:hover:bg-primary  " +
+        "border-red-300 dark:border-red-800  " +
+        "text-red-500 dark:text-red-400",
+      subtle:
+        "border border-border bg-transparent shadow-none text-muted-foreground",
     },
     size: {
       default:

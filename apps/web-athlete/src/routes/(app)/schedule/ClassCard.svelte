@@ -192,7 +192,7 @@ function confirmDesktopAction() {
           type="submit"
           variant={stateToButtonVariant(uiState)}
           class={cn(
-            "h-8 w-20 px-3 transition-all shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 rounded-[5px]",
+            "h-8 w-20 px-3 transition-all cursor-pointer disabled:cursor-not-allowed rounded-[5px]",
           )}
           disabled={isDisabled}>
           {#if isSubmitting}
@@ -204,7 +204,7 @@ function confirmDesktopAction() {
       </form>
     </div>
 
-    <!-- <div
+    <!-- TODO <div
       class="duration col-start-1 row-start-2 self-baseline justify-self-start text-xs text-muted-foreground">
       {duration}
       min

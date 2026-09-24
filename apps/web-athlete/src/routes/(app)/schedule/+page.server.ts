@@ -15,32 +15,38 @@ import type {
 } from "./types";
 
 export const load: PageServerLoad = async ({ locals, url, parent }) => {
-  const { user, activeLocation, memberships } = await parent();
+  const {
+    user,
+    activeLocation,
+    membership,
+    settings,
+    bookingOpens,
+    bounds,
+    allClassTypes,
+    showCoach
+  } = await parent();
 
   if (!user) {
     throw redirect(303, "/login");
   }
 
-  if (!activeLocation) {
+  if (!activeLocation || !membership) {
     return {
       activeLocation: null,
+      location: null,
+      settings: defaultSettings,
       schedule: [] as ScheduledLesson[],
       filterOptions: {
-        allLessonTypes: [] as string[],
+        allClassTypes: [] as string[],
         bounds: { min: 360, max: 1320 },
         showCoachFilter: false,
         allCoaches: [] as string[]
-      } as ScheduleFilterOptions
+      }
     };
   }
 
   const userId = user.id;
   const locationId = activeLocation.id;
-  const membership = memberships?.find((m) => m.location_id === locationId);
-
-  if (!membership) {
-    throw error(403, "No active membership found for this location.");
-  }
 
   // Parse target date from URL or fallback to today
   const dateParam = url.searchParams.get("date");
@@ -52,28 +58,24 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
     ? currentWeekStart
     : thisWeekStart;
 
-  // 1. Fetch settings and classes concurrently
-  const [locationReq, classesReq] = await Promise.all([
-    locals.supabase.from("locations").select("settings").eq("id", locationId).single(),
-    locals.supabase
-      .from("classes")
-      .select(`
-        id, class_type, start_time, end_time, capacity, confirmed_bookings_count,
-        coach:profiles!classes_coach_id_fkey ( display_name, avatar_url ),
-        bookings ( 
-          id, status, profile_id, created_at,
-          profile:profiles!bookings_user_id_fkey ( display_name, avatar_url ) 
-        )
-      `)
-      .eq("location_id", locationId)
-      .gte("start_time", startOfDay(queryStartDate).toISOString())
-      .order("start_time", { ascending: true })
-  ]);
+  // Fetch classes for the active location
+  const { data: classesData, error: classesError } = await locals.supabase
+    .from("classes")
+    .select(`
+      id, class_type, start_time, end_time, capacity, confirmed_bookings_count,
+      coach:profiles!classes_coach_id_fkey ( display_name, avatar_url ),
+      bookings ( 
+        id, status, profile_id, created_at,
+        profile:profiles!bookings_user_id_fkey ( display_name, avatar_url ) 
+      )
+    `)
+    .eq("location_id", locationId)
+    .gte("start_time", startOfDay(queryStartDate).toISOString())
+    .order("start_time", { ascending: true });
 
-  if (locationReq.error) throw error(500, "Failed to load location settings.");
-  if (classesReq.error) throw error(500, "Failed to load classes.");
+  if (classesError) throw error(500, "Failed to load classes.");
 
-  const classes = classesReq.data || [];
+  const classes = classesData || [];
 
   const allCoaches = Array.from(
     new Set(
@@ -81,40 +83,7 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
     )
   ).sort();
 
-  const dbSettings = locationReq.data.settings as Partial<GymSettings> | null;
-  const settings: GymSettings = {
-    ...defaultSettings,
-    ...dbSettings,
-    policies: {
-      ...defaultSettings.policies,
-      ...dbSettings?.policies
-    },
-    schedulePrefs: {
-      ...defaultSettings.schedulePrefs,
-      ...dbSettings?.schedulePrefs
-    }
-  };
-
-  const prefs = settings.schedulePrefs as Record<string, unknown> | undefined;
-  const showCoach =
-    (prefs?.showCoach as boolean | undefined)
-    ?? (prefs?.show_coach as boolean | undefined)
-    ?? ((settings as Record<string, unknown>)?.showCoach as boolean | undefined)
-    ?? true;
-
   const showCoachFilter = showCoach && allCoaches.length > 1;
-
-  const allClassTypes = (settings.classTypes || [])
-    .filter((ct) => ct.isActive)
-    .map((ct) => ct.name)
-    .sort();
-
-  const bounds = {
-    min: (settings.schedulePrefs?.startHour ?? 6) * 60,
-    max: (settings.schedulePrefs?.endHour ?? 22) * 60
-  };
-
-  const bookingOpens = settings.policies?.booking_opens ?? defaultSettings.policies.booking_opens;
 
   // 2. Evaluate temporal states, capacities, and attendee avatars
   const rawSchedule: ScheduledLesson[] = classes.map((c) => {
@@ -219,7 +188,7 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
     };
   });
 
-  // 3. Filter classes before athlete joined gym (compare day of joining)
+  // 3. Filter out classes before athlete joined gym (compare day of joining)
   const schedule = rawSchedule.filter((c) => {
     if (
       membership.created_at
@@ -245,25 +214,25 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
 };
 
 async function getBookingContext(supabase: SupabaseClient<Database>, classId: string) {
-  const { data: targetClass, error: classError } = await supabase
+  const { data: targetLesson, error: classError } = await supabase
     .from("classes")
     .select("start_time, location_id")
     .eq("id", classId)
     .single();
 
-  if (classError || !targetClass) throw new Error("Class not found.");
+  if (classError || !targetLesson) throw new Error("Lesson not found.");
 
   const { data: location, error: locError } = await supabase
     .from("locations")
     .select("settings")
-    .eq("id", targetClass.location_id)
+    .eq("id", targetLesson.location_id)
     .single();
 
   if (locError || !location) throw new Error("Location not found.");
 
   const dbSettings = location.settings as Partial<GymSettings> | null;
   return {
-    targetClass,
+    targetLesson,
     settings: {
       ...defaultSettings,
       ...dbSettings,
@@ -275,6 +244,7 @@ async function getBookingContext(supabase: SupabaseClient<Database>, classId: st
   };
 }
 
+// Book and Cancel actions are RPCs in Supabase
 export const actions: Actions = {
   book: async ({ request, locals: { supabase, user } }) => {
     if (!user) return fail(401, { error: "Unauthorized" });
@@ -285,8 +255,8 @@ export const actions: Actions = {
     if (!classId) return fail(400, { message: "Class ID is required." });
 
     try {
-      const { targetClass, settings } = await getBookingContext(supabase, classId);
-      const classTime = new Date(targetClass.start_time);
+      const { targetLesson, settings } = await getBookingContext(supabase, classId);
+      const classTime = new Date(targetLesson.start_time);
       const now = new Date();
 
       // 1. Prevent booking past classes
@@ -333,8 +303,8 @@ export const actions: Actions = {
     if (!classId) return fail(400, { message: "Class ID is required." });
 
     try {
-      const { targetClass } = await getBookingContext(supabase, classId);
-      const classTime = new Date(targetClass.start_time);
+      const { targetLesson } = await getBookingContext(supabase, classId);
+      const classTime = new Date(targetLesson.start_time);
       const now = new Date();
 
       // Check if the class has already passed

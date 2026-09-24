@@ -1,4 +1,5 @@
 import { error, redirect } from "@sveltejs/kit";
+import { defaultSettings, type GymSettings } from "@wodapp/core";
 
 export const load = async ({ locals, url, parent }) => {
   const { user } = await parent();
@@ -17,7 +18,7 @@ export const load = async ({ locals, url, parent }) => {
         location_id,
         created_at,
         booking_delay_minutes,
-        location:locations ( id, name, slug, logo_url )
+        location:locations ( id, name, slug, logo_url, settings )
       `)
       .eq("profile_id", user.id)
   ]);
@@ -47,15 +48,32 @@ export const load = async ({ locals, url, parent }) => {
     activeLocation = lastUsed ? lastUsed.location : activeMemberships[0].location;
   }
 
-  // === SCENARIO 4: NO GYM ===
-  // Prevent them from entering the app with a null location context
-  //if (!activeLocation && !url.pathname.startsWith("/join")) {
-  // throw redirect(303, '/join'); // Assuming you have a route to find a gym
-  //}
+  // Normalize settings against defaultSettings
+  const dbSettings = activeLocation?.settings as Partial<GymSettings> | null;
+  const settings: GymSettings = {
+    ...defaultSettings,
+    ...dbSettings,
+    policies: {
+      ...defaultSettings.policies,
+      ...dbSettings?.policies
+    },
+    schedulePrefs: {
+      ...defaultSettings.schedulePrefs,
+      ...dbSettings?.schedulePrefs
+    }
+  };
+
+  if (activeLocation) {
+    activeLocation = {
+      ...activeLocation,
+      settings
+    };
+  }
 
   return {
     activeLocation,
     memberships,
-    profile
+    profile,
+    settings
   };
 };

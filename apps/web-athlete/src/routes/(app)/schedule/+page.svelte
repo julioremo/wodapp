@@ -1,4 +1,5 @@
 <script lang="ts">
+import { CalendarDays } from "@lucide/svelte";
 import { Button } from "@ui/button";
 import { getAvailability } from "@wodapp/core";
 import {
@@ -10,7 +11,7 @@ import {
   isSameDay,
   startOfWeek,
   subDays,
-  subWeeks,
+  subWeeks
 } from "date-fns";
 import AppHeader from "$lib/components/layout/AppHeader.svelte";
 import { globalClock } from "$lib/time.svelte";
@@ -25,18 +26,17 @@ let { data }: { data: PageData } = $props();
 
 // --- Config ---
 let hiddenDays = $derived(
-  data.location?.settings?.schedulePrefs?.hiddenDays ??
-    data.settings?.schedulePrefs?.hiddenDays ?? [0],
+  data.location?.settings?.schedulePrefs?.hiddenDays
+    ?? data.settings?.schedulePrefs?.hiddenDays ?? [0]
 );
 let showCoach = $derived(
-  data.location?.settings?.schedulePrefs?.showCoach ??
-    ((data.location?.settings?.schedulePrefs as Record<string, unknown>)
-      ?.show_coach as boolean | undefined) ??
-    ((data.location?.settings as Record<string, unknown>)?.showCoach as
+  data.location?.settings?.schedulePrefs?.showCoach
+    ?? ((data.location?.settings?.schedulePrefs as Record<string, unknown>)?.show_coach as
       | boolean
-      | undefined) ??
-    data.settings?.schedulePrefs?.showCoach ??
-    true,
+      | undefined)
+    ?? ((data.location?.settings as Record<string, unknown>)?.showCoach as boolean | undefined)
+    ?? data.settings?.schedulePrefs?.showCoach
+    ?? true
 );
 
 function getFirstValidDay(startDate: Date, hidden: number[]): Date {
@@ -51,9 +51,10 @@ function getFirstValidDay(startDate: Date, hidden: number[]): Date {
 
 // --- Time logic Config & State ---
 const today = new Date();
+// svelte-ignore state_referenced_locally
 const initialDate = (
-  data.location?.settings?.schedulePrefs?.hiddenDays ??
-  data.settings?.schedulePrefs?.hiddenDays ?? [0]
+  data.location?.settings?.schedulePrefs?.hiddenDays
+  ?? data.settings?.schedulePrefs?.hiddenDays ?? [0]
 ).includes(today.getDay())
   ? getFirstValidDay(startOfWeek(today, { weekStartsOn: 1 }), hiddenDays)
   : today;
@@ -61,10 +62,11 @@ const initialDate = (
 let selectedDate = $state(initialDate);
 let currentWeekStart = $state(startOfWeek(initialDate, { weekStartsOn: 1 }));
 
+// svelte-ignore state_referenced_locally
 let activeFilters = $state<ActiveScheduleFilters>({
   selectedTypes: [],
   selectedCoaches: [],
-  timeRange: [data.filterOptions.bounds.min, data.filterOptions.bounds.max],
+  timeRange: [data.filterOptions.bounds.min, data.filterOptions.bounds.max]
 });
 
 // --- Time logic Derived
@@ -72,8 +74,8 @@ let monthYearLabel = $derived(format(selectedDate, "MMMM yyyy"));
 // Only show days not in location.settings.schedulePrefs.hiddenDays
 let visibleWeekDays = $derived(
   Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i)).filter(
-    (date) => !hiddenDays.includes(date.getDay()),
-  ),
+    (date) => !hiddenDays.includes(date.getDay())
+  )
 );
 
 let weekClasses = $derived(
@@ -81,30 +83,29 @@ let weekClasses = $derived(
     const classTime = new Date(c.start_time);
     if (hiddenDays.includes(classTime.getDay())) return false;
     return (
-      isAfter(classTime, subDays(currentWeekStart, 1)) &&
-      isBefore(classTime, addDays(currentWeekStart, 7))
+      isAfter(classTime, subDays(currentWeekStart, 1))
+      && isBefore(classTime, addDays(currentWeekStart, 7))
     );
-  }),
+  })
 );
 
 let weekSchedule = $derived(
   visibleWeekDays.map((date) => {
     const totalDayClasses = (data.schedule || []).filter((c: ScheduledLesson) =>
-      isSameDay(new Date(c.start_time), date),
+      isSameDay(new Date(c.start_time), date)
     );
 
     const filteredDayClasses = totalDayClasses.filter((c: ScheduledLesson) => {
       // Class Type filter
       if (
-        activeFilters.selectedTypes.length > 0 &&
-        !activeFilters.selectedTypes.includes(c.class_type)
+        activeFilters.selectedTypes.length > 0
+        && !activeFilters.selectedTypes.includes(c.class_type)
       )
         return false;
       // Coach filter
       if (
-        activeFilters.selectedCoaches.length > 0 &&
-        (!c.coach?.display_name ||
-          !activeFilters.selectedCoaches.includes(c.coach.display_name))
+        activeFilters.selectedCoaches.length > 0
+        && (!c.coach?.display_name || !activeFilters.selectedCoaches.includes(c.coach.display_name))
       )
         return false;
 
@@ -112,8 +113,7 @@ let weekSchedule = $derived(
       const classTime = new Date(c.start_time);
       const mins = classTime.getHours() * 60 + classTime.getMinutes();
       const range = activeFilters.timeRange;
-      if (range && range[0] < range[1] && (mins < range[0] || mins > range[1]))
-        return false;
+      if (range && range[0] < range[1] && (mins < range[0] || mins > range[1])) return false;
 
       return true;
     });
@@ -123,19 +123,17 @@ let weekSchedule = $derived(
       dateKey: `day-${format(date, "yyyy-MM-dd")}`,
       dateLabel: format(date, "EEEE, d MMM"),
       classes: filteredDayClasses,
-      hasAnyScheduledLessones: totalDayClasses.length > 0,
+      hasAnyScheduledLessons: totalDayClasses.length > 0
     };
-  }),
+  })
 );
 
 let availability = $derived.by(() => {
-  const firstUpcomingClass = weekClasses.find(
-    (c) => globalClock.now < new Date(c.start_time),
-  );
+  const firstUpcomingClass = weekClasses.find((c) => globalClock.now < new Date(c.start_time));
 
   if (
-    firstUpcomingClass?.bookingOpensType === "fixed_day" &&
-    globalClock.now < new Date(firstUpcomingClass.openTime)
+    firstUpcomingClass?.bookingOpensType === "fixed_day"
+    && globalClock.now < new Date(firstUpcomingClass.openTime)
   )
     return getAvailability(firstUpcomingClass.openTime, globalClock.now);
 
@@ -144,8 +142,7 @@ let availability = $derived.by(() => {
 
 let classColorMap = $derived.by(() => {
   const map: Record<string, string> = {};
-  const types =
-    data.location?.settings?.classTypes ?? data.settings?.classTypes ?? [];
+  const types = data.location?.settings?.classTypes ?? data.settings?.classTypes ?? [];
   for (const ct of types) {
     if (ct.name && ct.color) map[ct.name] = ct.color;
   }
@@ -173,9 +170,7 @@ let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
 // Calculate the active sticky height centrally so CSS and JS can both use it
 let activeStickyHeight = $derived(
-  userHasScrolled
-    ? totalHeaderHeight - appHeaderHeight + HEADER_TOP_OFFSET
-    : totalHeaderHeight,
+  userHasScrolled ? totalHeaderHeight - appHeaderHeight + HEADER_TOP_OFFSET : totalHeaderHeight
 );
 
 // --- Scroll-related Actions ---
@@ -222,8 +217,8 @@ function handleScroll() {
 
   // If scrolled near the bottom of the container, activate the last day
   if (
-    scrollContainer.scrollTop + scrollContainer.clientHeight >=
-    scrollContainer.scrollHeight - 50
+    scrollContainer.scrollTop + scrollContainer.clientHeight
+    >= scrollContainer.scrollHeight - 50
   ) {
     const last = sections[sections.length - 1];
     if (last) {
@@ -232,16 +227,13 @@ function handleScroll() {
   }
 
   if (activeDateKey) {
-    const matched = visibleWeekDays.find(
-      (d) => format(d, "yyyy-MM-dd") === activeDateKey,
-    );
+    const matched = visibleWeekDays.find((d) => format(d, "yyyy-MM-dd") === activeDateKey);
     if (matched && !isSameDay(matched, selectedDate)) selectedDate = matched;
   }
 }
 
 function changeWeek(dir: -1 | 1) {
-  const newStart =
-    dir === 1 ? addWeeks(currentWeekStart, 1) : subWeeks(currentWeekStart, 1);
+  const newStart = dir === 1 ? addWeeks(currentWeekStart, 1) : subWeeks(currentWeekStart, 1);
   currentWeekStart = newStart;
   selectedDate = getFirstValidDay(newStart, hiddenDays);
   if (scrollContainer) {
@@ -292,7 +284,20 @@ $effect(() => {
     bind:topHeight={appHeaderHeight}
     bind:totalHeight={totalHeaderHeight}>
     {#snippet collapsible()}
-      <AppHeader title={showScheduleTitle ? "Schedule" : monthYearLabel} />
+      <AppHeader title={showScheduleTitle ? "Schedule" : monthYearLabel}>
+        {#snippet right()}
+          {#if data.activeLocation}
+            <Button
+              variant="ghost"
+              size="icon"
+              href={`/schedule/calendar`}
+              class="shrink-0 self-center"
+              aria-label="Attendance calendar">
+              <CalendarDays class="size-5" />
+            </Button>
+          {/if}
+        {/snippet}
+      </AppHeader>
     {/snippet}
 
     {#snippet sticky()}
@@ -314,23 +319,20 @@ $effect(() => {
 
   <div class="classcard-wrapper flex-1 px-0 pb-6 space-y-4">
     {#if !data.activeLocation}
-      <div
-        class="flex flex-col items-center justify-center h-[60vh] text-center p-8 space-y-4">
-        <div
-          class="w-16 h-16 bg-muted rounded-full flex items-center justify-center text-2xl">
+      <div class="flex flex-col items-center justify-center h-[60vh] text-center p-8 space-y-4">
+        <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center text-2xl">
           📍
         </div>
         <h2 class="text-xl font-bold">Find your box</h2>
         <p class="text-muted-foreground text-sm">
-          You aren't a member of any gym yet. Here you'll see classes available
-          at your active location.
+          You aren't a member of any gym yet. Here you'll see classes available at your active
+          location.
         </p>
         <Button href="/search">Find a Gym</Button>
       </div>
     {:else}
       {#if availability}
-        <div
-          class="text-center p-3 bg-muted/50 rounded-lg border text-sm font-medium">
+        <div class="text-center p-3 bg-muted/50 rounded-lg border text-sm font-medium">
           {#if availability.type === "now"}
             Available now
           {:else if availability.type === "countdown"}
@@ -363,7 +365,7 @@ $effect(() => {
             {#if day.classes.length === 0}
               <div
                 class="text-center py-6 text-muted-foreground text-sm rounded-none border border-dashed">
-                {#if day.hasAnyScheduledLessones}
+                {#if day.hasAnyScheduledLessons}
                   <p>No classes match filters</p>
                 {:else}
                   <p>Rest day 😴</p>
@@ -376,10 +378,7 @@ $effect(() => {
                   <ClassCard
                     id={lesson.id}
                     lessonType={lesson.class_type}
-                    lessonHue={data.location?.settings?.classTypes?.find(
-                      (ct) => ct.name === lesson.class_type,
-                    )?.color ??
-                      classColorMap[lesson.class_type] ??
+                    lessonHue={classColorMap[lesson.class_type] ??
                       lesson.color}
                     startTime={lesson.start_time}
                     duration={lesson.duration}

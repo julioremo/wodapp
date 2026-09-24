@@ -14,6 +14,8 @@ export interface LessonParticipant {
   name?: string | null;
 }
 
+export type LessonAttendee = LessonParticipant;
+
 export type ScheduledLesson = Pick<
   Lesson,
   "id" | "class_type" | "start_time" | "capacity" | "confirmed_bookings_count"
@@ -34,7 +36,7 @@ export type ScheduledLesson = Pick<
 };
 
 export interface ScheduleFilterOptions {
-  allLessonTypes: string[];
+  allClassTypes: string[];
   bounds: { min: number; max: number };
   showCoachFilter: boolean;
   allCoaches: string[];
@@ -45,7 +47,8 @@ export interface ActiveScheduleFilters {
   selectedCoaches: string[];
   timeRange: [number, number];
 }
-export type LessonHue = "red" | "blue" | "purple" | "camel" | "yellow" | "green" | "paper";
+import type { LessonHue } from "@wodapp/core";
+export type { LessonHue };
 
 export interface LessonCardProps {
   id: string;
@@ -65,7 +68,7 @@ export interface LessonCardProps {
   bookingOpensType: "rolling_days" | "fixed_day" | "immediately";
   cancellationWindowHours: number;
   waitlistPolicy: "broadcast" | "auto_enroll";
-  lessonHue?: LessonHue;
+  lessonHue?: LessonHue | null;
 }
 
 export interface BookLessonResult {
@@ -76,4 +79,12 @@ export interface BookLessonResult {
 export interface CancelLessonResult {
   success: boolean;
   message?: string;
+}
+
+export interface AttendanceItem {
+  id: string;
+  classId: string;
+  type: string;
+  startTime: string;
+  coachName?: string | null;
 }

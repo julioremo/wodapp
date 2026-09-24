@@ -17,10 +17,7 @@ let {
     "has-focus:border-ring border-input has-focus:ring-ring/50 relative flex rounded-md border shadow-xs has-focus:ring-[3px]",
     className,
   )}>
-  <CalendarPrimitive.MonthSelect
-    bind:ref
-    class="absolute inset-0 opacity-0"
-    {...restProps}>
+  <CalendarPrimitive.MonthSelect bind:ref class="absolute inset-0 opacity-0" {...restProps}>
     {#snippet child({ props, monthItems, selectedMonthItem })}
       <select {...props} {value} {onchange}>
         {#each monthItems as monthItem (monthItem.value)}

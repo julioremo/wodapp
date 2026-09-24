@@ -35,6 +35,4 @@ export function stateToButtonVariant(uiState: CardStateName) {
   return STATE_CONFIG[uiState].buttonVariant;
 }
 
-export function hueNameToClass(hueName: LessonHue): string {
-  return `class-${hueName}`; // pairs with the .class-red / .class-blue rules in color-theme.css
-}
+export { hueNameToClass } from "@wodapp/core";

@@ -1,13 +1,13 @@
 <script lang="ts">
-import { buttonVariants } from "@ui/button/index.js";
-import { cn } from "@ui-utils";
-import { Calendar as CalendarPrimitive } from "bits-ui";
+  import { buttonVariants } from "@ui/button/index.js";
+  import { cn } from "@ui-utils";
+  import { Calendar as CalendarPrimitive } from "bits-ui";
 
-let {
-  ref = $bindable(null),
-  class: className,
-  ...restProps
-}: CalendarPrimitive.DayProps = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    ...restProps
+  }: CalendarPrimitive.DayProps = $props();
 </script>
 
 <CalendarPrimitive.Day
@@ -28,7 +28,8 @@ let {
     // focus
     "focus:border-ring focus:ring-ring/50 focus:relative",
     // inner spans
-    "[&>span]:text-xs [&>span]:opacity-70",
+    "[&>span]:opacity-70",
     className,
   )}
-  {...restProps} />
+  {...restProps}
+/>

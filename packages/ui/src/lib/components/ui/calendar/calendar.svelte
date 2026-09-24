@@ -13,6 +13,7 @@ let {
   class: className,
   weekdayFormat = "short",
   buttonVariant = "ghost",
+  navButtonClass,
   captionLayout = "label",
   locale = "en-US",
   months: monthsProp,
@@ -24,6 +25,7 @@ let {
   ...restProps
 }: WithoutChildrenOrChild<CalendarPrimitive.RootProps> & {
   buttonVariant?: ButtonVariant;
+  navButtonClass?: string;
   captionLayout?: "dropdown" | "dropdown-months" | "dropdown-years" | "label";
   months?: CalendarPrimitive.MonthSelectProps["months"];
   years?: CalendarPrimitive.YearSelectProps["years"];
@@ -58,13 +60,19 @@ get along, so we shut typescript up by casting `value` to `never`.
   {yearFormat}
   {...restProps}>
   {#snippet children({ months, weekdays })}
-    <Calendar.Months>
-      <Calendar.Nav>
-        <Calendar.PrevButton variant={buttonVariant} />
-        <Calendar.NextButton variant={buttonVariant} />
+    <Calendar.Months class="w-full">
+      <Calendar.Nav class="z-10 pointer-events-none">
+        <Calendar.PrevButton
+          variant={buttonVariant}
+          class={cn("pointer-events-auto cursor-pointer", navButtonClass)}
+        />
+        <Calendar.NextButton
+          variant={buttonVariant}
+          class={cn("pointer-events-auto cursor-pointer", navButtonClass)}
+        />
       </Calendar.Nav>
       {#each months as month, monthIndex (month)}
-        <Calendar.Month>
+        <Calendar.Month class="w-full">
           <Calendar.Header>
             <Calendar.Caption
               {captionLayout}
@@ -77,26 +85,28 @@ get along, so we shut typescript up by casting `value` to `never`.
               {locale}
               {monthIndex} />
           </Calendar.Header>
-          <Calendar.Grid>
-            <Calendar.GridHead>
-              <Calendar.GridRow class="select-none">
+          <Calendar.Grid class="w-full">
+            <Calendar.GridHead class="w-full">
+              <Calendar.GridRow class="select-none w-full justify-between">
                 {#each weekdays as weekday (weekday)}
-                  <Calendar.HeadCell>{weekday.slice(0, 2)}</Calendar.HeadCell>
+                  <Calendar.HeadCell class="flex-1 w-auto text-xs uppercase font-medium"
+                    >{weekday.slice(0, 3).toUpperCase()}</Calendar.HeadCell
+                  >
                 {/each}
               </Calendar.GridRow>
             </Calendar.GridHead>
-            <Calendar.GridBody>
+            <Calendar.GridBody class="w-full">
               {#each month.weeks as weekDates (weekDates)}
-                <Calendar.GridRow class="mt-2 w-full">
+                <Calendar.GridRow class="mt-2 w-full justify-between">
                   {#each weekDates as date (date)}
-                    <Calendar.Cell {date} month={month.value}>
+                    <Calendar.Cell {date} month={month.value} class="flex-1 size-auto">
                       {#if day}
                         {@render day({
                           day: date,
                           outsideMonth: !isEqualMonth(date, month.value),
                         })}
                       {:else}
-                        <Calendar.Day />
+                        <Calendar.Day class="w-full" />
                       {/if}
                     </Calendar.Cell>
                   {/each}

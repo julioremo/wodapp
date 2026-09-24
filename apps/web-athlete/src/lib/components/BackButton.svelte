@@ -13,7 +13,7 @@ let {
   variant="ghost"
   size="icon"
   href={backUrl}
-  class="mt-0.5 shrink-0"
+  class="shrink-0 self-center"
   aria-label="Back">
   <ChevronLeft class="size-5" />
 </Button>
